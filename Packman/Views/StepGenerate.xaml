@@ -1,0 +1,167 @@
+<UserControl x:Class="Packman.Views.StepGenerate"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:Packman"
+             mc:Ignorable="d"
+             FontFamily="{StaticResource UIFontFamily}">
+
+    <StackPanel>
+        <!-- Mode toggle (Create New / Upgrade Existing) -->
+        <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                CornerRadius="11" Padding="4" HorizontalAlignment="Left">
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Opacity="0.04" ShadowDepth="1" BlurRadius="2"/>
+            </Border.Effect>
+            <StackPanel Orientation="Horizontal">
+                <RadioButton Style="{StaticResource ModeToggle}" GroupName="GenMode" IsChecked="True">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14">
+                            <Path Data="{StaticResource IconPlus}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2.3" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="Create New" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton Style="{StaticResource ModeToggle}" GroupName="GenMode" Margin="3,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14">
+                            <Path Data="{StaticResource IconRefresh}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="Upgrade Existing" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+            </StackPanel>
+        </Border>
+
+        <!-- Application Information Card -->
+        <Border Style="{StaticResource Card}" Margin="0,18,0,0">
+            <StackPanel>
+                <!-- Card header -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
+                        <Viewbox Width="20" Height="20">
+                            <Path Data="{StaticResource IconInfo}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                    </Border>
+                    <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Application Information" Style="{StaticResource H2}"/>
+                        <TextBlock Text="Details used to identify and package this app" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Form grid: 2 columns -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Manufacturer -->
+                    <StackPanel Grid.Column="0" Grid.Row="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Manufacturer" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
+                        </StackPanel>
+                        <Grid Margin="0,7,0,0">
+                            <TextBox Style="{StaticResource TextField}" local:PlaceholderText.Text="e.g. Mozilla"/>
+                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
+                                <Path Data="{StaticResource IconBuilding}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Application Name -->
+                    <StackPanel Grid.Column="2" Grid.Row="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Application Name" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
+                        </StackPanel>
+                        <Grid Margin="0,7,0,0">
+                            <TextBox Style="{StaticResource TextField}" local:PlaceholderText.Text="e.g. Firefox"/>
+                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
+                                <Path Data="{StaticResource IconApp}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Version -->
+                    <StackPanel Grid.Column="0" Grid.Row="2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Version" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
+                        </StackPanel>
+                        <Grid Margin="0,7,0,0">
+                            <TextBox Style="{StaticResource TextField}" local:PlaceholderText.Text="e.g. 124.0.1"/>
+                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
+                                <Path Data="{StaticResource IconTag}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="{DynamicResource Muted2Brush}" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- (col 2, row 2 empty - Sources spans 2 cols) -->
+
+                    <!-- Sources Path (full width) -->
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="4">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Sources Path" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
+                        </StackPanel>
+                        <Grid Margin="0,7,0,0">
+                            <TextBox Style="{StaticResource TextField}" Padding="40,12,110,12" local:PlaceholderText.Text="\\server\share\Sources"/>
+                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
+                                <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                            <Button Style="{StaticResource BrowseButton}" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,6,6,6">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="15" Height="15">
+                                        <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource TextBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Viewbox>
+                                    <TextBlock Text="Browse" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Install Context (full width) -->
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6">
+                        <TextBlock Text="Install Context" Style="{StaticResource FieldLabel}" Margin="0,0,0,7"/>
+                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                                CornerRadius="10" Padding="4" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Style="{StaticResource ContextToggle}" GroupName="Ctx" IsChecked="True">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource IconMonitor}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Viewbox>
+                                        <TextBlock Text="System" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource ContextToggle}" GroupName="Ctx" Margin="3,0,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="14" Height="14">
+                                            <Path Data="{StaticResource IconUser}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Viewbox>
+                                        <TextBlock Text="User" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </RadioButton>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,9,0,0"
+                                   Text="Installs for all users with elevated privileges (most common for managed apps)."/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>
