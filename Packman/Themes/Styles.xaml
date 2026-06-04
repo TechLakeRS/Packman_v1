@@ -38,21 +38,10 @@
         <Setter Property="FontSize" Value="16.5"/>
         <Setter Property="FontWeight" Value="ExtraBold"/>
     </Style>
-    <Style x:Key="H3" TargetType="{x:Type TextBlock}">
-        <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
-        <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
-        <Setter Property="FontSize" Value="15"/>
-        <Setter Property="FontWeight" Value="ExtraBold"/>
-    </Style>
     <Style x:Key="SubText" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
         <Setter Property="FontSize" Value="13.5"/>
-    </Style>
-    <Style x:Key="Caption" TargetType="{x:Type TextBlock}">
-        <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
-        <Setter Property="FontSize" Value="12"/>
     </Style>
 
     <!-- ═══════════════ Buttons ═══════════════ -->
@@ -214,15 +203,6 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
-
-    <!-- Result big button -->
-    <Style x:Key="ResultButton" TargetType="{x:Type Button}" BasedOn="{StaticResource GhostButton}">
-        <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="FontSize" Value="13.5"/>
-        <Setter Property="Padding" Value="18,12"/>
-        <Setter Property="Height" Value="NaN"/>
     </Style>
 
     <!-- ═══════════════ Input ═══════════════ -->
@@ -400,7 +380,5 @@
             </Setter.Value>
         </Setter>
     </Style>
-
-    <!-- ═══════════════ Stepper node (used in MainWindow / shared) ═══════════════ -->
 
 </ResourceDictionary>

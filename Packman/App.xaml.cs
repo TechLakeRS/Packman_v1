@@ -5,15 +5,10 @@ namespace Packman;
 
 public partial class App : Application
 {
-    public static bool IsDarkTheme { get; private set; }
-
     public static void ApplyTheme(bool dark)
     {
-        IsDarkTheme = dark;
         var dicts = Current.Resources.MergedDictionaries;
-        var themeUri = dark
-            ? new Uri("Themes/DarkTheme.xaml", UriKind.Relative)
-            : new Uri("Themes/LightTheme.xaml", UriKind.Relative);
+        var themeUri = new Uri(dark ? "Themes/DarkTheme.xaml" : "Themes/LightTheme.xaml", UriKind.Relative);
 
         for (int i = 0; i < dicts.Count; i++)
         {

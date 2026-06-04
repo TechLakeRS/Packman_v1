@@ -4,7 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:Packman.Views"
+        xmlns:vm="clr-namespace:Packman.ViewModels"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=True}"
         Title="PACKMAN — Create Package"
         Width="1320" Height="860"
         MinWidth="1180" MinHeight="720"
@@ -23,7 +25,7 @@
             <RowDefinition Height="32"/>
         </Grid.RowDefinitions>
 
-        <!-- ════════════ TOP BAR ════════════ -->
+        <!-- TOP BAR -->
         <Border Grid.Row="0" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1">
             <Grid Margin="22,0">
                 <Grid.ColumnDefinitions>
@@ -33,7 +35,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Brand -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Border Width="30" Height="30" CornerRadius="9" Background="{DynamicResource LogoGradientBrush}">
                         <Border.Effect>
@@ -48,12 +49,10 @@
                                FontSize="17" FontWeight="ExtraBold" Foreground="{DynamicResource InkBrush}"/>
                 </StackPanel>
 
-                <!-- FREE pill -->
                 <Border Grid.Column="1" Style="{StaticResource FreePill}" VerticalAlignment="Center" Margin="14,0,0,0">
                     <TextBlock Text="FREE" FontSize="10.5" FontWeight="ExtraBold" Foreground="{DynamicResource PrimaryBrush}"/>
                 </Border>
 
-                <!-- Search -->
                 <Border Grid.Column="2" Width="300" Height="38" CornerRadius="10"
                         Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                         Margin="16,0,0,0" VerticalAlignment="Center">
@@ -67,9 +66,7 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Right side -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <!-- Docs -->
                     <Button Style="{StaticResource GhostButton}" Margin="0,0,11,0">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Width="15" Height="15">
@@ -79,26 +76,36 @@
                             <TextBlock Text="Docs" Margin="7,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <!-- Theme -->
-                    <Button x:Name="ThemeButton" Style="{StaticResource IconButton}" Click="ThemeButton_Click" ToolTip="Toggle theme" Margin="0,0,11,0">
+
+                    <Button Style="{StaticResource IconButton}" Command="{Binding ThemeToggleCommand}" ToolTip="Toggle theme" Margin="0,0,11,0">
                         <Viewbox Width="17" Height="17">
-                            <Path x:Name="ThemeIconPath" Data="{StaticResource IconMoon}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent"
-                                  StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            <Path Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent"
+                                  StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                <Path.Style>
+                                    <Style TargetType="Path">
+                                        <Setter Property="Data" Value="{StaticResource IconMoon}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
+                                                <Setter Property="Data" Value="{StaticResource IconSun}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
                         </Viewbox>
                     </Button>
-                    <!-- Bell -->
+
                     <Button Style="{StaticResource IconButton}" Margin="0,0,11,0">
                         <Grid>
                             <Viewbox Width="16" Height="16">
                                 <Path Data="{StaticResource IconBell}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent"
                                       StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
-                            <!-- Notification dot -->
                             <Ellipse Width="6" Height="6" Fill="{DynamicResource PrimaryBrush}"
                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0"/>
                         </Grid>
                     </Button>
-                    <!-- Avatar -->
+
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,0,0">
                         <Border Width="38" Height="38" CornerRadius="10" Background="{DynamicResource AvatarGradientBrush}">
                             <TextBlock Text="AD" FontWeight="ExtraBold" FontSize="12" Foreground="{DynamicResource PrimaryBrush}"
@@ -113,17 +120,15 @@
             </Grid>
         </Border>
 
-        <!-- ════════════ BODY (Sidebar + Content) ════════════ -->
+        <!-- BODY -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="226"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Sidebar -->
             <Border Grid.Column="0" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0">
                 <DockPanel LastChildFill="True" Margin="14,16">
-                    <!-- Quota docked bottom -->
                     <Border DockPanel.Dock="Bottom" Background="{DynamicResource PrimarySoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="12" Padding="14" Margin="0,16,0,0">
                         <StackPanel>
                             <TextBlock Text="Packages this month" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
@@ -135,8 +140,7 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Nav stack -->
-                    <StackPanel x:Name="NavStack">
+                    <StackPanel>
                         <RadioButton Style="{StaticResource NavItem}" IsChecked="True" GroupName="Nav">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="16" Height="16">
@@ -197,163 +201,184 @@
                 </DockPanel>
             </Border>
 
-            <!-- Content -->
             <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0">
                 <StackPanel Margin="30,24,30,26">
-                    <!-- Page header -->
                     <StackPanel>
                         <TextBlock Text="Create Package" Style="{StaticResource H1}"/>
                         <TextBlock Text="Build a new application package for Intune deployment" Style="{StaticResource SubText}" Margin="0,5,0,0"/>
                     </StackPanel>
 
                     <!-- Stepper -->
-                    <Grid x:Name="StepperRoot" Margin="8,24,8,22">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <!-- Step 1 (Generate) -->
-                        <Grid Grid.Column="0" Cursor="Hand" Background="Transparent" MouseDown="Stepper_Click" Tag="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="34"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border x:Name="StepLineL0" Grid.Column="0" Grid.Row="0" Height="2" VerticalAlignment="Center" Background="{DynamicResource LineBrush}" Margin="0,0,4,0" Visibility="Hidden"/>
-                            <Border x:Name="StepLineR0" Grid.Column="2" Grid.Row="0" Height="2" VerticalAlignment="Center" Background="{DynamicResource LineBrush}" Margin="4,0,0,0"/>
-                            <Border x:Name="StepNode0" Grid.Column="1" Grid.Row="0" Width="34" Height="34" CornerRadius="17" Background="{DynamicResource PrimaryBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="2">
-                                <Grid>
-                                    <TextBlock x:Name="StepNum0" Text="1" FontSize="14" FontWeight="ExtraBold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <Viewbox x:Name="StepCheck0" Width="15" Height="15" Visibility="Collapsed">
-                                        <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Grid>
-                            </Border>
-                            <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" HorizontalAlignment="Center" Margin="0,9,0,0">
-                                <TextBlock x:Name="StepTitle0" Text="Generate" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="StepSub0" Text="PSADT structure" FontSize="11" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Grid>
-                        <!-- Step 2 (Edit) -->
-                        <Grid Grid.Column="1" Cursor="Hand" Background="Transparent" MouseDown="Stepper_Click" Tag="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="34"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border x:Name="StepLineL1" Grid.Column="0" Grid.Row="0" Height="2" VerticalAlignment="Center" Background="{DynamicResource LineBrush}" Margin="0,0,4,0"/>
-                            <Border x:Name="StepLineR1" Grid.Column="2" Grid.Row="0" Height="2" VerticalAlignment="Center" Background="{DynamicResource LineBrush}" Margin="4,0,0,0"/>
-                            <Border x:Name="StepNode1" Grid.Column="1" Grid.Row="0" Width="34" Height="34" CornerRadius="17" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2">
-                                <Grid>
-                                    <TextBlock x:Name="StepNum1" Text="2" FontSize="14" FontWeight="ExtraBold" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <Viewbox x:Name="StepCheck1" Width="15" Height="15" Visibility="Collapsed">
-                                        <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Grid>
-                            </Border>
-                            <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" HorizontalAlignment="Center" Margin="0,9,0,0">
-                                <TextBlock x:Name="StepTitle1" Text="Edit Script" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="StepSub1" Text="Optional" FontSize="11" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Grid>
-                        <!-- Step 3 (Test) -->
-                        <Grid Grid.Column="2" Cursor="Hand" Background="Transparent" MouseDown="Stepper_Click" Tag="2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="34"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border x:Name="StepLineL2" Grid.Column="0" Grid.Row="0" Height="2" VerticalAlignment="Center" Background="{DynamicResource LineBrush}" Margin="0,0,4,0"/>
-                            <Border x:Name="StepLineR2" Grid.Column="2" Grid.Row="0" Height="2" VerticalAlignment="Center" Background="{DynamicResource LineBrush}" Margin="4,0,0,0"/>
-                            <Border x:Name="StepNode2" Grid.Column="1" Grid.Row="0" Width="34" Height="34" CornerRadius="17" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2">
-                                <Grid>
-                                    <TextBlock x:Name="StepNum2" Text="3" FontSize="14" FontWeight="ExtraBold" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <Viewbox x:Name="StepCheck2" Width="15" Height="15" Visibility="Collapsed">
-                                        <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Grid>
-                            </Border>
-                            <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" HorizontalAlignment="Center" Margin="0,9,0,0">
-                                <TextBlock x:Name="StepTitle2" Text="Remote Test" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="StepSub2" Text="Optional" FontSize="11" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Grid>
-                        <!-- Step 4 (Upload) -->
-                        <Grid Grid.Column="3" Cursor="Hand" Background="Transparent" MouseDown="Stepper_Click" Tag="3">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="34"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border x:Name="StepLineL3" Grid.Column="0" Grid.Row="0" Height="2" VerticalAlignment="Center" Background="{DynamicResource LineBrush}" Margin="0,0,4,0"/>
-                            <Border x:Name="StepLineR3" Grid.Column="2" Grid.Row="0" Height="2" VerticalAlignment="Center" Background="{DynamicResource LineBrush}" Margin="4,0,0,0" Visibility="Hidden"/>
-                            <Border x:Name="StepNode3" Grid.Column="1" Grid.Row="0" Width="34" Height="34" CornerRadius="17" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2">
-                                <Grid>
-                                    <TextBlock x:Name="StepNum3" Text="4" FontSize="14" FontWeight="ExtraBold" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <Viewbox x:Name="StepCheck3" Width="15" Height="15" Visibility="Collapsed">
-                                        <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Grid>
-                            </Border>
-                            <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" HorizontalAlignment="Center" Margin="0,9,0,0">
-                                <TextBlock x:Name="StepTitle3" Text="Upload" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="StepSub3" Text="Deploy to Intune" FontSize="11" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Steps}" Margin="8,24,8,22">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:StepViewModel}">
+                                <Button Cursor="Hand"
+                                        Command="{Binding DataContext.GoToStepCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                        CommandParameter="{Binding Index}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <Grid Background="Transparent">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="34"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
 
-                    <!-- Step Stage (hosts the active step view) -->
-                    <ContentPresenter x:Name="StageHost"/>
+                                        <Border Grid.Column="0" Grid.Row="0" Height="2" VerticalAlignment="Center" Margin="0,0,4,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource LineBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsFirst}" Value="True">
+                                                            <Setter Property="Visibility" Value="Hidden"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+
+                                        <Border Grid.Column="2" Grid.Row="0" Height="2" VerticalAlignment="Center" Margin="4,0,0,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource LineBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLast}" Value="True">
+                                                            <Setter Property="Visibility" Value="Hidden"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsDone}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+
+                                        <Border Grid.Column="1" Grid.Row="0" Width="34" Height="34" CornerRadius="17" BorderThickness="2">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                            <Setter Property="Effect">
+                                                                <Setter.Value>
+                                                                    <DropShadowEffect Color="#3B67F5" Opacity="0.22" ShadowDepth="0" BlurRadius="14"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Grid>
+                                                <TextBlock Text="{Binding Number}" FontSize="14" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                                    <Setter Property="Foreground" Value="White"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsDone}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <Viewbox Width="15" Height="15" Visibility="{Binding IsDone, Converter={StaticResource BoolToVis}}">
+                                                    <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                </Viewbox>
+                                            </Grid>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" HorizontalAlignment="Center" Margin="0,9,0,0">
+                                            <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="Bold" HorizontalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Subtitle}" FontSize="11" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Step stage: visibility tied to each step's IsCurrent -->
+                    <Grid>
+                        <views:StepGenerate Visibility="{Binding Steps[0].IsCurrent, Converter={StaticResource BoolToVis}}"/>
+                        <views:StepEdit     Visibility="{Binding Steps[1].IsCurrent, Converter={StaticResource BoolToVis}}"/>
+                        <views:StepTest     Visibility="{Binding Steps[2].IsCurrent, Converter={StaticResource BoolToVis}}"/>
+                        <views:StepUpload   Visibility="{Binding Steps[3].IsCurrent, Converter={StaticResource BoolToVis}}"/>
+                    </Grid>
 
                     <!-- Footer -->
-                    <Grid x:Name="FooterBar" Margin="0,18,0,0">
-                        <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="0,18,0,0">
-                            <Grid>
-                                <Button x:Name="BackBtn" Style="{StaticResource BackButton}" HorizontalAlignment="Left" Click="BackBtn_Click" IsEnabled="False">
+                    <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="0,18,0,0" Margin="0,18,0,0">
+                        <Grid>
+                            <Button Style="{StaticResource BackButton}" HorizontalAlignment="Left" Command="{Binding BackCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="16" Height="16">
+                                        <Path Data="{StaticResource IconChevL}" Stroke="{DynamicResource TextBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Viewbox>
+                                    <TextBlock Text="Back" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Style="{StaticResource SkipButton}" Content="Skip" Margin="0,0,10,0"
+                                        Command="{Binding SkipCommand}"
+                                        Visibility="{Binding SkipVisible, Converter={StaticResource BoolToVis}}"/>
+                                <Button Style="{StaticResource PrimaryButton}" Command="{Binding PrimaryCommand}">
                                     <StackPanel Orientation="Horizontal">
-                                        <Viewbox Width="16" Height="16">
-                                            <Path Data="{StaticResource IconChevL}" Stroke="{DynamicResource TextBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <TextBlock Text="{Binding PrimaryLabel}" VerticalAlignment="Center"/>
+                                        <Viewbox Width="16" Height="16" Margin="8,0,0,0">
+                                            <Viewbox.Style>
+                                                <Style TargetType="Viewbox">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLastStep}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Viewbox.Style>
+                                            <Path Data="{StaticResource IconChevR}" Stroke="White" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                         </Viewbox>
-                                        <TextBlock Text="Back" Margin="6,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <Button x:Name="SkipBtn" Style="{StaticResource SkipButton}" Content="Skip" Margin="0,0,10,0" Click="SkipBtn_Click" Visibility="Collapsed"/>
-                                    <Button x:Name="PrimaryBtn" Style="{StaticResource PrimaryButton}" Click="PrimaryBtn_Click">
-                                        <StackPanel x:Name="PrimaryBtnContent" Orientation="Horizontal">
-                                            <TextBlock x:Name="PrimaryBtnLabel" Text="Generate Package" VerticalAlignment="Center"/>
-                                            <Viewbox x:Name="PrimaryBtnChev" Width="16" Height="16" Margin="8,0,0,0">
-                                                <Path Data="{StaticResource IconChevR}" Stroke="White" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                            </Viewbox>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
 
-        <!-- ════════════ STATUS BAR ════════════ -->
+        <!-- STATUS BAR -->
         <Border Grid.Row="2" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0">
             <Grid Margin="20,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
