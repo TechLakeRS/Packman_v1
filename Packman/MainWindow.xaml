@@ -137,62 +137,62 @@
 
                     <!-- Nav stack -->
                     <StackPanel x:Name="NavStack">
-                        <ToggleButton Style="{StaticResource NavItem}" IsChecked="True" GroupName="Nav">
+                        <RadioButton Style="{StaticResource NavItem}" IsChecked="True" GroupName="Nav">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="16" Height="16">
                                     <Path Data="{StaticResource IconPlus}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2.3" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
                                 <TextBlock Text="Create Package" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
-                        </ToggleButton>
-                        <ToggleButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="18" Height="18">
                                     <Path Data="{StaticResource IconUpload}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
                                 <TextBlock Text="Upload to Intune" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
-                        </ToggleButton>
-                        <ToggleButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="18" Height="18">
                                     <Path Data="{StaticResource IconGrid}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
                                 <TextBlock Text="Applications" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
-                        </ToggleButton>
-                        <ToggleButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="16" Height="16">
                                     <Path Data="{StaticResource IconMonitor}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
                                 <TextBlock Text="Remote Test" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
-                        </ToggleButton>
-                        <ToggleButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="17" Height="17">
                                     <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
                                 <TextBlock Text="Sign" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
-                        </ToggleButton>
-                        <ToggleButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="17" Height="17">
                                     <Path Data="{StaticResource IconWrench}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
                                 <TextBlock Text="Advanced" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
-                        </ToggleButton>
-                        <ToggleButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="17" Height="17">
                                     <Path Data="{StaticResource IconGear}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
                                 <TextBlock Text="Settings" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
-                        </ToggleButton>
+                        </RadioButton>
                     </StackPanel>
                 </DockPanel>
             </Border>

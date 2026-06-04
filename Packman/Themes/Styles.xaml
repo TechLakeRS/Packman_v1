@@ -283,7 +283,7 @@
     </Style>
 
     <!-- ═══════════════ Sidebar nav item ═══════════════ -->
-    <Style x:Key="NavItem" TargetType="{x:Type ToggleButton}">
+    <Style x:Key="NavItem" TargetType="{x:Type RadioButton}">
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
@@ -294,7 +294,7 @@
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                <ControlTemplate TargetType="{x:Type RadioButton}">
                     <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left" TextElement.Foreground="{TemplateBinding Foreground}"/>
                     </Border>
