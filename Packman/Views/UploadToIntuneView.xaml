@@ -339,7 +339,7 @@
                          Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}">
                     <Grid Width="44" Height="44" RenderTransformOrigin="0.5,0.5">
                         <Grid.RenderTransform>
-                            <RotateTransform x:Name="SpinRotate"/>
+                            <RotateTransform Angle="0"/>
                         </Grid.RenderTransform>
                         <Grid.Style>
                             <Style TargetType="Grid">
@@ -348,7 +348,7 @@
                                         <Trigger.EnterActions>
                                             <BeginStoryboard Name="Spin">
                                                 <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetName="SpinRotate" Storyboard.TargetProperty="Angle"
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
                                                                      From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
