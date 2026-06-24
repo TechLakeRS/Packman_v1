@@ -6,7 +6,7 @@ namespace Packman.Models;
 public enum AuthMode { Interactive, AppRegistration }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum AssignmentIntent { Available, Required }
+public enum AssignmentIntent { Available, Required, Uninstall }
 
 public class AppSettings
 {
