@@ -493,6 +493,162 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- Group Assignment card -->
+                    <Border x:Name="GroupAssignmentCard" Style="{StaticResource Card}" Margin="0,16,0,0">
+                        <StackPanel>
+
+                            <!-- Card header -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
+                                    <Viewbox Width="20" Height="20">
+                                        <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Viewbox>
+                                </Border>
+                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Group Assignment" Style="{StaticResource H2}"/>
+                                    <TextBlock Text="Assign uploaded packages to Entra ID groups automatically" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- ── Per-package group ──────────────────────────── -->
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="Create a new group for each package" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                                    <TextBlock Text="A security group is created (or reused if it already exists) on upload and assigned to the app" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <!-- On / Off toggle -->
+                                <Border Grid.Column="1" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
+                                        BorderThickness="1" CornerRadius="10" Padding="4" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton Style="{StaticResource ContextToggle}" GroupName="GroupPerPackage"
+                                                     IsChecked="{Binding CreateGroupPerPackageDisabled}">
+                                            <TextBlock Text="Off" VerticalAlignment="Center"/>
+                                        </RadioButton>
+                                        <RadioButton Style="{StaticResource ContextToggle}" GroupName="GroupPerPackage" Margin="3,0,0,0"
+                                                     IsChecked="{Binding CreateGroupPerPackage}">
+                                            <TextBlock Text="On" VerticalAlignment="Center"/>
+                                        </RadioButton>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Naming template + intent (only when On) -->
+                            <StackPanel Visibility="{Binding CreateGroupPerPackage, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Group name template" Style="{StaticResource FieldLabel}"/>
+                                <Grid Margin="0,7,0,0">
+                                    <TextBox Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
+                                             Text="{Binding GroupNameTemplate, UpdateSourceTrigger=PropertyChanged}"
+                                             local:PlaceholderText.Text="%vendor%_%appName%_%appVersion%"/>
+                                    <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
+                                        <Path Data="{StaticResource IconTag}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="{DynamicResource Muted2Brush}" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Viewbox>
+                                </Grid>
+                                <TextBlock FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,8,0,0" TextWrapping="Wrap">
+                                    <Run Text="Tokens:"/>
+                                    <Run Text=" %vendor% " FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
+                                    <Run Text="%appName% " FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
+                                    <Run Text="%appVersion%" FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
+                                    <Run Text="  ·  Example: "/>
+                                    <Run Text="{Binding GroupNamePreview, Mode=OneWay}" Foreground="{DynamicResource PrimaryBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
+                                </TextBlock>
+
+                                <!-- Assignment intent for the new group -->
+                                <TextBlock Text="Assignment type" Style="{StaticResource FieldLabel}" Margin="0,14,0,7"/>
+                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
+                                        BorderThickness="1" CornerRadius="10" Padding="4" HorizontalAlignment="Left">
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton Style="{StaticResource ContextToggle}" GroupName="NewGroupIntent"
+                                                     IsChecked="{Binding NewGroupAvailable}">
+                                            <TextBlock Text="Available" VerticalAlignment="Center"/>
+                                        </RadioButton>
+                                        <RadioButton Style="{StaticResource ContextToggle}" GroupName="NewGroupIntent" Margin="3,0,0,0"
+                                                     IsChecked="{Binding NewGroupRequired}">
+                                            <TextBlock Text="Required" VerticalAlignment="Center"/>
+                                        </RadioButton>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Divider -->
+                            <Border Height="1" Background="{DynamicResource LineBrush}" Margin="0,18,0,18"/>
+
+                            <!-- ── Existing groups ────────────────────────────── -->
+                            <TextBlock Text="Always assign these existing groups" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                            <TextBlock Text="Every upload is also assigned to the groups listed below" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,12"/>
+
+                            <!-- Add group row -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0">
+                                    <TextBox Style="{StaticResource TextField}"
+                                             Text="{Binding NewGroupNameInput, UpdateSourceTrigger=PropertyChanged}"
+                                             local:PlaceholderText.Text="Entra ID group display name"/>
+                                    <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
+                                        <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Viewbox>
+                                </Grid>
+                                <Button Grid.Column="2" Style="{StaticResource GhostButton}" Command="{Binding AddGroupCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="14" Height="14" Margin="0,0,7,0">
+                                            <Path Data="{StaticResource IconPlus}" Stroke="{DynamicResource TextBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Viewbox>
+                                        <TextBlock Text="Add" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <!-- Group rows -->
+                            <ItemsControl ItemsSource="{Binding ExistingGroups}" Margin="0,12,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
+                                                BorderThickness="1" CornerRadius="11" Padding="14,10" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding GroupName}" VerticalAlignment="Center"
+                                                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}"/>
+                                                <!-- Intent toggle -->
+                                                <Border Grid.Column="1" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}"
+                                                        BorderThickness="1" CornerRadius="9" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <RadioButton Style="{StaticResource ContextToggle}"
+                                                                     IsChecked="{Binding IsAvailable}">
+                                                            <TextBlock Text="Available" VerticalAlignment="Center"/>
+                                                        </RadioButton>
+                                                        <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0"
+                                                                     IsChecked="{Binding IsRequired}">
+                                                            <TextBlock Text="Required" VerticalAlignment="Center"/>
+                                                        </RadioButton>
+                                                    </StackPanel>
+                                                </Border>
+                                                <!-- Remove -->
+                                                <Button Grid.Column="2" Style="{StaticResource RowIconButton}" Command="{Binding RemoveCommand}"
+                                                        VerticalAlignment="Center" ToolTip="Remove">
+                                                    <Viewbox Width="15" Height="15">
+                                                        <Path Data="{StaticResource IconTrash}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                    </Viewbox>
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </StackPanel>
+                    </Border>
+
                     <!-- bottom padding -->
                     <Border Height="16"/>
 
@@ -570,7 +726,7 @@
                                 <TextBlock Text="GitLab" FontSize="13" Foreground="{DynamicResource MutedBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Padding="16,11" Opacity="0.4">
+                        <Border Cursor="Hand" MouseLeftButtonUp="NavGroupAssignment_Click" Padding="16,11">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="14" Height="14" Margin="0,0,10,0">
                                     <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>

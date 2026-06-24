@@ -56,7 +56,8 @@ public partial class IntuneUploadService : IDisposable
         string installContext,
         string? iconPath = null,
         IUploadProgress? progress = null,
-        string? predecessorAppId = null)
+        string? predecessorAppId = null,
+        AppSettings.GroupAssignmentConfig? groupAssignment = null)
     {
         using var uploadLogger = new UploadLogger(appInfo.Name);
 
@@ -148,6 +149,14 @@ public partial class IntuneUploadService : IDisposable
 
             if (!string.IsNullOrEmpty(predecessorAppId))
                 await WriteSupersedenceAsync(appId, predecessorAppId, uploadLogger);
+
+            if (groupAssignment != null &&
+                (groupAssignment.CreateGroupPerPackage || groupAssignment.ExistingGroups.Count > 0))
+            {
+                progress?.UpdateProgress(98, "Assigning groups...");
+                uploadLogger.Section("GROUP ASSIGNMENT");
+                await AssignGroupsAsync(appId, appInfo, groupAssignment, uploadLogger);
+            }
 
             return appId;
         }

@@ -115,7 +115,8 @@ public class UploadStepViewModel : ObservableObject
                 appInfo.InstallContext,
                 string.IsNullOrEmpty(_create.ExtractedIconPath) ? null : _create.ExtractedIconPath,
                 progress,
-                string.IsNullOrEmpty(_create.PredecessorAppId) ? null : _create.PredecessorAppId));
+                string.IsNullOrEmpty(_create.PredecessorAppId) ? null : _create.PredecessorAppId,
+                settings.GroupAssignment));
 
             ProgressValue = 100;
             StatusText = $"Uploaded to Intune · App ID {appId}";

@@ -1,4 +1,5 @@
 using Microsoft.Identity.Client;
+using Packman.Helpers;
 using Packman.Models;
 using Packman.Services;
 using System.Collections.ObjectModel;
@@ -12,6 +13,28 @@ public class CertificateInfo
     public string Subject { get; init; } = "";
     public string Thumbprint { get; init; } = "";
     public override string ToString() => string.IsNullOrEmpty(FriendlyName) ? Subject : FriendlyName;
+}
+
+public sealed class GroupAssignmentRow : ObservableObject
+{
+    public string GroupName { get; }
+
+    private bool _isRequired;
+    public bool IsRequired
+    {
+        get => _isRequired;
+        set { if (Set(ref _isRequired, value)) OnPropertyChanged(nameof(IsAvailable)); }
+    }
+    public bool IsAvailable { get => !_isRequired; set => IsRequired = !value; }
+
+    public RelayCommand RemoveCommand { get; }
+
+    public GroupAssignmentRow(string name, AssignmentIntent intent, Action<GroupAssignmentRow> remove)
+    {
+        GroupName = name;
+        _isRequired = intent == AssignmentIntent.Required;
+        RemoveCommand = new RelayCommand(() => remove(this));
+    }
 }
 
 public sealed class SettingsViewModel : ObservableObject
@@ -112,6 +135,40 @@ public sealed class SettingsViewModel : ObservableObject
     private string _intuneWinAppUtilPath = "";
     public string IntuneWinAppUtilPath { get => _intuneWinAppUtilPath; set => Set(ref _intuneWinAppUtilPath, value); }
 
+    // ── Group Assignment ───────────────────────────────────────────────
+    private bool _createGroupPerPackage;
+    public bool CreateGroupPerPackage
+    {
+        get => _createGroupPerPackage;
+        set { if (Set(ref _createGroupPerPackage, value)) OnPropertyChanged(nameof(CreateGroupPerPackageDisabled)); }
+    }
+    public bool CreateGroupPerPackageDisabled { get => !_createGroupPerPackage; set => CreateGroupPerPackage = !value; }
+
+    private string _groupNameTemplate = "%vendor%_%appName%_%appVersion%";
+    public string GroupNameTemplate
+    {
+        get => _groupNameTemplate;
+        set { if (Set(ref _groupNameTemplate, value)) OnPropertyChanged(nameof(GroupNamePreview)); }
+    }
+
+    // Live example using sample values so the user can see how tokens resolve.
+    public string GroupNamePreview => GroupAssignmentNamer.Build(GroupNameTemplate, "Contoso", "Acme Reader", "1.2.3");
+
+    private bool _newGroupRequired = true;
+    public bool NewGroupRequired
+    {
+        get => _newGroupRequired;
+        set { if (Set(ref _newGroupRequired, value)) OnPropertyChanged(nameof(NewGroupAvailable)); }
+    }
+    public bool NewGroupAvailable { get => !_newGroupRequired; set => NewGroupRequired = !value; }
+
+    private string _newGroupNameInput = "";
+    public string NewGroupNameInput { get => _newGroupNameInput; set => Set(ref _newGroupNameInput, value); }
+
+    public ObservableCollection<GroupAssignmentRow> ExistingGroups { get; } = new();
+
+    public RelayCommand AddGroupCommand { get; }
+
     // ── Save feedback ──────────────────────────────────────────────────
     private string _saveStatus = "";
     public string SaveStatus { get => _saveStatus; set => Set(ref _saveStatus, value); }
@@ -131,6 +188,7 @@ public sealed class SettingsViewModel : ObservableObject
         ResetCommand = new RelayCommand(Reset);
         SignInCommand = new RelayCommand(SignIn);
         SignOutCommand = new RelayCommand(SignOut);
+        AddGroupCommand = new RelayCommand(AddGroup);
         LoadFromSettings();
         LoadCertificatesFromStore();
     }
@@ -154,7 +212,24 @@ public sealed class SettingsViewModel : ObservableObject
         IntuneApplicationsPath = s.NetworkPaths.IntuneApplications;
         PSADTTemplatePath = s.NetworkPaths.PSADTTemplate;
         IntuneWinAppUtilPath = s.NetworkPaths.IntuneWinAppUtil;
+
+        CreateGroupPerPackage = s.GroupAssignment.CreateGroupPerPackage;
+        GroupNameTemplate = s.GroupAssignment.GroupNameTemplate;
+        NewGroupRequired = s.GroupAssignment.NewGroupIntent == AssignmentIntent.Required;
+        ExistingGroups.Clear();
+        foreach (var g in s.GroupAssignment.ExistingGroups)
+            ExistingGroups.Add(new GroupAssignmentRow(g.GroupName, g.Intent, RemoveGroup));
     }
+
+    private void AddGroup()
+    {
+        var name = NewGroupNameInput.Trim();
+        if (string.IsNullOrEmpty(name)) return;
+        ExistingGroups.Add(new GroupAssignmentRow(name, AssignmentIntent.Required, RemoveGroup));
+        NewGroupNameInput = "";
+    }
+
+    private void RemoveGroup(GroupAssignmentRow row) => ExistingGroups.Remove(row);
 
     private void LoadCertificatesFromStore()
     {
@@ -240,6 +315,17 @@ public sealed class SettingsViewModel : ObservableObject
         s.NetworkPaths.IntuneApplications = IntuneApplicationsPath;
         s.NetworkPaths.PSADTTemplate = PSADTTemplatePath;
         s.NetworkPaths.IntuneWinAppUtil = IntuneWinAppUtilPath;
+
+        s.GroupAssignment.CreateGroupPerPackage = CreateGroupPerPackage;
+        s.GroupAssignment.GroupNameTemplate = GroupNameTemplate;
+        s.GroupAssignment.NewGroupIntent = NewGroupRequired ? AssignmentIntent.Required : AssignmentIntent.Available;
+        s.GroupAssignment.ExistingGroups = ExistingGroups
+            .Select(g => new ExistingGroupAssignment
+            {
+                GroupName = g.GroupName,
+                Intent = g.IsRequired ? AssignmentIntent.Required : AssignmentIntent.Available
+            })
+            .ToList();
 
         _svc.Save();
         SaveStatus = "Settings saved.";
