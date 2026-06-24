@@ -102,6 +102,13 @@ public sealed class SettingsViewModel : ObservableObject
         set { if (Set(ref _selectedCodeSignCert, value) && value != null) CodeSignThumbprint = value.Thumbprint; }
     }
 
+    // ── Network Paths ──────────────────────────────────────────────────
+    private string _intuneApplicationsPath = "";
+    public string IntuneApplicationsPath { get => _intuneApplicationsPath; set => Set(ref _intuneApplicationsPath, value); }
+
+    private string _psadtTemplatePath = "";
+    public string PSADTTemplatePath { get => _psadtTemplatePath; set => Set(ref _psadtTemplatePath, value); }
+
     // ── Save feedback ──────────────────────────────────────────────────
     private string _saveStatus = "";
     public string SaveStatus { get => _saveStatus; set => Set(ref _saveStatus, value); }
@@ -140,6 +147,9 @@ public sealed class SettingsViewModel : ObservableObject
         CodeSignCertSubject = s.CodeSigning.CertificateSubject;
         CodeSignTimestampServer = s.CodeSigning.TimestampServer;
         CodeSignUseStoreCert = !string.IsNullOrEmpty(CodeSignThumbprint) ? false : true;
+
+        IntuneApplicationsPath = s.NetworkPaths.IntuneApplications;
+        PSADTTemplatePath = s.NetworkPaths.PSADTTemplate;
     }
 
     private void LoadCertificatesFromStore()
@@ -215,6 +225,9 @@ public sealed class SettingsViewModel : ObservableObject
         s.CodeSigning.TimestampServer = CodeSignTimestampServer;
         s.CodeSigning.CertificateName = _selectedCodeSignCert?.FriendlyName ?? CodeSignCertName;
         s.CodeSigning.CertificateSubject = _selectedCodeSignCert?.Subject ?? CodeSignCertSubject;
+
+        s.NetworkPaths.IntuneApplications = IntuneApplicationsPath;
+        s.NetworkPaths.PSADTTemplate = PSADTTemplatePath;
 
         _svc.Save();
         SaveStatus = "Settings saved.";
