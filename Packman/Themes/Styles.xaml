@@ -216,6 +216,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="13.5"/>
         <Setter Property="Padding" Value="40,12,14,12"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
