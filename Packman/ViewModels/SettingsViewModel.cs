@@ -15,6 +15,14 @@ public class CertificateInfo
     public override string ToString() => string.IsNullOrEmpty(FriendlyName) ? Subject : FriendlyName;
 }
 
+/// <summary>A single row in the connection-test results list (one required Graph scope).</summary>
+public sealed class ConnectionCheckRow
+{
+    public string Name { get; init; } = "";
+    public bool Ok { get; init; }
+    public string Detail { get; init; } = "";
+}
+
 public sealed class GroupAssignmentRow : ObservableObject
 {
     public string GroupName { get; }
@@ -64,6 +72,27 @@ public sealed class SettingsViewModel : ObservableObject
 
     private string _signedInUser = "";
     public string SignedInUser { get => _signedInUser; private set => Set(ref _signedInUser, value); }
+
+    // ── Connection test ────────────────────────────────────────────────
+    public ObservableCollection<ConnectionCheckRow> ConnectionChecks { get; } = new();
+
+    private string _connectionStatus = "";
+    public string ConnectionStatus
+    {
+        get => _connectionStatus;
+        private set { if (Set(ref _connectionStatus, value)) OnPropertyChanged(nameof(HasConnectionStatus)); }
+    }
+    public bool HasConnectionStatus => !string.IsNullOrEmpty(_connectionStatus);
+
+    private bool _connectionOk;
+    public bool ConnectionOk { get => _connectionOk; private set => Set(ref _connectionOk, value); }
+
+    private bool _isTesting;
+    public bool IsTesting
+    {
+        get => _isTesting;
+        private set { if (Set(ref _isTesting, value)) TestConnectionCommand.RaiseCanExecuteChanged(); }
+    }
 
     // ── Auth mode ──────────────────────────────────────────────────────
     private bool _isInteractive = true;
@@ -200,6 +229,7 @@ public sealed class SettingsViewModel : ObservableObject
     public RelayCommand ResetCommand { get; }
     public RelayCommand SignInCommand { get; }
     public RelayCommand SignOutCommand { get; }
+    public RelayCommand TestConnectionCommand { get; }
 
     public SettingsViewModel(SettingsService svc, IntuneAuthService auth)
     {
@@ -209,6 +239,7 @@ public sealed class SettingsViewModel : ObservableObject
         ResetCommand = new RelayCommand(Reset);
         SignInCommand = new RelayCommand(SignIn);
         SignOutCommand = new RelayCommand(SignOut);
+        TestConnectionCommand = new RelayCommand(TestConnection, () => !IsTesting);
         AddGroupCommand = new RelayCommand(AddGroup);
         LoadFromSettings();
         LoadCertificatesFromStore();
@@ -311,6 +342,40 @@ public sealed class SettingsViewModel : ObservableObject
         await _auth.SignOutAsync();
         IsSignedIn = false;
         SignedInUser = "";
+        ConnectionChecks.Clear();
+        ConnectionStatus = "";
+        ConnectionOk = false;
+    }
+
+    private async void TestConnection()
+    {
+        ConnectionChecks.Clear();
+        ConnectionOk = false;
+
+        if (!_auth.IsSignedIn)
+        {
+            ConnectionStatus = "Sign in first, then test the connection.";
+            return;
+        }
+
+        IsTesting = true;
+        ConnectionStatus = "Testing connection to Microsoft Intune…";
+        try
+        {
+            var result = await AppServices.Apps.TestConnectionAsync();
+            foreach (var c in result.Checks)
+                ConnectionChecks.Add(new ConnectionCheckRow { Name = c.Name, Ok = c.Ok, Detail = c.Detail });
+            ConnectionOk = result.Success;
+            ConnectionStatus = result.Message;
+        }
+        catch (Exception ex)
+        {
+            ConnectionStatus = $"Connection test failed: {ex.Message}";
+        }
+        finally
+        {
+            IsTesting = false;
+        }
     }
 
     private void Reset()

@@ -16,10 +16,14 @@ public partial class ApplicationsView : UserControl
     /// <summary>Raised by the "New Package" button; the host switches to the Create flow.</summary>
     public event Action? NewPackageRequested;
 
+    /// <summary>Raised when the user asks to connect; the host switches to the Settings screen.</summary>
+    public event Action? ConnectRequested;
+
     public ApplicationsView()
     {
         ViewModel = new ApplicationsViewModel();
         ViewModel.OpenRequested += a => AppOpened?.Invoke(a);
+        ViewModel.ConnectRequested += () => ConnectRequested?.Invoke();
         DataContext = ViewModel;
         InitializeComponent();
     }

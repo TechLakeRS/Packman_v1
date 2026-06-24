@@ -66,6 +66,12 @@ public sealed class MainViewModel : ObservableObject
         set { if (Set(ref _isDarkTheme, value)) App.ApplyTheme(value); }
     }
 
+    // ── Intune connection status (footer) ──────────────────────────────
+    public bool IsConnected => _auth.IsSignedIn;
+    public string ConnectionStatusText => _auth.IsSignedIn
+        ? $"Connected to Microsoft Intune · {_auth.SignedInUser}"
+        : "Not connected — sign in on the Settings page";
+
     public MainViewModel()
     {
         Upload = new UploadStepViewModel(CreatePackage, _settingsService, _auth);
@@ -85,6 +91,12 @@ public sealed class MainViewModel : ObservableObject
         ThemeToggleCommand = new RelayCommand(() => IsDarkTheme = !IsDarkTheme);
 
         Steps[0].IsCurrent = true;
+
+        _auth.StateChanged += () =>
+        {
+            OnPropertyChanged(nameof(IsConnected));
+            OnPropertyChanged(nameof(ConnectionStatusText));
+        };
 
         CreatePackage.PropertyChanged += (_, e) =>
         {

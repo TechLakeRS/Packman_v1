@@ -27,9 +27,13 @@ public sealed class ApplicationsViewModel : ObservableObject
     public RelayCommand NextPageCommand { get; }
     public RelayCommand PrevPageCommand { get; }
     public RelayCommand<IntuneApplication> OpenCommand { get; }
+    public RelayCommand ConnectCommand { get; }
 
     /// <summary>Raised when a row is activated; the host swaps in the detail screen.</summary>
     public event Action<IntuneApplication>? OpenRequested;
+
+    /// <summary>Raised when the user asks to connect; the host switches to the Settings screen.</summary>
+    public event Action? ConnectRequested;
 
     private bool _loadedOnce;
     private int _currentPage = 1;
@@ -41,6 +45,7 @@ public sealed class ApplicationsViewModel : ObservableObject
         NextPageCommand = new RelayCommand(() => GoToPage(_currentPage + 1), () => CanNext);
         PrevPageCommand = new RelayCommand(() => GoToPage(_currentPage - 1), () => CanPrev);
         OpenCommand = new RelayCommand<IntuneApplication>(app => { if (app != null) OpenRequested?.Invoke(app); });
+        ConnectCommand = new RelayCommand(() => ConnectRequested?.Invoke());
     }
 
     private string _search = "";
@@ -82,6 +87,7 @@ public sealed class ApplicationsViewModel : ObservableObject
         {
             if (!Set(ref _isLoading, value)) return;
             OnPropertyChanged(nameof(ShowEmpty));
+            OnPropertyChanged(nameof(ShowConnectPrompt));
             OnPropertyChanged(nameof(ShowPager));
             RefreshCommand.RaiseCanExecuteChanged();
         }
@@ -98,7 +104,10 @@ public sealed class ApplicationsViewModel : ObservableObject
     private string _loadStatus = "";
     public string LoadStatus { get => _loadStatus; private set => Set(ref _loadStatus, value); }
 
-    public bool ShowEmpty => !IsLoading && _all.Count == 0;
+    /// <summary>Shown when nobody is signed in: prompts the user to connect on Settings first.</summary>
+    public bool ShowConnectPrompt => !IsLoading && !_auth.IsSignedIn;
+
+    public bool ShowEmpty => !IsLoading && _auth.IsSignedIn && _all.Count == 0;
 
     public async Task LoadAsync(bool force = false)
     {
@@ -111,6 +120,7 @@ public sealed class ApplicationsViewModel : ObservableObject
             ApplyFilters();
             StatusText = "Sign in on the Settings page to load applications from Intune.";
             OnPropertyChanged(nameof(ShowEmpty));
+            OnPropertyChanged(nameof(ShowConnectPrompt));
             return;
         }
 
