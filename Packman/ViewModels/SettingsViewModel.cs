@@ -72,6 +72,12 @@ public sealed class SettingsViewModel : ObservableObject
     private string _codeSignThumbprint = "";
     public string CodeSignThumbprint { get => _codeSignThumbprint; set => Set(ref _codeSignThumbprint, value); }
 
+    private string _codeSignCertName = "";
+    public string CodeSignCertName { get => _codeSignCertName; set => Set(ref _codeSignCertName, value); }
+
+    private string _codeSignCertSubject = "";
+    public string CodeSignCertSubject { get => _codeSignCertSubject; set => Set(ref _codeSignCertSubject, value); }
+
     private string _codeSignTimestampServer = "http://timestamp.digicert.com";
     public string CodeSignTimestampServer { get => _codeSignTimestampServer; set => Set(ref _codeSignTimestampServer, value); }
 
@@ -89,11 +95,13 @@ public sealed class SettingsViewModel : ObservableObject
     public ObservableCollection<CertificateInfo> AvailableCertificates { get; } = new();
 
     public RelayCommand SaveCommand { get; }
+    public RelayCommand ResetCommand { get; }
 
     public SettingsViewModel(SettingsService svc)
     {
         _svc = svc;
         SaveCommand = new RelayCommand(Save);
+        ResetCommand = new RelayCommand(Reset);
         LoadFromSettings();
         LoadCertificatesFromStore();
     }
@@ -109,6 +117,8 @@ public sealed class SettingsViewModel : ObservableObject
 
         CodeSigningEnabled = s.CodeSigning.Enabled;
         CodeSignThumbprint = s.CodeSigning.CertificateThumbprint;
+        CodeSignCertName = s.CodeSigning.CertificateName;
+        CodeSignCertSubject = s.CodeSigning.CertificateSubject;
         CodeSignTimestampServer = s.CodeSigning.TimestampServer;
         CodeSignUseStoreCert = !string.IsNullOrEmpty(CodeSignThumbprint) ? false : true;
     }
@@ -138,6 +148,12 @@ public sealed class SettingsViewModel : ObservableObject
             SelectedCodeSignCert = AvailableCertificates.FirstOrDefault(c => c.Thumbprint == CodeSignThumbprint);
     }
 
+    private void Reset()
+    {
+        LoadFromSettings();
+        SaveStatus = "";
+    }
+
     private void Save()
     {
         var s = _svc.Settings;
@@ -149,11 +165,8 @@ public sealed class SettingsViewModel : ObservableObject
         s.CodeSigning.Enabled = CodeSigningEnabled;
         s.CodeSigning.CertificateThumbprint = CodeSignThumbprint;
         s.CodeSigning.TimestampServer = CodeSignTimestampServer;
-        if (_selectedCodeSignCert != null)
-        {
-            s.CodeSigning.CertificateName = _selectedCodeSignCert.FriendlyName;
-            s.CodeSigning.CertificateSubject = _selectedCodeSignCert.Subject;
-        }
+        s.CodeSigning.CertificateName = _selectedCodeSignCert?.FriendlyName ?? CodeSignCertName;
+        s.CodeSigning.CertificateSubject = _selectedCodeSignCert?.Subject ?? CodeSignCertSubject;
 
         _svc.Save();
         SaveStatus = "Settings saved.";
