@@ -1,0 +1,271 @@
+<UserControl x:Class="Packman.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Packman"
+             FontFamily="{StaticResource UIFontFamily}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="234"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══ Main settings sections ═══ -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,20,0">
+            <StackPanel>
+
+                <!-- ── Authentication ──────────────────────────────────── -->
+                <Border x:Name="AuthSection" Style="{StaticResource Card}" Margin="0,0,0,16">
+                    <StackPanel>
+
+                        <!-- Section header -->
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="40" Height="40" CornerRadius="11" Background="{DynamicResource PrimaryDimBrush}">
+                                <Viewbox Width="18" Height="18">
+                                    <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="13,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Authentication" Style="{StaticResource H2}"/>
+                                <TextBlock Text="How EPS connects to Microsoft Intune &amp; Entra ID" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Mode tabs -->
+                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="9" Padding="3" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Style="{StaticResource ContextToggle}" Content="Interactive"
+                                             IsChecked="{Binding IsInteractive}" GroupName="AuthModeGroup"/>
+                                <RadioButton Style="{StaticResource ContextToggle}" Content="App Registration"
+                                             IsChecked="{Binding IsAppRegistration}" GroupName="AuthModeGroup"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Interactive panel -->
+                        <Border Margin="0,16,0,0"
+                                Visibility="{Binding IsInteractive, Converter={StaticResource BoolToVis}}">
+                            <Border Background="{DynamicResource PrimarySoftBrush}" BorderBrush="{DynamicResource PrimaryDimBrush}" BorderThickness="1" CornerRadius="9" Padding="14,12">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="15" Height="15" Margin="0,0,10,0">
+                                        <Path Data="{StaticResource IconUser}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Viewbox>
+                                    <TextBlock FontSize="12.5" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center">
+                                        Sign in with your work account when prompted. No additional configuration required.
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+
+                        <!-- App Registration panel -->
+                        <StackPanel Margin="0,16,0,0"
+                                    Visibility="{Binding IsAppRegistration, Converter={StaticResource BoolToVis}}">
+
+                            <!-- Tenant ID -->
+                            <TextBlock Text="Tenant ID" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Style="{StaticResource TextField}" Text="{Binding TenantId, UpdateSourceTrigger=PropertyChanged}"
+                                     local:PlaceholderText.Text="00000000-0000-0000-0000-000000000000" Margin="0,6,0,0"/>
+
+                            <!-- Client ID -->
+                            <TextBlock Text="Application (Client) ID" Style="{StaticResource FieldLabel}" Margin="0,14,0,0"/>
+                            <TextBox Style="{StaticResource TextField}" Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}"
+                                     local:PlaceholderText.Text="Application (Client) ID" Margin="0,6,0,0"/>
+
+                            <!-- Certificate source -->
+                            <TextBlock Text="Certificate" Style="{StaticResource FieldLabel}" Margin="0,14,0,0"/>
+                            <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="9" Padding="3" HorizontalAlignment="Left" Margin="0,6,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton Style="{StaticResource ContextToggle}" Content="Select from store"
+                                                 IsChecked="{Binding AuthUseStoreCert}" GroupName="AuthCertSource"/>
+                                    <RadioButton Style="{StaticResource ContextToggle}" Content="Enter thumbprint"
+                                                 IsChecked="{Binding AuthUseManualThumbprint}" GroupName="AuthCertSource"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Store picker -->
+                            <ComboBox Margin="0,8,0,0" Height="38" FontFamily="{StaticResource UIFontFamily}" FontSize="13"
+                                      ItemsSource="{Binding AvailableCertificates}"
+                                      SelectedItem="{Binding SelectedAuthCert}"
+                                      Visibility="{Binding AuthUseStoreCert, Converter={StaticResource BoolToVis}}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding FriendlyName}" FontWeight="SemiBold" FontSize="12.5"/>
+                                            <TextBlock Text="{Binding Thumbprint}" FontSize="10.5" Foreground="{DynamicResource MutedBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <!-- Manual thumbprint -->
+                            <TextBox Style="{StaticResource TextField}" Text="{Binding AuthThumbprint, UpdateSourceTrigger=PropertyChanged}"
+                                     local:PlaceholderText.Text="40-char SHA-1 thumbprint" Margin="0,8,0,0" FontFamily="{StaticResource MonoFontFamily}"
+                                     Visibility="{Binding AuthUseManualThumbprint, Converter={StaticResource BoolToVis}}"/>
+
+                            <!-- Note -->
+                            <Border Background="{DynamicResource FieldBrush}" CornerRadius="7" Padding="12,9" Margin="0,12,0,0">
+                                <TextBlock FontSize="12" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap">
+                                    <Run Text="Certificate-based auth. The certificate matching this thumbprint must be installed in the "/>
+                                    <Run Text="CurrentUser\My" FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
+                                    <Run Text=" store on this machine."/>
+                                </TextBlock>
+                            </Border>
+
+                        </StackPanel>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- ── Code Signing ────────────────────────────────────── -->
+                <Border x:Name="CodeSignSection" Style="{StaticResource Card}" Margin="0,0,0,16">
+                    <StackPanel>
+
+                        <!-- Section header -->
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="40" Height="40" CornerRadius="11" Background="{DynamicResource PrimaryDimBrush}">
+                                <Viewbox Width="18" Height="18">
+                                    <Path Data="{StaticResource IconTag}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="13,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Code Signing" Style="{StaticResource H2}"/>
+                                <TextBlock Text="Authenticode certificate used to sign packaged applications" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <!-- Enable / Disable toggle -->
+                            <Border Grid.Column="2" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="9" Padding="3" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton Style="{StaticResource ContextToggle}" Content="Disabled"
+                                                 IsChecked="{Binding CodeSigningDisabled}" GroupName="CodeSignEnable"/>
+                                    <RadioButton Style="{StaticResource ContextToggle}" Content="Enabled"
+                                                 IsChecked="{Binding CodeSigningEnabled}" GroupName="CodeSignEnable"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Enabled content -->
+                        <StackPanel Visibility="{Binding CodeSigningEnabled, Converter={StaticResource BoolToVis}}">
+
+                            <!-- Cert source toggle -->
+                            <TextBlock Text="Certificate Source" Style="{StaticResource FieldLabel}"/>
+                            <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="9" Padding="3" HorizontalAlignment="Left" Margin="0,6,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton Style="{StaticResource ContextToggle}" Content="Select from store"
+                                                 IsChecked="{Binding CodeSignUseStoreCert}" GroupName="CodeSignCertSource"/>
+                                    <RadioButton Style="{StaticResource ContextToggle}" Content="Enter thumbprint"
+                                                 IsChecked="{Binding CodeSignUseManualThumbprint}" GroupName="CodeSignCertSource"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Store picker -->
+                            <ComboBox Margin="0,8,0,0" Height="38" FontFamily="{StaticResource UIFontFamily}" FontSize="13"
+                                      ItemsSource="{Binding AvailableCertificates}"
+                                      SelectedItem="{Binding SelectedCodeSignCert}"
+                                      Visibility="{Binding CodeSignUseStoreCert, Converter={StaticResource BoolToVis}}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding FriendlyName}" FontWeight="SemiBold" FontSize="12.5"/>
+                                            <TextBlock Text="{Binding Thumbprint}" FontSize="10.5" Foreground="{DynamicResource MutedBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <!-- Manual thumbprint + timestamp row -->
+                            <Grid Margin="0,8,0,0"
+                                  Visibility="{Binding CodeSignUseManualThumbprint, Converter={StaticResource BoolToVis}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="260"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Certificate Thumbprint" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Text="{Binding CodeSignThumbprint, UpdateSourceTrigger=PropertyChanged}"
+                                             local:PlaceholderText.Text="SHA-1 thumbprint" Margin="0,6,0,0" FontFamily="{StaticResource MonoFontFamily}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Timestamp Server" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Text="{Binding CodeSignTimestampServer, UpdateSourceTrigger=PropertyChanged}"
+                                             local:PlaceholderText.Text="http://timestamp.digicert.com" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Timestamp server (store mode) -->
+                            <StackPanel Margin="0,14,0,0"
+                                        Visibility="{Binding CodeSignUseStoreCert, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Timestamp Server" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Style="{StaticResource TextField}" Text="{Binding CodeSignTimestampServer, UpdateSourceTrigger=PropertyChanged}"
+                                         local:PlaceholderText.Text="http://timestamp.digicert.com" Margin="0,6,0,0"/>
+                            </StackPanel>
+
+                        </StackPanel>
+
+                        <!-- Disabled placeholder -->
+                        <Border Visibility="{Binding CodeSigningDisabled, Converter={StaticResource BoolToVis}}"
+                                Background="{DynamicResource FieldBrush}" CornerRadius="8" Padding="14,11">
+                            <TextBlock FontSize="12.5" Foreground="{DynamicResource MutedBrush}">
+                                Code signing is disabled. Packages will not be Authenticode-signed.
+                            </TextBlock>
+                        </Border>
+
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ═══ Right panel ═══ -->
+        <StackPanel Grid.Column="1">
+
+            <!-- Sections nav -->
+            <Border Style="{StaticResource Card}" Padding="0">
+                <StackPanel>
+                    <TextBlock Text="SECTIONS" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}"
+                               Margin="16,14,16,10"/>
+                    <Border Cursor="Hand" MouseLeftButtonUp="NavAuth_Click" Padding="16,9">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="13" Height="13" Margin="0,0,9,0">
+                                <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                            <TextBlock Text="Authentication" FontSize="13" Foreground="{DynamicResource PrimaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Cursor="Hand" MouseLeftButtonUp="NavCodeSign_Click" Padding="16,9">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="13" Height="13" Margin="0,0,9,0">
+                                <Path Data="{StaticResource IconTag}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                            <TextBlock Text="Code Signing" FontSize="13" Foreground="{DynamicResource MutedBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Height="1" Background="{DynamicResource LineBrush}" Margin="0,4"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Save button -->
+            <Button Style="{StaticResource PrimaryButton}" Margin="0,12,0,0" Padding="0,12"
+                    Command="{Binding SaveCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <Viewbox Width="14" Height="14" Margin="0,0,8,0">
+                        <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Viewbox>
+                    <TextBlock Text="Save Settings" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Save status -->
+            <TextBlock x:Name="SaveStatusText" Text="{Binding SaveStatus}" FontSize="12" Foreground="{DynamicResource OkBrush}"
+                       HorizontalAlignment="Center" Margin="0,8,0,0"/>
+
+        </StackPanel>
+    </Grid>
+</UserControl>
