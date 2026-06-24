@@ -124,7 +124,7 @@
                             <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
                         </StackPanel>
                         <Grid Margin="0,7,0,0">
-                            <TextBox x:Name="SourcesPathTextBox" Style="{StaticResource TextField}" Padding="40,12,110,12"
+                            <TextBox x:Name="SourcesPathTextBox" Style="{StaticResource TextField}" Padding="32,12,110,12"
                                      local:PlaceholderText.Text="\\server\share\Sources or drag &amp; drop"
                                      Text="{Binding CreatePackage.SourcesPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      PreviewDragOver="SourcesPath_DragOver" Drop="SourcesPath_Drop"

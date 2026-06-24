@@ -215,7 +215,7 @@
         <Setter Property="SelectionBrush" Value="{DynamicResource PrimaryDimBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="13.5"/>
-        <Setter Property="Padding" Value="40,12,14,12"/>
+        <Setter Property="Padding" Value="32,12,14,12"/>
         <Setter Property="TextAlignment" Value="Left"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -228,7 +228,7 @@
                                        Foreground="{DynamicResource Muted2Brush}" FontSize="{TemplateBinding FontSize}"
                                        Margin="{TemplateBinding Padding}" VerticalAlignment="Center" IsHitTestVisible="False"
                                        Visibility="Collapsed"/>
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False"
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
                                           HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
                         </Grid>
                     </Border>
