@@ -1,3 +1,4 @@
+using Microsoft.Identity.Client;
 using Packman.Models;
 using Packman.Services;
 using System.Collections.ObjectModel;
@@ -16,6 +17,19 @@ public class CertificateInfo
 public sealed class SettingsViewModel : ObservableObject
 {
     private readonly SettingsService _svc;
+    private readonly IntuneAuthService _auth;
+
+    // ── Interactive sign-in state ──────────────────────────────────────
+    private bool _isSignedIn;
+    public bool IsSignedIn
+    {
+        get => _isSignedIn;
+        private set { if (Set(ref _isSignedIn, value)) OnPropertyChanged(nameof(IsNotSignedIn)); }
+    }
+    public bool IsNotSignedIn => !IsSignedIn;
+
+    private string _signedInUser = "";
+    public string SignedInUser { get => _signedInUser; private set => Set(ref _signedInUser, value); }
 
     // ── Auth mode ──────────────────────────────────────────────────────
     private bool _isInteractive = true;
@@ -96,12 +110,17 @@ public sealed class SettingsViewModel : ObservableObject
 
     public RelayCommand SaveCommand { get; }
     public RelayCommand ResetCommand { get; }
+    public RelayCommand SignInCommand { get; }
+    public RelayCommand SignOutCommand { get; }
 
-    public SettingsViewModel(SettingsService svc)
+    public SettingsViewModel(SettingsService svc, IntuneAuthService auth)
     {
         _svc = svc;
+        _auth = auth;
         SaveCommand = new RelayCommand(Save);
         ResetCommand = new RelayCommand(Reset);
+        SignInCommand = new RelayCommand(SignIn);
+        SignOutCommand = new RelayCommand(SignOut);
         LoadFromSettings();
         LoadCertificatesFromStore();
     }
@@ -146,6 +165,33 @@ public sealed class SettingsViewModel : ObservableObject
             SelectedAuthCert = AvailableCertificates.FirstOrDefault(c => c.Thumbprint == AuthThumbprint);
         if (!string.IsNullOrEmpty(CodeSignThumbprint))
             SelectedCodeSignCert = AvailableCertificates.FirstOrDefault(c => c.Thumbprint == CodeSignThumbprint);
+    }
+
+    private async void SignIn()
+    {
+        SaveStatus = "Signing in…";
+        try
+        {
+            await _auth.SignInAsync(TenantId);
+            IsSignedIn = true;
+            SignedInUser = _auth.SignedInUser ?? "";
+            SaveStatus = "";
+        }
+        catch (MsalClientException ex) when (ex.ErrorCode == "authentication_canceled")
+        {
+            SaveStatus = "";
+        }
+        catch (Exception ex)
+        {
+            SaveStatus = $"Sign-in failed: {ex.Message}";
+        }
+    }
+
+    private async void SignOut()
+    {
+        await _auth.SignOutAsync();
+        IsSignedIn = false;
+        SignedInUser = "";
     }
 
     private void Reset()
