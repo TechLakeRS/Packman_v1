@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+             IsVisibleChanged="StepEdit_IsVisibleChanged"
              FontFamily="{StaticResource UIFontFamily}">
 
     <Border Style="{StaticResource Card}">
@@ -29,68 +30,44 @@
                     </StackPanel>
                     <TextBlock Text="Review &amp; customize the generated PSADT deployment script" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                 </StackPanel>
-                <Button Grid.Column="2" Style="{StaticResource CardActionButton}" VerticalAlignment="Center" Click="OpenVSCode_Click">
+                <Button Grid.Column="2" Style="{StaticResource CardActionButton}" VerticalAlignment="Center" Click="OpenEditor_Click">
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="15" Height="15">
                             <Path Data="{StaticResource IconCode}" Stroke="{DynamicResource InkBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                         </Viewbox>
-                        <TextBlock Text="Open in VS Code" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Open in Editor" Margin="7,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </Grid>
 
+            <!-- No package yet -->
+            <Border x:Name="EmptyState" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                    CornerRadius="11" Padding="20" Visibility="Collapsed">
+                <TextBlock Text="No package generated yet. Go back to the Generate step to create the package first."
+                           FontSize="12.5" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"/>
+            </Border>
+
             <!-- Editor: tree + code preview -->
-            <Grid>
+            <Grid x:Name="EditorGrid">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="210"/>
+                    <ColumnDefinition Width="240"/>
                     <ColumnDefinition Width="14"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Tree -->
-                <Border Grid.Column="0" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11" Padding="8" MinHeight="320">
+                <Border Grid.Column="0" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11" Padding="8" MinHeight="360">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="10,8">
                             <Viewbox Width="14" Height="14">
                                 <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource InkBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
-                            <TextBlock Text="Firefox v124.0.1" Margin="7,0,0,0" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                            <TextBlock x:Name="PackageNameText" Text="Package" Margin="7,0,0,0" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
 
-                        <!-- Tree nodes -->
-                        <StackPanel Orientation="Horizontal" Margin="14,7,10,7">
-                            <Viewbox Width="14" Height="14">
-                                <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
-                            <TextBlock Text="Files" Margin="8,0,0,0" FontSize="12.5" Foreground="{DynamicResource MutedBrush}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="14,7,10,7">
-                            <Viewbox Width="14" Height="14">
-                                <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
-                            <TextBlock Text="SupportFiles" Margin="8,0,0,0" FontSize="12.5" Foreground="{DynamicResource MutedBrush}"/>
-                        </StackPanel>
-                        <!-- Selected file -->
-                        <Border Background="{DynamicResource PrimaryDimBrush}" CornerRadius="7" Padding="14,7,10,7">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="14" Height="14">
-                                    <Path Data="{StaticResource IconFile}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.7" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="Deploy-Application.ps1" Margin="8,0,0,0" FontSize="12.5" FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <StackPanel Orientation="Horizontal" Margin="14,7,10,7">
-                            <Viewbox Width="14" Height="14">
-                                <Path Data="{StaticResource IconFile}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.7" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
-                            <TextBlock Text="Deploy-Application.exe" Margin="8,0,0,0" FontSize="12.5" Foreground="{DynamicResource MutedBrush}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="14,7,10,7">
-                            <Viewbox Width="14" Height="14">
-                                <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
-                            <TextBlock Text="AppDeployToolkit" Margin="8,0,0,0" FontSize="12.5" Foreground="{DynamicResource MutedBrush}"/>
-                        </StackPanel>
+                        <TreeView x:Name="FileTree" BorderThickness="0" Background="Transparent" MaxHeight="500"
+                                  Foreground="{DynamicResource InkBrush}" FontSize="12.5"
+                                  SelectedItemChanged="FileTree_SelectedItemChanged"/>
                     </StackPanel>
                 </Border>
 
@@ -105,36 +82,16 @@
                         <Border Grid.Row="0" BorderBrush="#1AFFFFFF" BorderThickness="0,0,0,1" Padding="14,10">
                             <StackPanel Orientation="Horizontal">
                                 <Ellipse Width="9" Height="9" Fill="{DynamicResource PrimaryBrush}"/>
-                                <TextBlock Text="Deploy-Application.ps1" Margin="9,0,0,0" FontFamily="{StaticResource MonoFontFamily}" FontSize="12" Foreground="{DynamicResource CodeBarTxtBrush}"/>
+                                <TextBlock x:Name="CodeFileName" Text="Invoke-AppDeployToolkit.ps1" Margin="9,0,0,0" FontFamily="{StaticResource MonoFontFamily}" FontSize="12" Foreground="{DynamicResource CodeBarTxtBrush}"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Code body -->
-                        <TextBlock Grid.Row="1" Margin="16,14" FontFamily="{StaticResource MonoFontFamily}" FontSize="12.5"
-                                   Foreground="{DynamicResource CodeTxtBrush}" LineHeight="20" LineStackingStrategy="BlockLineHeight"
-                                   TextWrapping="Wrap">
-                            <Run Foreground="{DynamicResource CodeCommentBrush}" Text="# Mozilla Firefox 124.0.1"/><LineBreak/>
-                            <Run Foreground="{DynamicResource CodeCommentBrush}" Text="## &lt;Perform Installation tasks here&gt;"/><LineBreak/>
-                            <LineBreak/>
-                            <Run Foreground="{DynamicResource CodeKeywordBrush}" Text="Show-InstallationWelcome"/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text=" -CloseApps "/>
-                            <Run Foreground="{DynamicResource CodeStringBrush}" Text="'firefox'"/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text=" -CheckDiskSpace"/><LineBreak/>
-                            <LineBreak/>
-                            <Run Foreground="{DynamicResource CodeKeywordBrush}" Text="Execute-MSI"/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text=" -Action "/>
-                            <Run Foreground="{DynamicResource CodeStringBrush}" Text="'Install'"/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text=" `"/><LineBreak/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text="  -Path "/>
-                            <Run Foreground="{DynamicResource CodeStringBrush}" Text="'Firefox.msi'"/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text=" `"/><LineBreak/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text="  -Parameters "/>
-                            <Run Foreground="{DynamicResource CodeStringBrush}" Text="'/qn /norestart'"/><LineBreak/>
-                            <LineBreak/>
-                            <Run Foreground="{DynamicResource CodeKeywordBrush}" Text="Show-InstallationPrompt"/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text=" -Message "/>
-                            <Run Foreground="{DynamicResource CodeStringBrush}" Text="'Installation complete.'"/>
-                        </TextBlock>
+                        <TextBox Grid.Row="1" x:Name="CodeBox" IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                                 Foreground="{DynamicResource CodeTxtBrush}" FontFamily="{StaticResource MonoFontFamily}" FontSize="12.5"
+                                 Padding="16,14" MaxHeight="520"
+                                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                 TextWrapping="NoWrap"/>
                     </Grid>
                 </Border>
             </Grid>
