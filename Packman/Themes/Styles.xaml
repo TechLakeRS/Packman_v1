@@ -228,8 +228,8 @@
                                        Foreground="{DynamicResource Muted2Brush}" FontSize="{TemplateBinding FontSize}"
                                        Margin="{TemplateBinding Padding}" VerticalAlignment="Center" IsHitTestVisible="False"
                                        Visibility="Collapsed"/>
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"
-                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
