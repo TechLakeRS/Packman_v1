@@ -384,12 +384,24 @@
         <Border Grid.Row="2" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0">
             <Grid Margin="20,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
-                    <Ellipse Width="7" Height="7" Fill="{DynamicResource OkBrush}">
-                        <Ellipse.Effect>
-                            <DropShadowEffect Color="#16A06A" Opacity="0.6" ShadowDepth="0" BlurRadius="6"/>
-                        </Ellipse.Effect>
+                    <Ellipse Width="7" Height="7">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{DynamicResource MutedBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Fill" Value="{DynamicResource OkBrush}"/>
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <DropShadowEffect Color="#16A06A" Opacity="0.6" ShadowDepth="0" BlurRadius="6"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
                     </Ellipse>
-                    <TextBlock Text="Ready · Connected to Microsoft Intune" Margin="8,0,0,0" FontSize="11.5" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ConnectionStatusText}" Margin="8,0,0,0" FontSize="11.5" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                 </StackPanel>
                 <TextBlock Text="Last sync: Never" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11.5" Foreground="{DynamicResource MutedBrush}"/>
             </Grid>

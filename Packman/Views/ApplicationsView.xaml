@@ -168,6 +168,30 @@
                                    HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="420" TextAlignment="Center"/>
                     </StackPanel>
 
+                    <!-- Not connected: prompt the user to connect on Settings first -->
+                    <StackPanel Margin="18,40" HorizontalAlignment="Center"
+                                Visibility="{Binding ShowConnectPrompt, Converter={StaticResource BoolToVis}}">
+                        <Border Width="52" Height="52" CornerRadius="14" Background="{DynamicResource PrimaryDimBrush}" HorizontalAlignment="Center">
+                            <Viewbox Width="24" Height="24">
+                                <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Text="Not connected to Microsoft Intune" Foreground="{DynamicResource InkBrush}" FontSize="14" FontWeight="Bold"
+                                   HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                        <TextBlock Text="Connect to your tenant on the Settings page to browse applications from Intune."
+                                   Foreground="{DynamicResource MutedBrush}" FontSize="12.5" Margin="0,6,0,0"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="420" TextAlignment="Center"/>
+                        <Button Style="{StaticResource PrimaryButton}" Command="{Binding ConnectCommand}"
+                                HorizontalAlignment="Center" Margin="0,16,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Go to Settings to connect" VerticalAlignment="Center"/>
+                                <Viewbox Width="14" Height="14" Margin="8,0,0,0">
+                                    <Path Data="{StaticResource IconChevR}" Stroke="White" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
                     <!-- Pagination footer -->
                     <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="18,12"
                             Visibility="{Binding ShowPager, Converter={StaticResource BoolToVis}}">

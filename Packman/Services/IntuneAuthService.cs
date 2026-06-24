@@ -27,12 +27,17 @@ public class IntuneAuthService
 
     public string? SignedInUser { get; private set; }
 
+    /// <summary>Raised whenever the sign-in state changes, so screens (e.g. the footer) can refresh.</summary>
+    public event Action? StateChanged;
+
     public async Task SignInAsync(AuthMode mode, AppSettings.AuthConfig cfg, nint hwnd)
     {
         if (mode == AuthMode.AppRegistration && !string.IsNullOrWhiteSpace(cfg.CertificateThumbprint))
             await SignInWithCertificateAsync(cfg);
         else
             await SignInInteractiveAsync(cfg, hwnd);
+
+        StateChanged?.Invoke();
     }
 
     private async Task SignInInteractiveAsync(AppSettings.AuthConfig cfg, nint hwnd)
@@ -118,6 +123,7 @@ public class IntuneAuthService
         _cca = null;
         _pca = null;
         SignedInUser = null;
+        StateChanged?.Invoke();
     }
 
     public bool IsSignedIn => _cca != null || (_pca != null && _account != null);
