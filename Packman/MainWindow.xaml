@@ -380,6 +380,7 @@
             </ScrollViewer>
             <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" Margin="30,24,30,26"/>
             </Grid>
+        </Grid>
 
         <!-- STATUS BAR -->
         <Border Grid.Row="2" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0">
