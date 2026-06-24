@@ -443,7 +443,7 @@ public partial class PSADTConfigDialog : Window
                 Marker: "## <Perform Post-Uninstallation tasks here>",
                 After: Array.Empty<string>()
             ),
-            _ => (Array.Empty<string>(), "", Array.Empty<string>())
+            _ => (Before: Array.Empty<string>(), Marker: "", After: Array.Empty<string>())
         };
     }
 
