@@ -75,6 +75,13 @@ public sealed class ApplicationsViewModel : ObservableObject
     }
     public bool HasStatus => !string.IsNullOrEmpty(_statusText);
 
+    private string _loadStatus = "";
+    public string LoadStatus
+    {
+        get => _loadStatus;
+        private set => Set(ref _loadStatus, value);
+    }
+
     public bool ShowEmpty => !IsLoading && _all.Count == 0;
 
     public async Task LoadAsync(bool force = false)
@@ -92,9 +99,11 @@ public sealed class ApplicationsViewModel : ObservableObject
 
         IsLoading = true;
         StatusText = "";
+        LoadStatus = "Connecting to Microsoft Intune…";
         try
         {
-            var apps = await _apps.GetApplicationsAsync(force);
+            var progress = new Progress<int>(n => LoadStatus = $"Loading applications… {n} fetched");
+            var apps = await _apps.GetApplicationsAsync(force, progress);
             _all.Clear();
             foreach (var a in apps) _all.Add(a);
             _loadedOnce = true;

@@ -140,9 +140,26 @@
                     </ItemsControl>
 
                     <!-- Loading / empty -->
-                    <StackPanel Margin="18,16" HorizontalAlignment="Center"
+                    <StackPanel Margin="18,34" HorizontalAlignment="Center"
                                 Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
-                        <TextBlock Text="Loading applications from Intune…" Foreground="{DynamicResource MutedBrush}" FontSize="13"/>
+                        <Ellipse Width="40" Height="40" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="4"
+                                 StrokeDashArray="22 8" StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center">
+                            <Ellipse.RenderTransform>
+                                <RotateTransform Angle="0"/>
+                            </Ellipse.RenderTransform>
+                            <Ellipse.Triggers>
+                                <EventTrigger RoutedEvent="Ellipse.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                             From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Ellipse.Triggers>
+                        </Ellipse>
+                        <TextBlock Text="{Binding LoadStatus}" Foreground="{DynamicResource MutedBrush}" FontSize="13"
+                                   HorizontalAlignment="Center" Margin="0,16,0,0"/>
                     </StackPanel>
                     <StackPanel Margin="18,28" HorizontalAlignment="Center"
                                 Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVis}}">
