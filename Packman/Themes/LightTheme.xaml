@@ -58,13 +58,13 @@
     <SolidColorBrush x:Key="CodeKeywordBrush" Color="{StaticResource CodeKeywordColor}"/>
     <SolidColorBrush x:Key="CodeStringBrush" Color="{StaticResource CodeStringColor}"/>
 
-    <!-- Logo gradient: linear-gradient(150deg, var(--pri), color-mix(var(--pri) 55%, #fff)) -->
+    <!-- Logo gradient -->
     <LinearGradientBrush x:Key="LogoGradientBrush" StartPoint="0.067,0" EndPoint="0.933,1">
         <GradientStop Color="#3B67F5" Offset="0"/>
         <GradientStop Color="#85A3F9" Offset="1"/>
     </LinearGradientBrush>
 
-    <!-- Avatar gradient: linear-gradient(150deg, --pridim, --ln) -->
+    <!-- Avatar gradient -->
     <LinearGradientBrush x:Key="AvatarGradientBrush" StartPoint="0.067,0" EndPoint="0.933,1">
         <GradientStop Color="#E5EBFD" Offset="0"/>
         <GradientStop Color="#E6EAF1" Offset="1"/>
