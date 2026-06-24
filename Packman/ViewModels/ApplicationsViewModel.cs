@@ -1,6 +1,7 @@
 using Packman.Models;
 using Packman.Services;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Data;
 
 namespace Packman.ViewModels;
