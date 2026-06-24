@@ -189,7 +189,7 @@ public class CreatePackageViewModel : ObservableObject
             var options = CurrentPSADTOptions ?? new PSADTOptions { PackageType = DetectedPackageType };
 
             var generator = new PSADTGenerator(outputPath, templatePath);
-            var packagePath = await generator.CreatePackageAsync(appInfo, options).ConfigureAwait(false);
+            var packagePath = await generator.CreatePackageAsync(appInfo, options);
 
             if (!string.IsNullOrEmpty(packagePath) && !string.IsNullOrEmpty(ExtractedIconPath))
                 IconExtractor.CopyIconToPackage(ExtractedIconPath, packagePath, appInfo.Name);
