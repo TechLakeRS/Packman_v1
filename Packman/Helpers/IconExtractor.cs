@@ -1,7 +1,9 @@
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 
 namespace Packman.Helpers;
 
@@ -9,22 +11,35 @@ public static class IconExtractor
 {
     private const string TempFolderName = "Packman";
 
+    [DllImport("shell32.dll", CharSet = CharSet.Auto)]
+    private static extern uint ExtractIconEx(string lpszFile, int nIconIndex, IntPtr[]? phiconLarge, IntPtr[]? phiconSmall, uint nIcons);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool DestroyIcon(IntPtr hIcon);
+
     public static string? ExtractIconToTemp(string sourceFilePath)
     {
         if (string.IsNullOrEmpty(sourceFilePath) || !File.Exists(sourceFilePath))
             return null;
 
+        var hIcons = new IntPtr[1];
         try
         {
-            var icon = Icon.ExtractAssociatedIcon(sourceFilePath);
-            if (icon == null) return null;
+            if (ExtractIconEx(sourceFilePath, 0, hIcons, null, 1) == 0 || hIcons[0] == IntPtr.Zero)
+                return null;
+
+            var source = Imaging.CreateBitmapSourceFromHIcon(
+                hIcons[0], Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
 
             var tempPath = Path.Combine(Path.GetTempPath(), TempFolderName);
             Directory.CreateDirectory(tempPath);
 
             var iconPath = Path.Combine(tempPath, $"{Path.GetFileNameWithoutExtension(sourceFilePath)}_icon.png");
-            using (var bitmap = icon.ToBitmap())
-                bitmap.Save(iconPath, ImageFormat.Png);
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(source));
+            using (var fs = new FileStream(iconPath, FileMode.Create))
+                encoder.Save(fs);
 
             return iconPath;
         }
@@ -32,6 +47,11 @@ public static class IconExtractor
         {
             Debug.WriteLine($"Icon extraction failed: {ex.Message}");
             return null;
+        }
+        finally
+        {
+            if (hIcons[0] != IntPtr.Zero)
+                DestroyIcon(hIcons[0]);
         }
     }
 
