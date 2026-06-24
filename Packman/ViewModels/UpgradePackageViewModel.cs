@@ -173,8 +173,7 @@ public class UpgradePackageViewModel : ObservableObject
         try
         {
             var service = new PackageUpgradeService(outputPath, templatePath);
-            var newPath = await service.UpgradePackageAsync(ExistingPackagePath, NewVersion.Trim(), NewSourcePath.Trim())
-                .ConfigureAwait(false);
+            var newPath = await service.UpgradePackageAsync(ExistingPackagePath, NewVersion.Trim(), NewSourcePath.Trim());
 
             StatusText = $"New version {NewVersion} created.";
             return newPath;
