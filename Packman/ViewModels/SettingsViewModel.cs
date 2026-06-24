@@ -188,7 +188,14 @@ public sealed class SettingsViewModel : ObservableObject
         {
             var hwnd = new System.Windows.Interop.WindowInteropHelper(
                 System.Windows.Application.Current.MainWindow).Handle;
-            await _auth.SignInAsync(TenantId, hwnd);
+            var mode = IsInteractive ? AuthMode.Interactive : AuthMode.AppRegistration;
+            var cfg = new AppSettings.AuthConfig
+            {
+                TenantId = TenantId,
+                ClientId = ClientId,
+                CertificateThumbprint = IsAppRegistration ? AuthThumbprint : ""
+            };
+            await _auth.SignInAsync(mode, cfg, hwnd);
             IsSignedIn = true;
             SignedInUser = _auth.SignedInUser ?? "";
             SaveStatus = "";

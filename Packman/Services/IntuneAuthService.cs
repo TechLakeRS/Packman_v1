@@ -1,32 +1,50 @@
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Broker;
+using Packman.Models;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Packman.Services;
 
 public class IntuneAuthService
 {
-    // Well-known Microsoft Intune PowerShell public client
-    private const string IntuneClientId = "d1ddf0e4-d672-4dae-b554-9d5bdfd93547";
+    // Fallback only: well-known Microsoft Intune PowerShell public client, used
+    // for interactive sign-in when no app registration Client ID is configured.
+    private const string DefaultInteractiveClientId = "d1ddf0e4-d672-4dae-b554-9d5bdfd93547";
 
-    private static readonly string[] Scopes =
+    private static readonly string[] InteractiveScopes =
     [
         "User.Read",
         "DeviceManagementApps.ReadWrite.All",
     ];
 
+    private static readonly string[] AppOnlyScopes = ["https://graph.microsoft.com/.default"];
+
     private IPublicClientApplication? _pca;
+    private IConfidentialClientApplication? _cca;
     private IAccount? _account;
 
     public string? SignedInUser { get; private set; }
 
-    public async Task SignInAsync(string? tenantId, nint hwnd)
+    public async Task SignInAsync(AuthMode mode, AppSettings.AuthConfig cfg, nint hwnd)
     {
-        var authority = string.IsNullOrWhiteSpace(tenantId)
+        if (mode == AuthMode.AppRegistration && !string.IsNullOrWhiteSpace(cfg.CertificateThumbprint))
+            await SignInWithCertificateAsync(cfg);
+        else
+            await SignInInteractiveAsync(cfg, hwnd);
+    }
+
+    private async Task SignInInteractiveAsync(AppSettings.AuthConfig cfg, nint hwnd)
+    {
+        var clientId = string.IsNullOrWhiteSpace(cfg.ClientId)
+            ? DefaultInteractiveClientId
+            : cfg.ClientId.Trim();
+
+        var authority = string.IsNullOrWhiteSpace(cfg.TenantId)
             ? "https://login.microsoftonline.com/organizations"
-            : $"https://login.microsoftonline.com/{tenantId.Trim()}";
+            : $"https://login.microsoftonline.com/{cfg.TenantId.Trim()}";
 
         _pca = PublicClientApplicationBuilder
-            .Create(IntuneClientId)
+            .Create(clientId)
             .WithAuthority(authority)
             .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows))
             .Build();
@@ -35,17 +53,59 @@ public class IntuneAuthService
         try
         {
             var accounts = await _pca.GetAccountsAsync();
-            result = await _pca.AcquireTokenSilent(Scopes, accounts.FirstOrDefault()).ExecuteAsync();
+            result = await _pca.AcquireTokenSilent(InteractiveScopes, accounts.FirstOrDefault()).ExecuteAsync();
         }
         catch (MsalUiRequiredException)
         {
-            result = await _pca.AcquireTokenInteractive(Scopes)
+            result = await _pca.AcquireTokenInteractive(InteractiveScopes)
                 .WithParentActivityOrWindow(hwnd)
                 .ExecuteAsync();
         }
 
+        _cca = null;
         _account = result.Account;
         SignedInUser = result.Account.Username;
+    }
+
+    private async Task SignInWithCertificateAsync(AppSettings.AuthConfig cfg)
+    {
+        if (string.IsNullOrWhiteSpace(cfg.ClientId))
+            throw new InvalidOperationException("App registration mode requires a Client ID.");
+        if (string.IsNullOrWhiteSpace(cfg.TenantId))
+            throw new InvalidOperationException("App registration mode requires a Tenant ID.");
+
+        var certificate = FindCertificate(cfg.CertificateThumbprint);
+        var authority = $"https://login.microsoftonline.com/{cfg.TenantId.Trim()}";
+
+        _cca = ConfidentialClientApplicationBuilder
+            .Create(cfg.ClientId.Trim())
+            .WithAuthority(authority)
+            .WithCertificate(certificate)
+            .Build();
+
+        // Acquire once now so a bad certificate or missing consent fails on the
+        // Settings page rather than at upload time.
+        await _cca.AcquireTokenForClient(AppOnlyScopes).ExecuteAsync();
+
+        _pca = null;
+        _account = null;
+        SignedInUser = $"App registration {cfg.ClientId.Trim()}";
+    }
+
+    private static X509Certificate2 FindCertificate(string thumbprint)
+    {
+        var clean = thumbprint.Replace(" ", "").Trim();
+        foreach (var location in new[] { StoreLocation.CurrentUser, StoreLocation.LocalMachine })
+        {
+            using var store = new X509Store(StoreName.My, location);
+            store.Open(OpenFlags.ReadOnly);
+            var found = store.Certificates.Find(X509FindType.FindByThumbprint, clean, validOnly: false);
+            if (found.Count > 0)
+                return found[0];
+        }
+
+        throw new InvalidOperationException(
+            $"Certificate with thumbprint '{thumbprint}' was not found in the CurrentUser or LocalMachine store.");
     }
 
     public async Task SignOutAsync()
@@ -53,21 +113,30 @@ public class IntuneAuthService
         if (_pca != null && _account != null)
             await _pca.RemoveAsync(_account);
         _account = null;
+        _cca = null;
+        _pca = null;
         SignedInUser = null;
     }
 
-    public bool IsSignedIn => _pca != null && _account != null;
+    public bool IsSignedIn => _cca != null || (_pca != null && _account != null);
 
     /// <summary>
-    /// Returns a Graph access token for the signed-in account. Requires a prior
-    /// successful SignInAsync; throws otherwise so the upload flow can prompt to sign in.
+    /// Returns a Graph access token for the current sign-in (interactive user or
+    /// certificate-based app registration). Requires a prior successful SignInAsync;
+    /// throws otherwise so the upload flow can prompt to sign in.
     /// </summary>
     public async Task<string> GetAccessTokenAsync()
     {
+        if (_cca != null)
+        {
+            var appResult = await _cca.AcquireTokenForClient(AppOnlyScopes).ExecuteAsync();
+            return appResult.AccessToken;
+        }
+
         if (_pca == null || _account == null)
             throw new InvalidOperationException("Not signed in. Sign in on the Settings page before uploading.");
 
-        var result = await _pca.AcquireTokenSilent(Scopes, _account).ExecuteAsync();
+        var result = await _pca.AcquireTokenSilent(InteractiveScopes, _account).ExecuteAsync();
         return result.AccessToken;
     }
 }
