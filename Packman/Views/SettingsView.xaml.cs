@@ -19,4 +19,7 @@ public partial class SettingsView : UserControl
 
     private void NavCodeSign_Click(object sender, MouseButtonEventArgs e)
         => CodeSignCard.BringIntoView();
+
+    private void NavNetworkPaths_Click(object sender, MouseButtonEventArgs e)
+        => NetworkPathsCard.BringIntoView();
 }
