@@ -18,4 +18,19 @@ public static class EditorLocator
 
         return null;
     }
+
+    public static string? FindPowerShellISEPath()
+    {
+        string[] paths = {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),
+                @"WindowsPowerShell\v1.0\PowerShell_ISE.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                @"System32\WindowsPowerShell\v1.0\PowerShell_ISE.exe")
+        };
+
+        foreach (var path in paths)
+            if (File.Exists(path)) return path;
+
+        return null;
+    }
 }

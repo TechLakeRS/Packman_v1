@@ -19,6 +19,8 @@
   <ItemGroup>
     <!-- Bundled PSADT v4 template, copied next to the executable -->
     <None Include="PSADT\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <!-- PSADT v4 function catalog used by the Configure PSADT dialog -->
+    <None Include="PSADT_v4_Functions*.csv" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

@@ -173,9 +173,16 @@ public sealed class MainViewModel : ObservableObject
         try
         {
             var vsCode = EditorLocator.FindVSCodePath();
-            var psi = vsCode != null
-                ? new ProcessStartInfo(vsCode, $"\"{scriptPath}\"") { UseShellExecute = true }
-                : new ProcessStartInfo(scriptPath) { UseShellExecute = true };
+            var ise = vsCode == null ? EditorLocator.FindPowerShellISEPath() : null;
+
+            ProcessStartInfo psi;
+            if (vsCode != null)
+                psi = new ProcessStartInfo(vsCode, $"\"{scriptPath}\"") { UseShellExecute = true };
+            else if (ise != null)
+                psi = new ProcessStartInfo(ise, $"\"{scriptPath}\"") { UseShellExecute = true };
+            else
+                psi = new ProcessStartInfo(scriptPath) { UseShellExecute = true };
+
             Process.Start(psi);
         }
         catch (Exception ex)
