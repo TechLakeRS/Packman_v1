@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace Packman.Helpers;
 
 public static class EditorLocator
