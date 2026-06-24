@@ -150,7 +150,8 @@
                                 <TextBlock Text="Create Package" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </RadioButton>
-                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        <RadioButton x:Name="UploadIntuneNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
+                                     Checked="UploadIntuneNavBtn_Checked">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="18" Height="18">
                                     <Path Data="{StaticResource IconUpload}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -373,6 +374,7 @@
                 </StackPanel>
             </ScrollViewer>
             <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" Margin="30,24,30,26"/>
+            <views:UploadToIntuneView x:Name="UploadIntunePage" Visibility="Collapsed"/>
             <views:ApplicationsView x:Name="ApplicationsPage" Visibility="Collapsed"/>
             <views:ApplicationDetailView x:Name="AppDetailPage" Visibility="Collapsed"/>
             </Grid>

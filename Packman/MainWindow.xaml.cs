@@ -27,11 +27,17 @@ public partial class MainWindow : Window
     /// <summary>Shows exactly one content page and collapses the rest. Null-safe for load-time calls.</summary>
     private void ShowOnly(UIElement? page)
     {
-        foreach (var p in new UIElement?[] { MainScrollViewer, SettingsPage, ApplicationsPage, AppDetailPage })
+        foreach (var p in new UIElement?[] { MainScrollViewer, SettingsPage, UploadIntunePage, ApplicationsPage, AppDetailPage })
             if (p != null) p.Visibility = ReferenceEquals(p, page) ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void CreatePackageNavBtn_Checked(object sender, RoutedEventArgs e) => ShowOnly(MainScrollViewer);
+
+    private void UploadIntuneNavBtn_Checked(object sender, RoutedEventArgs e)
+    {
+        ShowOnly(UploadIntunePage);
+        UploadIntunePage.Refresh();
+    }
 
     private void ApplicationsNavBtn_Checked(object sender, RoutedEventArgs e)
     {
