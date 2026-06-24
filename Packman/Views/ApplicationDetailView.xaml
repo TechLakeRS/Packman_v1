@@ -198,7 +198,7 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <Border Style="{StaticResource Card}">
+                        <Border>
                             <Border.Style>
                                 <Style TargetType="Border" BasedOn="{StaticResource Card}">
                                     <Setter Property="Visibility" Value="Collapsed"/>
