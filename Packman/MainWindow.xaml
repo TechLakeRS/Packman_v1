@@ -189,7 +189,8 @@
                                 <TextBlock Text="Advanced" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </RadioButton>
-                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        <RadioButton x:Name="SettingsNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
+                                     Checked="SettingsNavBtn_Checked" Unchecked="SettingsNavBtn_Unchecked">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="17" Height="17">
                                     <Path Data="{StaticResource IconGear}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -201,7 +202,8 @@
                 </DockPanel>
             </Border>
 
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0">
+            <Grid Grid.Column="1">
+            <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0">
                 <StackPanel Margin="30,24,30,26">
                     <StackPanel>
                         <TextBlock Text="Create Package" Style="{StaticResource H1}"/>
@@ -376,6 +378,8 @@
                     </Border>
                 </StackPanel>
             </ScrollViewer>
+            <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" Margin="30,24,30,26"/>
+            </Grid>
         </Grid>
 
         <!-- STATUS BAR -->

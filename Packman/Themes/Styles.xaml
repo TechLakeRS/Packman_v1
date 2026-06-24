@@ -355,6 +355,99 @@
         </Setter>
     </Style>
 
+    <!-- ═══════════════ ComboBox ═══════════════ -->
+    <Style TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                    <Border x:Name="bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource PrimaryDimBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource PrimaryDimBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type ComboBox}">
+        <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource FieldBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="Height" Value="38"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBox}">
+                    <Grid>
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="9">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="32"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0" Margin="{TemplateBinding Padding}"
+                                                  Content="{TemplateBinding SelectionBoxItem}"
+                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                  VerticalAlignment="Center"/>
+                                <Path Grid.Column="1" Data="M5 8l4 4 4-4" Stroke="{DynamicResource MutedBrush}"
+                                      StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round" Fill="Transparent"
+                                      Width="14" Height="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <ToggleButton Grid.ColumnSpan="2" Background="Transparent" BorderThickness="0"
+                                             IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                            <Border Background="Transparent"/>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                </ToggleButton>
+                            </Grid>
+                        </Border>
+                        <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
+                               Placement="Bottom" PopupAnimation="Fade">
+                            <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}"
+                                    BorderThickness="1" CornerRadius="9" Margin="0,4,0,0"
+                                    MinWidth="{TemplateBinding ActualWidth}">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black" Opacity="0.28" ShadowDepth="4" BlurRadius="16" Direction="270"/>
+                                </Border.Effect>
+                                <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsDropDownOpen" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ═══════════════ Scrollbar ═══════════════ -->
     <Style TargetType="{x:Type ScrollBar}">
         <Setter Property="Width" Value="8"/>
