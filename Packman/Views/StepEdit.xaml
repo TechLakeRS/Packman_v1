@@ -29,7 +29,7 @@
                     </StackPanel>
                     <TextBlock Text="Review &amp; customize the generated PSADT deployment script" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                 </StackPanel>
-                <Button Grid.Column="2" Style="{StaticResource CardActionButton}" VerticalAlignment="Center">
+                <Button Grid.Column="2" Style="{StaticResource CardActionButton}" VerticalAlignment="Center" Click="OpenVSCode_Click">
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="15" Height="15">
                             <Path Data="{StaticResource IconCode}" Stroke="{DynamicResource InkBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>

@@ -10,6 +10,7 @@ public class AppSettings
     public AuthMode AuthMode { get; set; } = AuthMode.Interactive;
     public AuthConfig Authentication { get; set; } = new();
     public CodeSigningConfig CodeSigning { get; set; } = new();
+    public NetworkPathsConfig NetworkPaths { get; set; } = new();
 
     public class AuthConfig
     {
@@ -25,5 +26,13 @@ public class AppSettings
         public string CertificateName { get; set; } = "";
         public string CertificateSubject { get; set; } = "";
         public string TimestampServer { get; set; } = "http://timestamp.digicert.com";
+    }
+
+    public class NetworkPathsConfig
+    {
+        public string IntuneApplications { get; set; } = "";
+        public string PSADTTemplate { get; set; } = "";
+        public string IntuneWinAppUtil { get; set; } = "";
+        public string DefaultPackageBrowsePath { get; set; } = "";
     }
 }

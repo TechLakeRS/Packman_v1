@@ -74,7 +74,9 @@
                             <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
                         </StackPanel>
                         <Grid Margin="0,7,0,0">
-                            <TextBox Style="{StaticResource TextField}" local:PlaceholderText.Text="e.g. Mozilla"/>
+                            <TextBox x:Name="ManufacturerTextBox" Style="{StaticResource TextField}"
+                                     local:PlaceholderText.Text="e.g. Mozilla"
+                                     Text="{Binding CreatePackage.Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
                                 <Path Data="{StaticResource IconBuilding}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
@@ -88,7 +90,9 @@
                             <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
                         </StackPanel>
                         <Grid Margin="0,7,0,0">
-                            <TextBox Style="{StaticResource TextField}" local:PlaceholderText.Text="e.g. Firefox"/>
+                            <TextBox x:Name="AppNameTextBox" Style="{StaticResource TextField}"
+                                     local:PlaceholderText.Text="e.g. Firefox"
+                                     Text="{Binding CreatePackage.AppName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
                                 <Path Data="{StaticResource IconApp}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
@@ -102,14 +106,14 @@
                             <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
                         </StackPanel>
                         <Grid Margin="0,7,0,0">
-                            <TextBox Style="{StaticResource TextField}" local:PlaceholderText.Text="e.g. 124.0.1"/>
+                            <TextBox x:Name="VersionTextBox" Style="{StaticResource TextField}"
+                                     local:PlaceholderText.Text="e.g. 124.0.1"
+                                     Text="{Binding CreatePackage.Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
                                 <Path Data="{StaticResource IconTag}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="{DynamicResource Muted2Brush}" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
                         </Grid>
                     </StackPanel>
-
-                    <!-- (col 2, row 2 empty - Sources spans 2 cols) -->
 
                     <!-- Sources Path (full width) -->
                     <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="4">
@@ -118,11 +122,16 @@
                             <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
                         </StackPanel>
                         <Grid Margin="0,7,0,0">
-                            <TextBox Style="{StaticResource TextField}" Padding="40,12,110,12" local:PlaceholderText.Text="\\server\share\Sources"/>
+                            <TextBox x:Name="SourcesPathTextBox" Style="{StaticResource TextField}" Padding="40,12,110,12"
+                                     local:PlaceholderText.Text="\\server\share\Sources or drag &amp; drop"
+                                     Text="{Binding CreatePackage.SourcesPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     PreviewDragOver="SourcesPath_DragOver" Drop="SourcesPath_Drop"
+                                     AllowDrop="True"/>
                             <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
                                 <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
-                            <Button Style="{StaticResource BrowseButton}" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,6,6,6">
+                            <Button Style="{StaticResource BrowseButton}" HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                                    Margin="0,6,6,6" Click="BrowseButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Viewbox Width="15" Height="15">
                                         <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource TextBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -139,7 +148,8 @@
                         <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                                 CornerRadius="10" Padding="4" HorizontalAlignment="Left">
                             <StackPanel Orientation="Horizontal">
-                                <RadioButton Style="{StaticResource ContextToggle}" GroupName="Ctx" IsChecked="True">
+                                <RadioButton x:Name="SystemContextRadio" Style="{StaticResource ContextToggle}" GroupName="Ctx" IsChecked="True"
+                                             Checked="SystemContext_Checked">
                                     <StackPanel Orientation="Horizontal">
                                         <Viewbox Width="14" Height="14">
                                             <Path Data="{StaticResource IconMonitor}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -147,7 +157,8 @@
                                         <TextBlock Text="System" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource ContextToggle}" GroupName="Ctx" Margin="3,0,0,0">
+                                <RadioButton x:Name="UserContextRadio" Style="{StaticResource ContextToggle}" GroupName="Ctx" Margin="3,0,0,0"
+                                             Checked="UserContext_Checked">
                                     <StackPanel Orientation="Horizontal">
                                         <Viewbox Width="14" Height="14">
                                             <Path Data="{StaticResource IconUser}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -157,10 +168,14 @@
                                 </RadioButton>
                             </StackPanel>
                         </Border>
-                        <TextBlock FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,9,0,0"
+                        <TextBlock x:Name="InstallContextHelpText" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,9,0,0"
                                    Text="Installs for all users with elevated privileges (most common for managed apps)."/>
                     </StackPanel>
                 </Grid>
+
+                <!-- Status text -->
+                <TextBlock Text="{Binding CreatePackage.StatusText}" FontSize="12.5"
+                           Foreground="{DynamicResource MutedBrush}" Margin="0,16,0,0"/>
             </StackPanel>
         </Border>
     </StackPanel>
