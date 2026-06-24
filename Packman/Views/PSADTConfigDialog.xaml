@@ -260,12 +260,13 @@
                     </DockPanel>
                 </Border>
 
-                <!-- Code Preview -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Padding="16,12">
+                <!-- Code Preview (always a dark code surface so syntax colors read in both themes) -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Padding="16,12"
+                              Background="{DynamicResource CodeBgBrush}">
                     <StackPanel Name="PreviewEntriesPanel">
                         <TextBlock Name="EmptyPhaseText"
                                    Text="Select a function from the browser and click + Add to insert it here."
-                                   Foreground="{DynamicResource Muted2Brush}" FontSize="12"
+                                   Foreground="{DynamicResource CodeCommentBrush}" FontSize="12"
                                    FontFamily="Cascadia Code, Consolas, Courier New"
                                    TextWrapping="Wrap"/>
                     </StackPanel>

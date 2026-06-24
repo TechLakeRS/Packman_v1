@@ -127,6 +127,9 @@ public partial class PSADTConfigDialog : Window
 
             var stackPanel = new StackPanel { Margin = new Thickness(6, 4, 6, 4) };
 
+            // Noun colour follows the theme so names stay readable in light mode.
+            var nounBrush = (Brush)FindResource("InkBrush");
+
             foreach (var func in group)
             {
                 var border = new Border();
@@ -145,15 +148,22 @@ public partial class PSADTConfigDialog : Window
                 if (dashIdx > 0)
                 {
                     nameBlock.Inlines.Add(new Run(func.Name[..(dashIdx + 1)]) { Foreground = VerbBrush });
-                    nameBlock.Inlines.Add(new Run(func.Name[(dashIdx + 1)..]) { Foreground = FuncNameBrush });
+                    nameBlock.Inlines.Add(new Run(func.Name[(dashIdx + 1)..]) { Foreground = nounBrush });
                 }
                 else
                 {
-                    nameBlock.Inlines.Add(new Run(func.Name) { Foreground = FuncNameBrush });
+                    nameBlock.Inlines.Add(new Run(func.Name) { Foreground = nounBrush });
                 }
 
-                // Tooltip with syntax-highlighted parameter signature
-                border.ToolTip = new ToolTip { Content = BuildSyntaxTooltip(func) };
+                // Tooltip with syntax-highlighted parameter signature (dark surface so the
+                // light syntax colours stay readable regardless of theme).
+                border.ToolTip = new ToolTip
+                {
+                    Content = BuildSyntaxTooltip(func),
+                    Background = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x2E)),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(0x3A, 0x3A, 0x4E)),
+                    Padding = new Thickness(10, 7, 10, 7)
+                };
 
                 dockPanel.Children.Add(nameBlock);
                 border.Child = dockPanel;
@@ -512,7 +522,6 @@ public partial class PSADTConfigDialog : Window
 
     // Function browser colors
     private static readonly SolidColorBrush VerbBrush = new(Color.FromRgb(0x56, 0x9C, 0xD6));      // Blue for verb (Get-, Set-, etc.)
-    private static readonly SolidColorBrush FuncNameBrush = new(Color.FromRgb(0xE8, 0xEA, 0xF0));   // Clean white for noun
     // Tooltip syntax colors
     private static readonly SolidColorBrush TooltipFuncBrush = new(Color.FromRgb(0xE8, 0xEA, 0xF0));    // White - function name
     private static readonly SolidColorBrush TooltipParamBrush = new(Color.FromRgb(0x9C, 0xDC, 0xFE));   // Light blue - param names
