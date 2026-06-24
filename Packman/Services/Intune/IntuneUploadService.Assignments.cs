@@ -11,6 +11,8 @@ public partial class IntuneUploadService
     /// <summary>
     /// Assigns the uploaded Win32 app to the given Entra groups with the chosen intent
     /// ("required", "available" or "uninstall"). No-op when the group list is empty.
+    /// Used by the standalone Upload to Intune page, where groups are already resolved
+    /// to ids by the assignment picker.
     /// </summary>
     public async Task AssignAppToGroupsAsync(string appId, IEnumerable<string> groupIds, string intent)
     {
@@ -40,6 +42,8 @@ public partial class IntuneUploadService
         var response = await sharedHttpClient!.SendAsync(request);
         if (!response.IsSuccessStatusCode)
             throw new Exception($"Assignment failed ({(int)response.StatusCode}): {await response.Content.ReadAsStringAsync()}");
+    }
+
     private const string GraphBeta = "https://graph.microsoft.com/beta";
 
     /// <summary>
