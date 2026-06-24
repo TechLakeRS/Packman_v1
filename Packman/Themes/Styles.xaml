@@ -678,8 +678,11 @@
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
     </Style>
 
-    <!-- Assignment row: Tag = intent label, Content = collection of AssignedGroup -->
+    <!-- Assignment row: Tag = intent label, Content = collection of AssignedGroup.
+         Background/Foreground colour the intent chip (required/available/uninstall). -->
     <Style x:Key="AssignmentRow" TargetType="{x:Type ContentControl}">
+        <Setter Property="Background" Value="{DynamicResource PrimaryDimBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContentControl}">
@@ -688,28 +691,36 @@
                             <ColumnDefinition Width="96"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="{DynamicResource PrimaryDimBrush}" CornerRadius="7" Padding="10,6" VerticalAlignment="Top">
-                            <TextBlock Text="{TemplateBinding Tag}" FontSize="11" FontWeight="ExtraBold" Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Center"/>
+                        <Border Grid.Column="0" Background="{TemplateBinding Background}" CornerRadius="7" Padding="10,6" VerticalAlignment="Top" Height="29">
+                            <TextBlock Text="{TemplateBinding Tag}" FontSize="11" FontWeight="ExtraBold" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <ItemsControl Grid.Column="1" Margin="14,0,0,0" ItemsSource="{TemplateBinding Content}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                            CornerRadius="8" Padding="11,6" Margin="0,0,8,8">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Viewbox Width="13" Height="13" Margin="0,0,7,0">
-                                                <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                            </Viewbox>
-                                            <TextBlock Text="{Binding GroupName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <Grid Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                            <ItemsControl x:Name="chips" ItemsSource="{TemplateBinding Content}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                                                CornerRadius="8" Padding="11,6" Margin="0,0,8,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Viewbox Width="13" Height="13" Margin="0,0,7,0">
+                                                    <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                </Viewbox>
+                                                <TextBlock Text="{Binding GroupName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock x:Name="empty" Text="No groups" FontSize="13" Foreground="{DynamicResource Muted2Brush}" VerticalAlignment="Center"/>
+                        </Grid>
                     </Grid>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding HasItems, ElementName=chips}" Value="True">
+                            <Setter TargetName="empty" Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

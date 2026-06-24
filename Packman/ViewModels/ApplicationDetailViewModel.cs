@@ -68,6 +68,7 @@ public sealed class ApplicationDetailViewModel : ObservableObject
     public ObservableCollection<AssignedGroup> RequiredAssignments { get; } = new();
     public ObservableCollection<AssignedGroup> AvailableAssignments { get; } = new();
     public ObservableCollection<AssignedGroup> UninstallAssignments { get; } = new();
+    public ObservableCollection<DetectionRuleDisplay> DetectionDisplays { get; } = new();
     public bool HasDetectionRules => Detail.DetectionRules.Count > 0;
     public bool HasAssignments => Detail.AssignedGroups.Count > 0;
 
@@ -104,6 +105,7 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         {
             Detail = await _apps.GetApplicationDetailAsync(Detail.Id);
             RebuildAssignments();
+            RebuildDetection();
             BuildActivity();
             RaiseDerived();
         }
@@ -169,6 +171,13 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         }
     }
 
+    private void RebuildDetection()
+    {
+        DetectionDisplays.Clear();
+        foreach (var r in Detail.DetectionRules)
+            DetectionDisplays.Add(DetectionRuleDisplay.From(r));
+    }
+
     private void BuildActivity()
     {
         Activity.Clear();
@@ -193,4 +202,93 @@ public sealed class ActivityEntry
     public string When { get; }
     public string Kind { get; }   // ok | mut
     public bool IsOk => Kind == "ok";
+}
+
+/// <summary>A single detection rule rendered as the design's labelled key/value card.</summary>
+public sealed class DetectionRuleDisplay
+{
+    public string RuleTypeLabel { get; private init; } = "";
+    public List<DetectionField> Fields { get; } = new();
+
+    public static DetectionRuleDisplay From(Packman.Models.DetectionRule r)
+    {
+        var d = new DetectionRuleDisplay { RuleTypeLabel = TypeLabel(r.Type) };
+        d.Fields.Add(new DetectionField("Rule type", d.RuleTypeLabel));
+
+        switch (r.Type)
+        {
+            case Packman.Models.DetectionRuleType.MSI:
+                d.Fields.Add(new DetectionField("Product code", Dash(r.Path)));
+                d.Fields.Add(new DetectionField("Version check",
+                    r.CheckVersion ? $"{OperatorWords(r.Operator)} {r.FileOrFolderName}" : "Not checked"));
+                d.Fields.Add(new DetectionField("Operator", r.CheckVersion ? OperatorSymbol(r.Operator) : "—"));
+                break;
+            case Packman.Models.DetectionRuleType.File:
+                d.Fields.Add(new DetectionField("Path", Dash(r.Path)));
+                d.Fields.Add(new DetectionField("File or folder", Dash(r.FileOrFolderName)));
+                d.Fields.Add(new DetectionField("Detection", DetectionSummary(r)));
+                break;
+            case Packman.Models.DetectionRuleType.Registry:
+                d.Fields.Add(new DetectionField("Key path", Dash(r.Path)));
+                d.Fields.Add(new DetectionField("Value name", Dash(r.FileOrFolderName)));
+                d.Fields.Add(new DetectionField("Detection", DetectionSummary(r)));
+                break;
+            case Packman.Models.DetectionRuleType.Script:
+                d.Fields.Add(new DetectionField("Method", "PowerShell detection script"));
+                break;
+        }
+        return d;
+    }
+
+    private static string TypeLabel(Packman.Models.DetectionRuleType t) => t switch
+    {
+        Packman.Models.DetectionRuleType.MSI => "MSI",
+        Packman.Models.DetectionRuleType.File => "File",
+        Packman.Models.DetectionRuleType.Registry => "Registry",
+        Packman.Models.DetectionRuleType.Script => "PowerShell",
+        _ => t.ToString(),
+    };
+
+    private static string DetectionSummary(Packman.Models.DetectionRule r) => r.DetectionType switch
+    {
+        "exists" => "Exists",
+        "doesNotExist" => "Does not exist",
+        "version" => $"Version {OperatorSymbol(r.Operator)} {r.DetectionValue}",
+        "string" => $"String {OperatorSymbol(r.Operator)} \"{r.DetectionValue}\"",
+        "integer" => $"Integer {OperatorSymbol(r.Operator)} {r.DetectionValue}",
+        "sizeInMB" => $"Size {OperatorSymbol(r.Operator)} {r.DetectionValue} MB",
+        "modifiedDate" => $"Modified {OperatorSymbol(r.Operator)} {r.DetectionValue}",
+        _ => string.IsNullOrEmpty(r.DetectionType) ? "Exists" : r.DetectionType,
+    };
+
+    private static string OperatorWords(string op) => op switch
+    {
+        "greaterThanOrEqual" => "Greater than or equal to",
+        "greaterThan" => "Greater than",
+        "equal" => "Equal to",
+        "notEqual" => "Not equal to",
+        "lessThan" => "Less than",
+        "lessThanOrEqual" => "Less than or equal to",
+        _ => string.IsNullOrEmpty(op) ? "Equal to" : op,
+    };
+
+    private static string OperatorSymbol(string op) => op switch
+    {
+        "greaterThanOrEqual" => ">=",
+        "greaterThan" => ">",
+        "equal" => "=",
+        "notEqual" => "!=",
+        "lessThan" => "<",
+        "lessThanOrEqual" => "<=",
+        _ => string.IsNullOrEmpty(op) ? "=" : op,
+    };
+
+    private static string Dash(string s) => string.IsNullOrWhiteSpace(s) ? "—" : s;
+}
+
+public sealed class DetectionField
+{
+    public DetectionField(string label, string value) { Label = label; Value = value; }
+    public string Label { get; }
+    public string Value { get; }
 }

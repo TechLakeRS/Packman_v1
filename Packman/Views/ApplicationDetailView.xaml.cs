@@ -46,6 +46,10 @@ public partial class ApplicationDetailView : UserControl
 
     private void Test_Click(object sender, RoutedEventArgs e) => TestRequested?.Invoke();
 
+    // In-app assignment editing isn't built yet; open the app in Intune where
+    // assignments are managed.
+    private void EditAssignments_Click(object sender, RoutedEventArgs e) => _vm?.OpenInIntune();
+
     private async void Retire_Click(object sender, RoutedEventArgs e)
     {
         if (_vm == null) return;
