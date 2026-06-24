@@ -56,49 +56,22 @@ public class PSADTGenerator
         return packagePath;
     }
 
+    // Returns the folder that directly contains Invoke-AppDeployToolkit.ps1.
+    // Accepts either the .ps1 file path or the folder holding it.
     private string ResolveTemplatePath()
     {
-        var toTry = new List<string>();
-        if (!string.IsNullOrWhiteSpace(_templatePath))
+        var p = _templatePath?.Trim();
+        if (!string.IsNullOrEmpty(p))
         {
-            // The path may point at the Invoke-AppDeployToolkit.ps1 file rather than
-            // the template folder; resolve from its directory in that case.
-            if (_templatePath.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase))
-            {
-                var dir = Path.GetDirectoryName(_templatePath);
-                if (!string.IsNullOrEmpty(dir)) toTry.Add(dir);
-            }
-            toTry.Add(_templatePath);
-        }
-
-        foreach (var basePath in toTry)
-        {
-            if (!Directory.Exists(basePath)) continue;
-            var resolved = TryResolve(basePath);
-            if (resolved != null) return resolved;
+            if (p.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase) && File.Exists(p))
+                return Path.GetDirectoryName(p)!;
+            if (Directory.Exists(p) && File.Exists(Path.Combine(p, "Invoke-AppDeployToolkit.ps1")))
+                return p;
         }
 
         throw new DirectoryNotFoundException(
             $"PSADT template not found. Searched: '{_templatePath}'. " +
-            "Set the PSADT Template Path in Settings > Network Paths to the folder containing the Application, Icon and Intune subfolders.");
-    }
-
-    private string? TryResolve(string basePath)
-    {
-        if (File.Exists(Path.Combine(basePath, "Invoke-AppDeployToolkit.ps1")))
-        {
-            var parent = Directory.GetParent(basePath)?.FullName;
-            if (parent != null && Directory.Exists(Path.Combine(parent, "Application")))
-                return parent;
-        }
-        if (Directory.Exists(Path.Combine(basePath, "Application")))
-            return basePath;
-
-        foreach (var sub in Directory.GetDirectories(basePath).OrderByDescending(d => d))
-            if (Directory.Exists(Path.Combine(sub, "Application")))
-                return sub;
-
-        return null;
+            "Set the PSADT Template Path in Settings > Network Paths to the PSADT folder containing Invoke-AppDeployToolkit.ps1.");
     }
 
     private async Task CopyTemplateFolderAsync(string packagePath, CancellationToken ct)
@@ -107,17 +80,7 @@ public class PSADTGenerator
         await Task.Run(() =>
         {
             Directory.CreateDirectory(packagePath);
-            foreach (var folder in new[] { "Icon", "Intune", "NBB_Info", "Project Files" })
-            {
-                var src = Path.Combine(template, folder);
-                var dst = Path.Combine(packagePath, folder);
-                if (Directory.Exists(src)) CopyDir(src, dst);
-                else Directory.CreateDirectory(dst);
-            }
-            var appSrc = Path.Combine(template, "Application");
-            if (!Directory.Exists(appSrc))
-                throw new DirectoryNotFoundException($"Application folder not found in template: {template}");
-            CopyDir(appSrc, Path.Combine(packagePath, "Application"));
+            CopyDir(template, Path.Combine(packagePath, "Application"));
         }, ct);
     }
 
