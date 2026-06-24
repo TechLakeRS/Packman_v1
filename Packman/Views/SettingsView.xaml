@@ -110,6 +110,7 @@
                                            Visibility="Collapsed"/>
                                 <Grid Margin="0,7,0,0">
                                     <TextBox Style="{StaticResource TextField}"
+                                             Text="{Binding TenantId, UpdateSourceTrigger=PropertyChanged}"
                                              local:PlaceholderText.Text="contoso.onmicrosoft.com or tenant GUID"/>
                                     <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
                                         <Path Data="{StaticResource IconBuilding}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -135,17 +136,34 @@
                                             <TextBlock Text="Browser sign-in" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
                                             <TextBlock Text="You'll be redirected to Microsoft to authenticate" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                                         </StackPanel>
-                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
+                                        <!-- Not signed in status -->
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0"
+                                                    Visibility="{Binding IsNotSignedIn, Converter={StaticResource BoolToVis}}">
                                             <Ellipse Width="7" Height="7" Fill="{DynamicResource MutedBrush}" Margin="0,0,7,0"/>
                                             <TextBlock Text="Not signed in" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                                         </StackPanel>
-                                        <Button Grid.Column="3" Style="{StaticResource PrimaryButton}">
+                                        <!-- Signed in status -->
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0"
+                                                    Visibility="{Binding IsSignedIn, Converter={StaticResource BoolToVis}}">
+                                            <Ellipse Width="7" Height="7" Fill="{DynamicResource OkBrush}" Margin="0,0,7,0"/>
+                                            <TextBlock Text="{Binding SignedInUser}" FontSize="12.5" Foreground="{DynamicResource OkBrush}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <!-- Sign in button -->
+                                        <Button Grid.Column="3" Style="{StaticResource PrimaryButton}"
+                                                Command="{Binding SignInCommand}"
+                                                Visibility="{Binding IsNotSignedIn, Converter={StaticResource BoolToVis}}">
                                             <StackPanel Orientation="Horizontal">
                                                 <Viewbox Width="14" Height="14" Margin="0,0,7,0">
                                                     <Path Data="{StaticResource IconChevR}" Stroke="White" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                                 </Viewbox>
                                                 <TextBlock Text="Sign in" VerticalAlignment="Center"/>
                                             </StackPanel>
+                                        </Button>
+                                        <!-- Sign out button -->
+                                        <Button Grid.Column="3" Style="{StaticResource GhostButton}"
+                                                Command="{Binding SignOutCommand}"
+                                                Visibility="{Binding IsSignedIn, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Sign out" VerticalAlignment="Center"/>
                                         </Button>
                                     </Grid>
                                 </Border>
