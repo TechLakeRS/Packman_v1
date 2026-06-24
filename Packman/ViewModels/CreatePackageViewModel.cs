@@ -67,7 +67,21 @@ public class CreatePackageViewModel : ObservableObject
     public PSADTOptions? CurrentPSADTOptions
     {
         get => _currentPSADTOptions;
-        set => Set(ref _currentPSADTOptions, value);
+        set { if (Set(ref _currentPSADTOptions, value)) OnPropertyChanged(nameof(PSADTSummary)); }
+    }
+
+    /// <summary>
+    /// Human-readable summary of configured PSADT functions, shown on the Generate step.
+    /// </summary>
+    public string PSADTSummary
+    {
+        get
+        {
+            var count = _currentPSADTOptions?.GetEnabledOptionsCount() ?? 0;
+            return count == 0
+                ? "No custom functions added — the package uses the default install/uninstall logic."
+                : $"{count} custom PSADT function{(count == 1 ? "" : "s")} configured.";
+        }
     }
 
     public string CurrentPackagePath

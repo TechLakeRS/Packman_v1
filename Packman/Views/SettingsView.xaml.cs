@@ -22,4 +22,7 @@ public partial class SettingsView : UserControl
 
     private void NavNetworkPaths_Click(object sender, MouseButtonEventArgs e)
         => NetworkPathsCard.BringIntoView();
+
+    private void NavGroupAssignment_Click(object sender, MouseButtonEventArgs e)
+        => GroupAssignmentCard.BringIntoView();
 }

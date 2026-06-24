@@ -23,6 +23,14 @@ public class PSADTFunctionEntry
 {
     public string FunctionName { get; set; } = "";
     public string GeneratedCode { get; set; } = "";
+
+    public PSADTFunctionEntry() { }
+
+    public PSADTFunctionEntry(string functionName, string generatedCode)
+    {
+        FunctionName = functionName;
+        GeneratedCode = generatedCode;
+    }
 }
 
 public class PSADTOptions
