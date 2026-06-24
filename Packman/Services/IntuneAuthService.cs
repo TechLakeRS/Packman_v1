@@ -16,6 +16,7 @@ public class IntuneAuthService
     [
         "User.Read",
         "DeviceManagementApps.ReadWrite.All",
+        "Group.Read.All",
     ];
 
     private static readonly string[] AppOnlyScopes = ["https://graph.microsoft.com/.default"];

@@ -12,7 +12,7 @@ namespace Packman.Services;
 /// EndpointPackagingSuite reference service: same Graph queries and parsing, but the
 /// token comes from Packman's existing sign-in (no DI / Serilog / memory cache).
 /// </summary>
-public class IntuneService
+public partial class IntuneService
 {
     private const string Base = "https://graph.microsoft.com/beta/deviceAppManagement/mobileApps";
 
