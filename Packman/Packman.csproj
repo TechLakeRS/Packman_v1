@@ -16,4 +16,9 @@
     <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.67.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Bundled PSADT v4 template, copied next to the executable -->
+    <None Include="PSADT\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

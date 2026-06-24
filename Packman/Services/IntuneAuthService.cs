@@ -55,4 +55,19 @@ public class IntuneAuthService
         _account = null;
         SignedInUser = null;
     }
+
+    public bool IsSignedIn => _pca != null && _account != null;
+
+    /// <summary>
+    /// Returns a Graph access token for the signed-in account. Requires a prior
+    /// successful SignInAsync; throws otherwise so the upload flow can prompt to sign in.
+    /// </summary>
+    public async Task<string> GetAccessTokenAsync()
+    {
+        if (_pca == null || _account == null)
+            throw new InvalidOperationException("Not signed in. Sign in on the Settings page before uploading.");
+
+        var result = await _pca.AcquireTokenSilent(Scopes, _account).ExecuteAsync();
+        return result.AccessToken;
+    }
 }

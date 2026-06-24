@@ -479,6 +479,17 @@
                                 </Viewbox>
                             </Grid>
 
+                            <!-- IntuneWinAppUtil path -->
+                            <TextBlock Text="IntuneWinAppUtil Path" Style="{StaticResource FieldLabel}" Margin="0,16,0,0"/>
+                            <Grid Margin="0,7,0,0">
+                                <TextBox Style="{StaticResource TextField}"
+                                         Text="{Binding IntuneWinAppUtilPath, UpdateSourceTrigger=PropertyChanged}"
+                                         local:PlaceholderText.Text="\\server\share\Tools\IntuneWinAppUtil.exe"/>
+                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
+                                    <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                            </Grid>
+
                         </StackPanel>
                     </Border>
 

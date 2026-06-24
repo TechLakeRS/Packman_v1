@@ -20,6 +20,7 @@ public class CreatePackageViewModel : ObservableObject
     private string _statusText = "";
     private bool _isGenerating = false;
     private string _extractedIconPath = "";
+    private string _predecessorAppId = "";
 
     public string SourcesPath
     {
@@ -91,6 +92,16 @@ public class CreatePackageViewModel : ObservableObject
     {
         get => _extractedIconPath;
         set => Set(ref _extractedIconPath, value);
+    }
+
+    /// <summary>
+    /// Intune app id of the package this one supersedes (set when the package was
+    /// produced by Upgrade). Carried into the upload to write a supersedence relationship.
+    /// </summary>
+    public string PredecessorAppId
+    {
+        get => _predecessorAppId;
+        set => Set(ref _predecessorAppId, value);
     }
 
     public void LoadFromFile(string filePath)
@@ -213,5 +224,6 @@ public class CreatePackageViewModel : ObservableObject
         CurrentPSADTOptions = null;
         CurrentPackagePath = "";
         StatusText = "";
+        PredecessorAppId = "";
     }
 }

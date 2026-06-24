@@ -15,7 +15,8 @@
                 <DropShadowEffect Color="Black" Opacity="0.04" ShadowDepth="1" BlurRadius="2"/>
             </Border.Effect>
             <StackPanel Orientation="Horizontal">
-                <RadioButton Style="{StaticResource ModeToggle}" GroupName="GenMode" IsChecked="True">
+                <RadioButton x:Name="CreateModeRadio" Style="{StaticResource ModeToggle}" GroupName="GenMode" IsChecked="True"
+                             Checked="CreateMode_Checked">
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="14" Height="14">
                             <Path Data="{StaticResource IconPlus}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2.3" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -23,7 +24,8 @@
                         <TextBlock Text="Create New" Margin="8,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </RadioButton>
-                <RadioButton Style="{StaticResource ModeToggle}" GroupName="GenMode" Margin="3,0,0,0">
+                <RadioButton x:Name="UpgradeModeRadio" Style="{StaticResource ModeToggle}" GroupName="GenMode" Margin="3,0,0,0"
+                             Checked="UpgradeMode_Checked">
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="14" Height="14">
                             <Path Data="{StaticResource IconRefresh}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -35,7 +37,7 @@
         </Border>
 
         <!-- Application Information Card -->
-        <Border Style="{StaticResource Card}" Margin="0,18,0,0">
+        <Border x:Name="CreateModeCard" Style="{StaticResource Card}" Margin="0,18,0,0">
             <StackPanel>
                 <!-- Card header -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
@@ -175,6 +177,81 @@
 
                 <!-- Status text -->
                 <TextBlock Text="{Binding CreatePackage.StatusText}" FontSize="12.5"
+                           Foreground="{DynamicResource MutedBrush}" Margin="0,16,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Upgrade Existing Card -->
+        <Border x:Name="UpgradeModeCard" Style="{StaticResource Card}" Margin="0,18,0,0" Visibility="Collapsed">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
+                        <Viewbox Width="20" Height="20">
+                            <Path Data="{StaticResource IconRefresh}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                    </Border>
+                    <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Upgrade Existing Package" Style="{StaticResource H2}"/>
+                        <TextBlock Text="Create a new version, reusing the existing install logic" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Existing package folder -->
+                <TextBlock Text="Existing Package Folder" Style="{StaticResource FieldLabel}"/>
+                <Grid Margin="0,7,0,0">
+                    <TextBox Style="{StaticResource TextField}" Padding="13,12,110,12" IsReadOnly="True"
+                             local:PlaceholderText.Text="Select the existing PSADT package folder"
+                             Text="{Binding Upgrade.ExistingPackagePath, Mode=OneWay}"/>
+                    <Button Style="{StaticResource BrowseButton}" HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                            Margin="0,6,6,6" Click="BrowseUpgradePackage_Click">
+                        <TextBlock Text="Browse" VerticalAlignment="Center"/>
+                    </Button>
+                </Grid>
+
+                <!-- Loaded package info -->
+                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                        CornerRadius="10" Padding="13" Margin="0,12,0,0"
+                        Visibility="{Binding Upgrade.HasLoadedPackage, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Upgrade.PackageDisplayName}" FontSize="14" FontWeight="ExtraBold" Foreground="{DynamicResource InkBrush}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <TextBlock Text="{Binding Upgrade.PackageDisplayVersion}" FontSize="12" Foreground="{DynamicResource MutedBrush}"/>
+                            <TextBlock Text=" · " FontSize="12" Foreground="{DynamicResource MutedBrush}"/>
+                            <TextBlock Text="{Binding Upgrade.PackageDisplayContext}" FontSize="12" Foreground="{DynamicResource MutedBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- New source + version -->
+                <Grid Margin="0,16,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="180"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="New Source File" Style="{StaticResource FieldLabel}"/>
+                        <Grid Margin="0,7,0,0">
+                            <TextBox Style="{StaticResource TextField}" Padding="13,12,110,12" IsReadOnly="True"
+                                     local:PlaceholderText.Text="Select the new MSI/EXE"
+                                     Text="{Binding Upgrade.NewSourcePath, Mode=OneWay}"/>
+                            <Button Style="{StaticResource BrowseButton}" HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                                    Margin="0,6,6,6" Click="BrowseUpgradeSource_Click">
+                                <TextBlock Text="Browse" VerticalAlignment="Center"/>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="New Version" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                 local:PlaceholderText.Text="e.g. 125.0"
+                                 Text="{Binding Upgrade.NewVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="{Binding Upgrade.StatusText}" FontSize="12.5"
                            Foreground="{DynamicResource MutedBrush}" Margin="0,16,0,0"/>
             </StackPanel>
         </Border>

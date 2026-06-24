@@ -109,6 +109,9 @@ public sealed class SettingsViewModel : ObservableObject
     private string _psadtTemplatePath = "";
     public string PSADTTemplatePath { get => _psadtTemplatePath; set => Set(ref _psadtTemplatePath, value); }
 
+    private string _intuneWinAppUtilPath = "";
+    public string IntuneWinAppUtilPath { get => _intuneWinAppUtilPath; set => Set(ref _intuneWinAppUtilPath, value); }
+
     // ── Save feedback ──────────────────────────────────────────────────
     private string _saveStatus = "";
     public string SaveStatus { get => _saveStatus; set => Set(ref _saveStatus, value); }
@@ -150,6 +153,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         IntuneApplicationsPath = s.NetworkPaths.IntuneApplications;
         PSADTTemplatePath = s.NetworkPaths.PSADTTemplate;
+        IntuneWinAppUtilPath = s.NetworkPaths.IntuneWinAppUtil;
     }
 
     private void LoadCertificatesFromStore()
@@ -228,6 +232,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         s.NetworkPaths.IntuneApplications = IntuneApplicationsPath;
         s.NetworkPaths.PSADTTemplate = PSADTTemplatePath;
+        s.NetworkPaths.IntuneWinAppUtil = IntuneWinAppUtilPath;
 
         _svc.Save();
         SaveStatus = "Settings saved.";

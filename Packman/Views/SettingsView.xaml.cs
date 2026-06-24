@@ -11,7 +11,7 @@ public partial class SettingsView : UserControl
     public SettingsView()
     {
         InitializeComponent();
-        DataContext = new SettingsViewModel(new SettingsService(), new IntuneAuthService());
+        DataContext = new SettingsViewModel(AppServices.Settings, AppServices.Auth);
     }
 
     private void NavAuth_Click(object sender, MouseButtonEventArgs e)

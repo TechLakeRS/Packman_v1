@@ -60,4 +60,42 @@ public partial class StepGenerate : UserControl
         if (VM != null) VM.CreatePackage.UserInstall = true;
         if (InstallContextHelpText != null) InstallContextHelpText.Text = UserHelpText;
     }
+
+    private void CreateMode_Checked(object sender, RoutedEventArgs e)
+    {
+        if (VM != null) VM.IsUpgradeMode = false;
+        if (CreateModeCard != null) CreateModeCard.Visibility = Visibility.Visible;
+        if (UpgradeModeCard != null) UpgradeModeCard.Visibility = Visibility.Collapsed;
+    }
+
+    private void UpgradeMode_Checked(object sender, RoutedEventArgs e)
+    {
+        if (VM != null) VM.IsUpgradeMode = true;
+        if (CreateModeCard != null) CreateModeCard.Visibility = Visibility.Collapsed;
+        if (UpgradeModeCard != null) UpgradeModeCard.Visibility = Visibility.Visible;
+    }
+
+    private void BrowseUpgradePackage_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = "Select existing PSADT package folder" };
+
+        var intuneApps = VM?.SettingsService.Settings.NetworkPaths.IntuneApplications;
+        if (!string.IsNullOrEmpty(intuneApps) && Directory.Exists(intuneApps))
+            dialog.InitialDirectory = intuneApps;
+
+        if (dialog.ShowDialog() == true)
+            VM?.Upgrade.LoadPackage(dialog.FolderName);
+    }
+
+    private void BrowseUpgradeSource_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Select New Source File",
+            Filter = "Supported Files (*.msi;*.exe)|*.msi;*.exe|MSI Files (*.msi)|*.msi|EXE Files (*.exe)|*.exe|All Files (*.*)|*.*"
+        };
+
+        if (dialog.ShowDialog() == true)
+            VM?.Upgrade.SetNewSource(dialog.FileName);
+    }
 }
