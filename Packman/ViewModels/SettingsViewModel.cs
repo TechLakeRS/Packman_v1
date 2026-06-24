@@ -320,7 +320,7 @@ public sealed class SettingsViewModel : ObservableObject
         s.GroupAssignment.GroupNameTemplate = GroupNameTemplate;
         s.GroupAssignment.NewGroupIntent = NewGroupRequired ? AssignmentIntent.Required : AssignmentIntent.Available;
         s.GroupAssignment.ExistingGroups = ExistingGroups
-            .Select(g => new ExistingGroupAssignment
+            .Select(g => new AppSettings.ExistingGroupAssignment
             {
                 GroupName = g.GroupName,
                 Intent = g.IsRequired ? AssignmentIntent.Required : AssignmentIntent.Available
