@@ -1,6 +1,7 @@
 using Packman.Models;
 using Packman.Services;
 using System.IO;
+using System.Linq;
 using System.Windows;
 
 namespace Packman.ViewModels;
@@ -22,6 +23,24 @@ public class UploadStepViewModel : ObservableObject
     private int _progressValue;
     private bool _isUploading;
 
+    private string _selectedDetectionMethod = "Auto (from package)";
+    private string _detectionPath = "";
+    private string _detectionName = "";
+    private string _detectionValue = "";
+
+    private string _selectedOperatingSystem = "Windows 10 1607";
+    private string _minFreeDiskSpaceMB = "";
+    private string _minMemoryMB = "";
+
+    private string _reviewName = "";
+    private string _reviewVendor = "";
+    private string _reviewVersion = "";
+    private string _reviewAuthor = "";
+    private string _reviewArchitecture = "";
+    private string _reviewContext = "";
+    private string _reviewPackageType = "";
+    private string _reviewSize = "";
+
     public UploadStepViewModel(CreatePackageViewModel create, SettingsService settingsService, IntuneAuthService auth)
     {
         _create = create;
@@ -39,6 +58,66 @@ public class UploadStepViewModel : ObservableObject
     public bool IsSignedIn => _auth.IsSignedIn;
     public bool IsNotSignedIn => !_auth.IsSignedIn;
     public string SignedInUser => _auth.SignedInUser ?? "";
+
+    // ── Detection method ───────────────────────────────────────────────
+    public List<string> DetectionMethods { get; } = new()
+    {
+        "Auto (from package)", "File exists", "File version", "Registry key exists", "MSI product code"
+    };
+
+    public string SelectedDetectionMethod
+    {
+        get => _selectedDetectionMethod;
+        set
+        {
+            if (Set(ref _selectedDetectionMethod, value))
+            {
+                OnPropertyChanged(nameof(IsCustomDetection));
+                RefreshDetectionSummary();
+            }
+        }
+    }
+
+    public bool IsCustomDetection => _selectedDetectionMethod != "Auto (from package)";
+
+    public string DetectionPath
+    {
+        get => _detectionPath;
+        set { if (Set(ref _detectionPath, value)) RefreshDetectionSummary(); }
+    }
+
+    public string DetectionName
+    {
+        get => _detectionName;
+        set { if (Set(ref _detectionName, value)) RefreshDetectionSummary(); }
+    }
+
+    public string DetectionValue
+    {
+        get => _detectionValue;
+        set { if (Set(ref _detectionValue, value)) RefreshDetectionSummary(); }
+    }
+
+    // ── Requirements (collapsed; defaults used when left unset) ─────────
+    public List<string> OperatingSystems { get; } = new()
+    {
+        "Windows 10 1607", "Windows 10 1809", "Windows 10 1903", "Windows 10 2004",
+        "Windows 10 21H2", "Windows 10 22H2", "Windows 11 21H2", "Windows 11 22H2"
+    };
+
+    public string SelectedOperatingSystem { get => _selectedOperatingSystem; set => Set(ref _selectedOperatingSystem, value); }
+    public string MinFreeDiskSpaceMB { get => _minFreeDiskSpaceMB; set => Set(ref _minFreeDiskSpaceMB, value); }
+    public string MinMemoryMB { get => _minMemoryMB; set => Set(ref _minMemoryMB, value); }
+
+    // ── Review ─────────────────────────────────────────────────────────
+    public string ReviewName { get => _reviewName; set => Set(ref _reviewName, value); }
+    public string ReviewVendor { get => _reviewVendor; set => Set(ref _reviewVendor, value); }
+    public string ReviewVersion { get => _reviewVersion; set => Set(ref _reviewVersion, value); }
+    public string ReviewAuthor { get => _reviewAuthor; set => Set(ref _reviewAuthor, value); }
+    public string ReviewArchitecture { get => _reviewArchitecture; set => Set(ref _reviewArchitecture, value); }
+    public string ReviewContext { get => _reviewContext; set => Set(ref _reviewContext, value); }
+    public string ReviewPackageType { get => _reviewPackageType; set => Set(ref _reviewPackageType, value); }
+    public string ReviewSize { get => _reviewSize; set => Set(ref _reviewSize, value); }
 
     /// <summary>
     /// Refreshes the displayed summary from the package produced earlier in the wizard.
@@ -60,7 +139,93 @@ public class UploadStepViewModel : ObservableObject
         var appInfo = _create.BuildApplicationInfo();
         AppSummaryName = $"{appInfo.Manufacturer} {appInfo.Name}".Trim();
         AppSummaryDetail = $"v{appInfo.Version} · {appInfo.InstallContext} context · Win32";
-        DetectionSummary = DescribeDetection(BuildDetectionRules(_create.CurrentPackagePath, appInfo));
+
+        // Seed the editable detection fields from the auto-detected rule.
+        var autoRule = BuildDetectionRules(_create.CurrentPackagePath, appInfo)[0];
+        _detectionPath = string.IsNullOrEmpty(autoRule.Path) ? "%ProgramFiles%" : autoRule.Path;
+        _detectionName = string.IsNullOrEmpty(autoRule.FileOrFolderName) ? $"{appInfo.Name}.exe" : autoRule.FileOrFolderName;
+        _detectionValue = string.IsNullOrEmpty(autoRule.DetectionValue) ? appInfo.Version : autoRule.DetectionValue;
+        OnPropertyChanged(nameof(DetectionPath));
+        OnPropertyChanged(nameof(DetectionName));
+        OnPropertyChanged(nameof(DetectionValue));
+        RefreshDetectionSummary();
+
+        // Review panel.
+        ReviewName = appInfo.Name;
+        ReviewVendor = appInfo.Manufacturer;
+        ReviewVersion = appInfo.Version;
+        ReviewAuthor = string.IsNullOrWhiteSpace(appInfo.Author) ? Environment.UserName : appInfo.Author;
+        ReviewArchitecture = appInfo.Architecture;
+        ReviewContext = appInfo.InstallContext;
+        ReviewPackageType = appInfo.PackageType;
+        ReviewSize = FormatSize(GetSourceSizeBytes(_create.CurrentPackagePath));
+    }
+
+    private void RefreshDetectionSummary()
+    {
+        if (string.IsNullOrEmpty(_create.CurrentPackagePath)) return;
+        var appInfo = _create.BuildApplicationInfo();
+        DetectionSummary = DescribeDetection(BuildSelectedDetectionRules(_create.CurrentPackagePath, appInfo));
+    }
+
+    private List<DetectionRule> BuildSelectedDetectionRules(string packagePath, ApplicationInfo appInfo)
+    {
+        if (!IsCustomDetection)
+            return BuildDetectionRules(packagePath, appInfo);
+
+        return SelectedDetectionMethod switch
+        {
+            "File exists" => new List<DetectionRule>
+            {
+                new() { Type = DetectionRuleType.File, Path = DetectionPath, FileOrFolderName = DetectionName,
+                        DetectionType = "exists", Check32BitOn64System = true }
+            },
+            "File version" => new List<DetectionRule>
+            {
+                new() { Type = DetectionRuleType.File, Path = DetectionPath, FileOrFolderName = DetectionName,
+                        DetectionType = "version", CheckVersion = true, Operator = "greaterThanOrEqual",
+                        DetectionValue = DetectionValue, Check32BitOn64System = true }
+            },
+            "Registry key exists" => new List<DetectionRule>
+            {
+                new() { Type = DetectionRuleType.Registry, Path = DetectionPath, FileOrFolderName = DetectionName,
+                        DetectionType = "exists" }
+            },
+            "MSI product code" => new List<DetectionRule>
+            {
+                new() { Type = DetectionRuleType.MSI, Path = DetectionPath }
+            },
+            _ => BuildDetectionRules(packagePath, appInfo)
+        };
+    }
+
+    private RequirementInfo BuildRequirements()
+    {
+        var req = new RequirementInfo { MinimumOperatingSystem = SelectedOperatingSystem };
+        if (int.TryParse(MinFreeDiskSpaceMB, out var disk) && disk > 0) req.MinimumFreeDiskSpaceMB = disk;
+        if (int.TryParse(MinMemoryMB, out var mem) && mem > 0) req.MinimumMemoryMB = mem;
+        return req;
+    }
+
+    private static long GetSourceSizeBytes(string packagePath)
+    {
+        try
+        {
+            var filesFolder = Path.Combine(packagePath, "Application", "Files");
+            if (!Directory.Exists(filesFolder)) return 0;
+            return Directory.GetFiles(filesFolder, "*", SearchOption.AllDirectories).Sum(f => new FileInfo(f).Length);
+        }
+        catch { return 0; }
+    }
+
+    private static string FormatSize(long bytes)
+    {
+        if (bytes <= 0) return "—";
+        string[] units = { "B", "KB", "MB", "GB" };
+        double size = bytes;
+        int unit = 0;
+        while (size >= 1024 && unit < units.Length - 1) { size /= 1024; unit++; }
+        return $"{size:0.#} {units[unit]}";
     }
 
     public async Task UploadAsync()
@@ -86,7 +251,8 @@ public class UploadStepViewModel : ObservableObject
         }
 
         var appInfo = _create.BuildApplicationInfo();
-        var detectionRules = BuildDetectionRules(packagePath, appInfo);
+        var detectionRules = BuildSelectedDetectionRules(packagePath, appInfo);
+        var requirements = BuildRequirements();
 
         NativeCodeSigner? signer = null;
         if (settings.CodeSigning.Enabled)
@@ -116,7 +282,8 @@ public class UploadStepViewModel : ObservableObject
                 string.IsNullOrEmpty(_create.ExtractedIconPath) ? null : _create.ExtractedIconPath,
                 progress,
                 string.IsNullOrEmpty(_create.PredecessorAppId) ? null : _create.PredecessorAppId,
-                settings.GroupAssignment));
+                settings.GroupAssignment,
+                requirements));
 
             ProgressValue = 100;
             StatusText = $"Uploaded to Intune · App ID {appId}";
