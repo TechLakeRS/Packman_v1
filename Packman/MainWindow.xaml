@@ -178,14 +178,6 @@
                         <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="17" Height="17">
-                                    <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="Sign" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </RadioButton>
-                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="17" Height="17">
                                     <Path Data="{StaticResource IconWrench}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
                                 <TextBlock Text="Advanced" Margin="12,0,0,0" VerticalAlignment="Center"/>
