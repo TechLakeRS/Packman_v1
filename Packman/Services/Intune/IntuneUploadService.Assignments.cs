@@ -37,7 +37,8 @@ public partial class IntuneUploadService
                 log.Warning("Per-package group name resolved to empty - skipped");
                 return;
             }
-            var groupId = await CreateSecurityGroupAsync(name, log);
+            // Reuse a group with this name if one already exists, otherwise create it.
+            var groupId = await ResolveGroupIdAsync(name, log) ?? await CreateSecurityGroupAsync(name, log);
             if (groupId != null)
                 await CreateGroupAssignmentAsync(appId, groupId, config.NewGroupIntent, name, log);
         }

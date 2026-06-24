@@ -518,7 +518,7 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                     <TextBlock Text="Create a new group for each package" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
-                                    <TextBlock Text="A fresh security group is created on every upload and assigned to the app" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="A security group is created (or reused if it already exists) on upload and assigned to the app" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                                 </StackPanel>
                                 <!-- On / Off toggle -->
                                 <Border Grid.Column="1" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
