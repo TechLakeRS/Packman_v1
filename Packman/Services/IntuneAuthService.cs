@@ -7,9 +7,10 @@ namespace Packman.Services;
 
 public class IntuneAuthService
 {
-    // Fallback only: well-known Microsoft Intune PowerShell public client, used
-    // for interactive sign-in when no app registration Client ID is configured.
-    private const string DefaultInteractiveClientId = "d1ddf0e4-d672-4dae-b554-9d5bdfd93547";
+    // Fallback only: well-known "Microsoft Graph Command Line Tools" public client
+    // (the same app Connect-MgGraph uses), used for interactive sign-in when no app
+    // registration Client ID is configured. Pre-provisioned in virtually every tenant.
+    private const string DefaultInteractiveClientId = "14d82eec-204b-4c2f-b7e8-296a70dab67e";
 
     private static readonly string[] InteractiveScopes =
     [
