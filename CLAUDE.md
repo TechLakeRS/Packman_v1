@@ -5,7 +5,7 @@ Don't assume. Don't hide confusion. Surface tradeoffs.
 Before implementing:
 ## Git workflow
 - Work directly on `default`. Do not create branches or git worktrees.
-- After completing a change, commit and push to `origin main`.
+- After completing a change, commit and push to DEFAULT BRANCHE.
 - Never run `git checkout -b`, `git switch -c`, or `git worktree add`.
 
 - State your assumptions explicitly. If uncertain, ask.
