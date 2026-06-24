@@ -1,0 +1,196 @@
+using Packman.Models;
+using Packman.Services;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+
+namespace Packman.ViewModels;
+
+/// <summary>
+/// Backs the Application detail screen: loads full metadata, assignments, detection
+/// rules and the install-status rollup for a single Intune app.
+/// </summary>
+public sealed class ApplicationDetailViewModel : ObservableObject
+{
+    private readonly IntuneService _apps = AppServices.Apps;
+
+    public ApplicationDetailViewModel(IntuneApplication app)
+    {
+        // Seed from the list item so the header renders immediately; LoadAsync fills the rest.
+        Detail = new ApplicationDetail
+        {
+            Id = app.Id,
+            DisplayName = app.DisplayName,
+            Version = app.Version,
+            Publisher = app.Publisher,
+            Category = app.Category,
+            LastModified = app.LastModified,
+            LastModifiedDateTime = app.LastModified,
+        };
+        BuildActivity();
+    }
+
+    private ApplicationDetail _detail = null!;
+    public ApplicationDetail Detail
+    {
+        get => _detail;
+        private set
+        {
+            _detail = value;
+            OnPropertyChanged(nameof(Detail));
+            OnPropertyChanged(nameof(HasInstall));
+            OnPropertyChanged(nameof(HasUninstall));
+        }
+    }
+
+    // ── Tabs ──
+    private string _tab = "overview";
+    public string Tab
+    {
+        get => _tab;
+        set { if (Set(ref _tab, value)) RaiseTabFlags(); }
+    }
+    public bool IsOverview => _tab == "overview";
+    public bool IsAssignments => _tab == "assignments";
+    public bool IsDetection => _tab == "detection";
+    public bool IsActivity => _tab == "activity";
+
+    private void RaiseTabFlags()
+    {
+        OnPropertyChanged(nameof(IsOverview));
+        OnPropertyChanged(nameof(IsAssignments));
+        OnPropertyChanged(nameof(IsDetection));
+        OnPropertyChanged(nameof(IsActivity));
+    }
+
+    public bool HasInstall => !string.IsNullOrWhiteSpace(Detail.InstallCommand);
+    public bool HasUninstall => !string.IsNullOrWhiteSpace(Detail.UninstallCommand);
+
+    public ObservableCollection<AssignedGroup> RequiredAssignments { get; } = new();
+    public ObservableCollection<AssignedGroup> AvailableAssignments { get; } = new();
+    public ObservableCollection<AssignedGroup> UninstallAssignments { get; } = new();
+    public bool HasDetectionRules => Detail.DetectionRules.Count > 0;
+    public bool HasAssignments => Detail.AssignedGroups.Count > 0;
+
+    public ObservableCollection<ActivityEntry> Activity { get; } = new();
+
+    // ── Deployment status (fixed 252px track to avoid binding GridLengths) ──
+    private const double BarWidth = 252;
+    public bool HasSummary => Detail.Statistics is { TotalDevices: > 0 };
+    public int SumInstalled => Detail.Statistics?.SuccessfulInstalls ?? 0;
+    public int SumPending => Detail.Statistics?.PendingInstalls ?? 0;
+    public int SumFailed => Detail.Statistics?.FailedInstalls ?? 0;
+    public int SumNotInstalled => Detail.Statistics?.NotInstalled ?? 0;
+    public int SumNotApplicable => Detail.Statistics?.NotApplicable ?? 0;
+    public double BarInstalled => Frac(SumInstalled);
+    public double BarPending => Frac(SumPending);
+    public double BarFailed => Frac(SumFailed);
+    private double Frac(int count)
+    {
+        var total = Detail.Statistics?.TotalDevices ?? 0;
+        return total > 0 ? BarWidth * count / total : 0;
+    }
+
+    private bool _isLoading;
+    public bool IsLoading { get => _isLoading; private set => Set(ref _isLoading, value); }
+
+    private string _statusText = "";
+    public string StatusText { get => _statusText; private set => Set(ref _statusText, value); }
+
+    public async Task LoadAsync()
+    {
+        IsLoading = true;
+        StatusText = "";
+        try
+        {
+            Detail = await _apps.GetApplicationDetailAsync(Detail.Id);
+            RebuildAssignments();
+            BuildActivity();
+            RaiseDerived();
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Could not load full details: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    public async Task<bool> DeleteAsync()
+    {
+        try
+        {
+            await _apps.DeleteApplicationAsync(Detail.Id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Could not retire app: {ex.Message}";
+            return false;
+        }
+    }
+
+    public void OpenInIntune()
+    {
+        var url = $"https://intune.microsoft.com/#view/Microsoft_Intune_Apps/SettingsMenu/~/0/appId/{Detail.Id}";
+        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
+        catch (Exception ex) { StatusText = $"Could not open browser: {ex.Message}"; }
+    }
+
+    private void RaiseDerived()
+    {
+        OnPropertyChanged(nameof(HasDetectionRules));
+        OnPropertyChanged(nameof(HasAssignments));
+        OnPropertyChanged(nameof(HasSummary));
+        OnPropertyChanged(nameof(SumInstalled));
+        OnPropertyChanged(nameof(SumPending));
+        OnPropertyChanged(nameof(SumFailed));
+        OnPropertyChanged(nameof(SumNotInstalled));
+        OnPropertyChanged(nameof(SumNotApplicable));
+        OnPropertyChanged(nameof(BarInstalled));
+        OnPropertyChanged(nameof(BarPending));
+        OnPropertyChanged(nameof(BarFailed));
+    }
+
+    private void RebuildAssignments()
+    {
+        RequiredAssignments.Clear();
+        AvailableAssignments.Clear();
+        UninstallAssignments.Clear();
+        foreach (var a in Detail.AssignedGroups)
+        {
+            switch (a.AssignmentType?.ToLowerInvariant())
+            {
+                case "required": RequiredAssignments.Add(a); break;
+                case "available": case "availablewithoutenrollment": AvailableAssignments.Add(a); break;
+                case "uninstall": UninstallAssignments.Add(a); break;
+            }
+        }
+    }
+
+    private void BuildActivity()
+    {
+        Activity.Clear();
+        if (string.Equals(Detail.PublishingState, "published", StringComparison.OrdinalIgnoreCase))
+            Activity.Add(new ActivityEntry("Published to Intune", Detail.UpdatedText, "ok"));
+        if (Detail.AssignedGroups.Count > 0)
+            Activity.Add(new ActivityEntry($"Assigned to {Detail.AssignedGroups.Count} group{(Detail.AssignedGroups.Count > 1 ? "s" : "")}", Detail.UpdatedText, "ok"));
+        Activity.Add(new ActivityEntry("Last updated", Detail.LastModifiedFormatted, "mut"));
+        Activity.Add(new ActivityEntry("Package created", Detail.CreatedFormatted, "mut"));
+    }
+}
+
+public sealed class ActivityEntry
+{
+    public ActivityEntry(string title, string when, string kind)
+    {
+        Title = title;
+        When = when;
+        Kind = kind;
+    }
+    public string Title { get; }
+    public string When { get; }
+    public string Kind { get; }   // ok | mut
+    public bool IsOk => Kind == "ok";
+}
