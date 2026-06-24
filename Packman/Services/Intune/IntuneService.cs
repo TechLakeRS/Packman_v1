@@ -33,7 +33,7 @@ public class IntuneService
     }
 
     // ── List ────────────────────────────────────────────
-    public async Task<List<IntuneApplication>> GetApplicationsAsync(bool forceRefresh = false)
+    public async Task<List<IntuneApplication>> GetApplicationsAsync(bool forceRefresh = false, IProgress<int>? progress = null)
     {
         if (!forceRefresh && _listCache != null)
             return _listCache;
@@ -62,6 +62,7 @@ public class IntuneService
                 foreach (var el in value.EnumerateArray())
                     apps.Add(ParseListItem(el));
 
+            progress?.Report(apps.Count);
             url = root.TryGetProperty("@odata.nextLink", out var next) ? next.GetString() ?? "" : "";
         }
 
