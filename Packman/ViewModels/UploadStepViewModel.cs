@@ -1,5 +1,6 @@
 using Packman.Models;
 using Packman.Services;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -46,6 +47,17 @@ public class UploadStepViewModel : ObservableObject
         _create = create;
         _settingsService = settingsService;
         _auth = auth;
+
+        DoneCommand = new RelayCommand(() => { IsPublishing = false; IsComplete = false; });
+
+        PublishSteps = new ObservableCollection<PublishStepViewModel>
+        {
+            new(1, "Building .intunewin package"),
+            new(2, "Signing with Authenticode"),
+            new(3, "Uploading to tenant"),
+            new(4, "Creating Win32 app"),
+            new(5, "Assigning to groups"),
+        };
     }
 
     public string AppSummaryName { get => _appSummaryName; set => Set(ref _appSummaryName, value); }
@@ -58,6 +70,52 @@ public class UploadStepViewModel : ObservableObject
     public bool IsSignedIn => _auth.IsSignedIn;
     public bool IsNotSignedIn => !_auth.IsSignedIn;
     public string SignedInUser => _auth.SignedInUser ?? "";
+
+    // ── Publishing overlay ─────────────────────────────────────────────
+    public ObservableCollection<PublishStepViewModel> PublishSteps { get; }
+    public RelayCommand DoneCommand { get; }
+
+    private bool _isPublishing;
+    public bool IsPublishing
+    {
+        get => _isPublishing;
+        private set { if (Set(ref _isPublishing, value)) { OnPropertyChanged(nameof(IsNotPublishing)); OnPropertyChanged(nameof(IsRunning)); } }
+    }
+    public bool IsNotPublishing => !_isPublishing;
+
+    /// <summary>True while a publish is in flight but not yet finished (drives the spinner).</summary>
+    public bool IsRunning => _isPublishing && !_isComplete;
+
+    private bool _isComplete;
+    public bool IsComplete
+    {
+        get => _isComplete;
+        private set { if (Set(ref _isComplete, value)) { OnPropertyChanged(nameof(IsRunning)); OnPropertyChanged(nameof(IsSucceeded)); OnPropertyChanged(nameof(IsFailed)); } }
+    }
+
+    private bool _succeeded;
+    public bool IsSucceeded => _isComplete && _succeeded;
+    public bool IsFailed => _isComplete && !_succeeded;
+
+    private string _publishTitle = "";
+    public string PublishTitle { get => _publishTitle; private set => Set(ref _publishTitle, value); }
+
+    private string _resultText = "";
+    public string ResultText { get => _resultText; private set => Set(ref _resultText, value); }
+
+    /// <summary>Tenant label derived from the signed-in UPN domain (e.g. "contoso").</summary>
+    public string TenantName
+    {
+        get
+        {
+            var upn = _auth.SignedInUser ?? "";
+            var at = upn.IndexOf('@');
+            if (at < 0 || at == upn.Length - 1) return "your";
+            var domain = upn[(at + 1)..];
+            var dot = domain.IndexOf('.');
+            return dot > 0 ? domain[..dot] : domain;
+        }
+    }
 
     // ── Detection method ───────────────────────────────────────────────
     public List<string> DetectionMethods { get; } = new()
@@ -258,6 +316,15 @@ public class UploadStepViewModel : ObservableObject
         if (settings.CodeSigning.Enabled)
             signer = new NativeCodeSigner(settings.CodeSigning.CertificateThumbprint, settings.CodeSigning.TimestampServer);
 
+        PublishSteps[2] = new PublishStepViewModel(3, $"Uploading to {TenantName} tenant");
+        foreach (var s in PublishSteps) s.State = "pending";
+        PublishSteps[0].State = "working";
+
+        PublishTitle = $"Publishing {appInfo.Manufacturer} {appInfo.Name}…".Trim();
+        ResultText = "";
+        _succeeded = false;
+        IsComplete = false;
+        IsPublishing = true;
         IsUploading = true;
         ProgressValue = 0;
         StatusText = "Starting upload…";
@@ -286,15 +353,41 @@ public class UploadStepViewModel : ObservableObject
                 requirements));
 
             ProgressValue = 100;
+            foreach (var s in PublishSteps) s.State = "done";
+            ResultText = $"Published successfully. App ID {appId}";
             StatusText = $"Uploaded to Intune · App ID {appId}";
+            _succeeded = true;
+            IsComplete = true;
         }
         catch (Exception ex)
         {
+            var working = PublishSteps.FirstOrDefault(s => s.State == "working");
+            if (working != null) working.State = "error";
+            ResultText = $"Upload failed: {ex.Message}";
             StatusText = $"Upload failed: {ex.Message}";
+            _succeeded = false;
+            IsComplete = true;
         }
         finally
         {
             IsUploading = false;
+        }
+    }
+
+    /// <summary>Maps the upload service's 0–100 progress onto the five overlay steps.</summary>
+    private void OnUploadProgress(int pct)
+    {
+        // 0 Building · 1 Signing · 2 Uploading · 3 Creating Win32 app · 4 Assigning
+        int active =
+            pct < 15 ? 0 :
+            pct < 25 ? 1 :
+            pct < 90 ? 2 :
+            pct < 98 ? 3 : 4;
+
+        for (int i = 0; i < PublishSteps.Count; i++)
+        {
+            if (i < active) { if (PublishSteps[i].State != "done") PublishSteps[i].State = "done"; }
+            else if (i == active) { if (PublishSteps[i].State == "pending") PublishSteps[i].State = "working"; }
         }
     }
 
@@ -359,6 +452,7 @@ public class UploadStepViewModel : ObservableObject
             {
                 _vm.ProgressValue = percentage;
                 _vm.StatusText = message;
+                _vm.OnUploadProgress(percentage);
             });
         }
     }

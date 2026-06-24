@@ -86,7 +86,7 @@ public sealed class MainViewModel : ObservableObject
 
         BackCommand        = new RelayCommand(() => CurrentStepIndex--, () => CurrentStepIndex > 0);
         SkipCommand        = new RelayCommand(() => CurrentStepIndex++, () => SkipVisible);
-        PrimaryCommand     = new RelayCommand(OnPrimary, () => !CreatePackage.IsGenerating && !Upgrade.IsBusy && !Upload.IsUploading);
+        PrimaryCommand     = new RelayCommand(OnPrimary, () => !CreatePackage.IsGenerating && !Upgrade.IsBusy && !Upload.IsPublishing);
         GoToStepCommand    = new RelayCommand<int>(i => CurrentStepIndex = i);
         ThemeToggleCommand = new RelayCommand(() => IsDarkTheme = !IsDarkTheme);
 
@@ -110,7 +110,7 @@ public sealed class MainViewModel : ObservableObject
         };
         Upload.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(UploadStepViewModel.IsUploading))
+            if (e.PropertyName == nameof(UploadStepViewModel.IsPublishing))
                 PrimaryCommand.RaiseCanExecuteChanged();
         };
     }

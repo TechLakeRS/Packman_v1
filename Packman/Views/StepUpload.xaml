@@ -8,6 +8,9 @@
              FontFamily="{StaticResource UIFontFamily}">
 
     <Grid>
+
+        <!-- ============ FORM (hidden while publishing) ============ -->
+        <Grid Visibility="{Binding Upload.IsNotPublishing, Converter={StaticResource BoolToVis}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="18"/>
@@ -206,5 +209,148 @@
         </Border>
 
         </StackPanel>
+        </Grid>
+
+        <!-- ============ PUBLISHING OVERLAY ============ -->
+        <Grid MinHeight="560" Background="{DynamicResource BgBrush}"
+              Visibility="{Binding Upload.IsPublishing, Converter={StaticResource BoolToVis}}">
+            <StackPanel Width="560" VerticalAlignment="Center" HorizontalAlignment="Center">
+
+                <!-- Spinner (running) -->
+                <Viewbox Width="56" Height="56" HorizontalAlignment="Center"
+                         Visibility="{Binding Upload.IsRunning, Converter={StaticResource BoolToVis}}">
+                    <Grid Width="44" Height="44" RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Grid.RenderTransform>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Style.Triggers>
+                                    <Trigger Property="IsVisible" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard Name="Spin">
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                     From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <StopStoryboard BeginStoryboardName="Spin"/>
+                                        </Trigger.ExitActions>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Ellipse Width="44" Height="44" Stroke="{DynamicResource LineBrush}" StrokeThickness="4"/>
+                        <Path Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                              Data="M22,2 A20,20 0 0 1 42,22"/>
+                    </Grid>
+                </Viewbox>
+
+                <!-- Done check (complete & success) -->
+                <Border Width="52" Height="52" CornerRadius="26" Background="{DynamicResource OkSoftBrush}" HorizontalAlignment="Center"
+                        Visibility="{Binding Upload.IsSucceeded, Converter={StaticResource BoolToVis}}">
+                    <Viewbox Width="22" Height="22">
+                        <Path Data="{StaticResource IconCheck}" Stroke="{DynamicResource OkBrush}" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Viewbox>
+                </Border>
+
+                <!-- Error mark (complete & failed) -->
+                <Border Width="52" Height="52" CornerRadius="26" Background="{DynamicResource BadSoftBrush}" HorizontalAlignment="Center"
+                        Visibility="{Binding Upload.IsFailed, Converter={StaticResource BoolToVis}}">
+                    <Viewbox Width="20" Height="20">
+                        <Path Data="{StaticResource IconX}" Stroke="{DynamicResource BadBrush}" StrokeThickness="2.4" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Viewbox>
+                </Border>
+
+                <TextBlock Text="{Binding Upload.PublishTitle}" FontSize="20" FontWeight="ExtraBold" Foreground="{DynamicResource InkBrush}"
+                           HorizontalAlignment="Center" Margin="0,18,0,0"/>
+                <TextBlock Text="Building the Win32 package and pushing to Microsoft Intune. This usually takes ~30 seconds — keep this tab open."
+                           FontSize="13" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" TextAlignment="Center"
+                           HorizontalAlignment="Center" Margin="0,8,0,0"
+                           Visibility="{Binding Upload.IsRunning, Converter={StaticResource BoolToVis}}"/>
+
+                <!-- Steps -->
+                <ItemsControl ItemsSource="{Binding Upload.PublishSteps}" Margin="0,24,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="12" Padding="16,14" Margin="0,0,0,10"
+                                    Background="{DynamicResource CardBrush}" BorderThickness="1">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsWorking}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                                <Setter Property="Background" Value="{DynamicResource PrimarySoftBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- status circle -->
+                                    <Grid Grid.Column="0" Width="26" Height="26" VerticalAlignment="Center">
+                                        <!-- done -->
+                                        <Border CornerRadius="13" Background="{DynamicResource OkBrush}" Visibility="{Binding IsDone, Converter={StaticResource BoolToVis}}">
+                                            <Viewbox Width="13" Height="13">
+                                                <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            </Viewbox>
+                                        </Border>
+                                        <!-- working -->
+                                        <Border CornerRadius="13" Background="{DynamicResource PrimaryBrush}" Visibility="{Binding IsWorking, Converter={StaticResource BoolToVis}}"/>
+                                        <!-- error -->
+                                        <Border CornerRadius="13" Background="{DynamicResource BadBrush}" Visibility="{Binding IsError, Converter={StaticResource BoolToVis}}">
+                                            <Viewbox Width="12" Height="12">
+                                                <Path Data="{StaticResource IconX}" Stroke="White" StrokeThickness="2.4" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                            </Viewbox>
+                                        </Border>
+                                        <!-- pending -->
+                                        <Border CornerRadius="13" Background="{DynamicResource Line2Brush}" Visibility="{Binding IsPending, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="{Binding Number}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+
+                                    <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="13,0,0,0" VerticalAlignment="Center"
+                                               FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}"/>
+
+                                    <TextBlock Grid.Column="2" Text="{Binding StatusLabel}" VerticalAlignment="Center" FontSize="12.5" FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsDone}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource OkBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsWorking}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsError}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource BadBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Result + Done -->
+                <StackPanel Visibility="{Binding Upload.IsComplete, Converter={StaticResource BoolToVis}}" Margin="0,6,0,0">
+                    <TextBlock Text="{Binding Upload.ResultText}" FontSize="13" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"/>
+                    <Button Style="{StaticResource PrimaryButton}" HorizontalAlignment="Center" Margin="0,16,0,0"
+                            Command="{Binding Upload.DoneCommand}" Content="Done"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>
