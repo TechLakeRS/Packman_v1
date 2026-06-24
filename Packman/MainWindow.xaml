@@ -141,7 +141,8 @@
                     </Border>
 
                     <StackPanel>
-                        <RadioButton Style="{StaticResource NavItem}" IsChecked="True" GroupName="Nav">
+                        <RadioButton x:Name="CreatePackageNavBtn" Style="{StaticResource NavItem}" IsChecked="True" GroupName="Nav"
+                                     Checked="CreatePackageNavBtn_Checked">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="16" Height="16">
                                     <Path Data="{StaticResource IconPlus}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2.3" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -157,7 +158,8 @@
                                 <TextBlock Text="Upload to Intune" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </RadioButton>
-                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        <RadioButton x:Name="ApplicationsNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
+                                     Checked="ApplicationsNavBtn_Checked">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="18" Height="18">
                                     <Path Data="{StaticResource IconGrid}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -190,7 +192,7 @@
                             </StackPanel>
                         </RadioButton>
                         <RadioButton x:Name="SettingsNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
-                                     Checked="SettingsNavBtn_Checked" Unchecked="SettingsNavBtn_Unchecked">
+                                     Checked="SettingsNavBtn_Checked">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="17" Height="17">
                                     <Path Data="{StaticResource IconGear}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -379,6 +381,8 @@
                 </StackPanel>
             </ScrollViewer>
             <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" Margin="30,24,30,26"/>
+            <views:ApplicationsView x:Name="ApplicationsPage" Visibility="Collapsed"/>
+            <views:ApplicationDetailView x:Name="AppDetailPage" Visibility="Collapsed"/>
             </Grid>
         </Grid>
 

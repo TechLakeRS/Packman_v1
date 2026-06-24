@@ -9,17 +9,35 @@ public partial class MainWindow : Window
     {
         DataContext = new MainViewModel();
         InitializeComponent();
+
+        ApplicationsPage.AppOpened += app => { AppDetailPage.Show(app); ShowOnly(AppDetailPage); };
+        ApplicationsPage.NewPackageRequested += () => CreatePackageNavBtn.IsChecked = true;
+
+        AppDetailPage.BackRequested += () => ShowOnly(ApplicationsPage);
+        AppDetailPage.Deleted += () =>
+        {
+            ShowOnly(ApplicationsPage);
+            _ = ApplicationsPage.ViewModel.LoadAsync(force: true);
+        };
+        AppDetailPage.UpdateRequested += _ => CreatePackageNavBtn.IsChecked = true;
+        // Remote Test screen isn't built yet; "Run test" returns to the wizard's test step.
+        AppDetailPage.TestRequested += () => CreatePackageNavBtn.IsChecked = true;
     }
 
-    private void SettingsNavBtn_Checked(object sender, RoutedEventArgs e)
+    /// <summary>Shows exactly one content page and collapses the rest. Null-safe for load-time calls.</summary>
+    private void ShowOnly(UIElement? page)
     {
-        MainScrollViewer.Visibility = Visibility.Collapsed;
-        SettingsPage.Visibility = Visibility.Visible;
+        foreach (var p in new UIElement?[] { MainScrollViewer, SettingsPage, ApplicationsPage, AppDetailPage })
+            if (p != null) p.Visibility = ReferenceEquals(p, page) ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void SettingsNavBtn_Unchecked(object sender, RoutedEventArgs e)
+    private void CreatePackageNavBtn_Checked(object sender, RoutedEventArgs e) => ShowOnly(MainScrollViewer);
+
+    private void ApplicationsNavBtn_Checked(object sender, RoutedEventArgs e)
     {
-        MainScrollViewer.Visibility = Visibility.Visible;
-        SettingsPage.Visibility = Visibility.Collapsed;
+        ShowOnly(ApplicationsPage);
+        ApplicationsPage.Load();
     }
+
+    private void SettingsNavBtn_Checked(object sender, RoutedEventArgs e) => ShowOnly(SettingsPage);
 }

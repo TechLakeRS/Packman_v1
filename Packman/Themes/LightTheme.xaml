@@ -15,6 +15,10 @@
     <Color x:Key="Muted2Color">#9AA3B2</Color>
     <Color x:Key="OkColor">#16A06A</Color>
     <Color x:Key="OkSoftColor">#DEF2EA</Color>
+    <Color x:Key="WarnColor">#C98A16</Color>
+    <Color x:Key="WarnSoftColor">#FAEFD4</Color>
+    <Color x:Key="BadColor">#D4322B</Color>
+    <Color x:Key="BadSoftColor">#FAE0DE</Color>
     <Color x:Key="DangerColor">#E0552B</Color>
 
     <Color x:Key="PrimaryColor">#3B67F5</Color>
@@ -43,6 +47,10 @@
     <SolidColorBrush x:Key="Muted2Brush" Color="{StaticResource Muted2Color}"/>
     <SolidColorBrush x:Key="OkBrush" Color="{StaticResource OkColor}"/>
     <SolidColorBrush x:Key="OkSoftBrush" Color="{StaticResource OkSoftColor}"/>
+    <SolidColorBrush x:Key="WarnBrush" Color="{StaticResource WarnColor}"/>
+    <SolidColorBrush x:Key="WarnSoftBrush" Color="{StaticResource WarnSoftColor}"/>
+    <SolidColorBrush x:Key="BadBrush" Color="{StaticResource BadColor}"/>
+    <SolidColorBrush x:Key="BadSoftBrush" Color="{StaticResource BadSoftColor}"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
