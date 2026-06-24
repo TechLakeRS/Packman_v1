@@ -7,6 +7,8 @@ public class ApplicationInfo
     public string Version { get; set; } = "";
     public string InstallContext { get; set; } = "System";
     public string SourcesPath { get; set; } = "";
+    public string Architecture { get; set; } = "x64";
+    public string Author { get; set; } = "";
     public string MsiProductCode { get; set; } = "";
     public string MsiProductVersion { get; set; } = "";
     public string MsiUpgradeCode { get; set; } = "";

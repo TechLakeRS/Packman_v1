@@ -131,10 +131,12 @@ public class PSADTGenerator
                 lines[i] = $"    AppName = '{appInfo.Name}'";
             else if (line.StartsWith("AppVersion") && line.Contains("="))
                 lines[i] = $"    AppVersion = '{appInfo.Version}'";
+            else if (line.StartsWith("AppArch") && line.Contains("="))
+                lines[i] = $"    AppArch = '{appInfo.Architecture}'";
             else if (line.StartsWith("AppScriptDate") && line.Contains("="))
                 lines[i] = $"    AppScriptDate = '{DateTime.Now:MM/dd/yyyy}'";
             else if (line.StartsWith("AppScriptAuthor") && line.Contains("="))
-                lines[i] = $"    AppScriptAuthor = '{Environment.UserName}'";
+                lines[i] = $"    AppScriptAuthor = '{(string.IsNullOrWhiteSpace(appInfo.Author) ? Environment.UserName : appInfo.Author)}'";
         }
         return string.Join('\n', lines);
     }

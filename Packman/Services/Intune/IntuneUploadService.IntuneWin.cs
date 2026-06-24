@@ -246,7 +246,8 @@ public partial class IntuneUploadService
         List<DetectionRule> detectionRules,
         string installContext,
         IntuneWinInfo intuneWinInfo,
-        string? iconPath = null)
+        string? iconPath = null,
+        RequirementInfo? requirements = null)
     {
         var formattedDetectionRules = new List<Dictionary<string, object>>();
         foreach (var rule in detectionRules)
@@ -278,6 +279,10 @@ public partial class IntuneUploadService
             ["installCommandLine"] = installCommand,
             ["uninstallCommandLine"] = uninstallCommand,
             ["applicableArchitectures"] = "x86,x64,arm64",
+            ["minimumSupportedOperatingSystem"] = new Dictionary<string, object>
+            {
+                [(requirements ?? new RequirementInfo()).OperatingSystemFlag] = true
+            },
             ["fileName"] = intuneWinInfo.FileName,
             ["setupFilePath"] = "Invoke-AppDeployToolkit.exe",
             ["installExperience"] = new Dictionary<string, object>
@@ -294,6 +299,11 @@ public partial class IntuneUploadService
                 new Dictionary<string, object> { ["returnCode"] = 1618, ["type"] = "retry" }
             }
         };
+
+        if (requirements?.MinimumFreeDiskSpaceMB is int disk)
+            createAppPayload["minimumFreeDiskSpaceInMB"] = disk;
+        if (requirements?.MinimumMemoryMB is int mem)
+            createAppPayload["minimumMemoryInMB"] = mem;
 
         if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
         {

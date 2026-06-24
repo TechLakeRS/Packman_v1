@@ -38,10 +38,103 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Detection rule -->
+                <!-- Detection method -->
                 <StackPanel Margin="0,16,0,0">
-                    <TextBlock Text="Detection rule" Style="{StaticResource FieldLabel}" Margin="0,0,0,6"/>
-                    <TextBlock Text="{Binding Upload.DetectionSummary}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" TextWrapping="Wrap"/>
+                    <TextBlock Text="Detection method" Style="{StaticResource FieldLabel}" Margin="0,0,0,6"/>
+                    <ComboBox Height="40" VerticalContentAlignment="Center"
+                              ItemsSource="{Binding Upload.DetectionMethods}"
+                              SelectedItem="{Binding Upload.SelectedDetectionMethod, Mode=TwoWay}"/>
+
+                    <!-- Editable fields for a custom method -->
+                    <Grid Margin="0,12,0,0" Visibility="{Binding Upload.IsCustomDetection, Converter={StaticResource BoolToVis}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Path / Key / Product code" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Style="{StaticResource TextField}" Margin="0,6,0,0" Padding="13,12"
+                                     Text="{Binding Upload.DetectionPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="File / Value name" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Style="{StaticResource TextField}" Margin="0,6,0,0" Padding="13,12"
+                                     Text="{Binding Upload.DetectionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Version / Value" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Style="{StaticResource TextField}" Margin="0,6,0,0" Padding="13,12"
+                                     Text="{Binding Upload.DetectionValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding Upload.DetectionSummary}" FontSize="12.5" Foreground="{DynamicResource MutedBrush}"
+                               TextWrapping="Wrap" Margin="0,10,0,0"/>
+                </StackPanel>
+
+                <!-- Requirements (collapsed; defaults used when unset) -->
+                <StackPanel Margin="0,16,0,0">
+                    <ToggleButton x:Name="RequirementsToggle" Cursor="Hand" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0">
+                        <ToggleButton.Template>
+                            <ControlTemplate TargetType="ToggleButton">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="13" Height="13" VerticalAlignment="Center">
+                                        <Path Stroke="{DynamicResource MutedBrush}" StrokeThickness="2.2" Fill="Transparent"
+                                              StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Data" Value="{StaticResource IconChevR}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}" Value="True">
+                                                            <Setter Property="Data" Value="{StaticResource IconChevD}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
+                                    </Viewbox>
+                                    <TextBlock Text="Requirements" Margin="9,0,0,0" VerticalAlignment="Center"
+                                               FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                                    <TextBlock Text="optional — defaults applied when left blank" Margin="9,0,0,0" VerticalAlignment="Center"
+                                               FontSize="12" Foreground="{DynamicResource MutedBrush}"/>
+                                </StackPanel>
+                            </ControlTemplate>
+                        </ToggleButton.Template>
+                    </ToggleButton>
+
+                    <Grid Margin="0,12,0,0"
+                          Visibility="{Binding IsChecked, ElementName=RequirementsToggle, Converter={StaticResource BoolToVis}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Minimum OS" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox Margin="0,6,0,0" Height="40" VerticalContentAlignment="Center"
+                                      ItemsSource="{Binding Upload.OperatingSystems}"
+                                      SelectedItem="{Binding Upload.SelectedOperatingSystem, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Free disk (MB)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Style="{StaticResource TextField}" Width="110" Margin="0,6,0,0" Padding="13,12"
+                                     local:PlaceholderText.Text="any"
+                                     Text="{Binding Upload.MinFreeDiskSpaceMB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Memory (MB)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Style="{StaticResource TextField}" Width="110" Margin="0,6,0,0" Padding="13,12"
+                                     local:PlaceholderText.Text="any"
+                                     Text="{Binding Upload.MinMemoryMB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
 
                 <!-- Sign-in required notice -->
@@ -72,8 +165,26 @@
             </StackPanel>
         </Border>
 
+        <!-- Review + pre-flight column -->
+        <StackPanel Grid.Column="2">
+
+        <!-- Review card -->
+        <Border Style="{StaticResource Card}" VerticalAlignment="Top" Margin="0,0,0,18">
+            <StackPanel>
+                <TextBlock Text="Review" Style="{StaticResource H2}" FontSize="13.5" Margin="0,0,0,8"/>
+                <ContentControl Style="{StaticResource DlRow}" Tag="App name" Content="{Binding Upload.ReviewName}"/>
+                <ContentControl Style="{StaticResource DlRow}" Tag="Vendor" Content="{Binding Upload.ReviewVendor}"/>
+                <ContentControl Style="{StaticResource DlRow}" Tag="Version" Content="{Binding Upload.ReviewVersion}"/>
+                <ContentControl Style="{StaticResource DlRow}" Tag="Author" Content="{Binding Upload.ReviewAuthor}"/>
+                <ContentControl Style="{StaticResource DlRow}" Tag="Architecture" Content="{Binding Upload.ReviewArchitecture}"/>
+                <ContentControl Style="{StaticResource DlRow}" Tag="Context" Content="{Binding Upload.ReviewContext}"/>
+                <ContentControl Style="{StaticResource DlRow}" Tag="Type" Content="{Binding Upload.ReviewPackageType}"/>
+                <ContentControl Style="{StaticResource DlRow}" Tag="Size" Content="{Binding Upload.ReviewSize}"/>
+            </StackPanel>
+        </Border>
+
         <!-- Pre-flight card -->
-        <Border Grid.Column="2" Style="{StaticResource CardSoft}" VerticalAlignment="Top">
+        <Border Style="{StaticResource CardSoft}" VerticalAlignment="Top">
             <StackPanel>
                 <TextBlock Text="What happens on upload" Style="{StaticResource H2}" FontSize="13.5" Margin="0,0,0,14"/>
 
@@ -93,5 +204,7 @@
                 </Border>
             </StackPanel>
         </Border>
+
+        </StackPanel>
     </Grid>
 </UserControl>

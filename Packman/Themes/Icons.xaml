@@ -51,6 +51,8 @@
 
     <PathGeometry x:Key="IconChevR" Figures="M9 18l6-6-6-6"/>
 
+    <PathGeometry x:Key="IconChevD" Figures="M6 9l6 6 6-6"/>
+
     <PathGeometry x:Key="IconCode" Figures="M16 18 22 12 16 6 M8 6 2 12 8 18"/>
 
     <PathGeometry x:Key="IconFile" Figures="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6"/>
