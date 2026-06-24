@@ -105,7 +105,12 @@ public partial class IntuneUploadService
             var payload = new Dictionary<string, object>
             {
                 ["@odata.type"] = "#microsoft.graph.mobileAppAssignment",
-                ["intent"] = intent == AssignmentIntent.Required ? "required" : "available",
+                ["intent"] = intent switch
+                {
+                    AssignmentIntent.Required => "required",
+                    AssignmentIntent.Uninstall => "uninstall",
+                    _ => "available",
+                },
                 ["target"] = new Dictionary<string, object>
                 {
                     ["@odata.type"] = "#microsoft.graph.groupAssignmentTarget",

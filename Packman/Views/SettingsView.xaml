@@ -552,7 +552,10 @@
                                     <Run Text=" %vendor% " FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
                                     <Run Text="%appName% " FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
                                     <Run Text="%appVersion%" FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
-                                    <Run Text="  ·  Example: "/>
+                                    <Run Text="  ·  Mix in any literal text, e.g."/>
+                                    <Run Text=" %vendor%_%appName%_%appVersion%_Install" FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
+                                    <LineBreak/>
+                                    <Run Text="Example: "/>
                                     <Run Text="{Binding GroupNamePreview, Mode=OneWay}" Foreground="{DynamicResource PrimaryBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
                                 </TextBlock>
 
@@ -568,6 +571,10 @@
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="NewGroupIntent" Margin="3,0,0,0"
                                                      IsChecked="{Binding NewGroupRequired}">
                                             <TextBlock Text="Required" VerticalAlignment="Center"/>
+                                        </RadioButton>
+                                        <RadioButton Style="{StaticResource ContextToggle}" GroupName="NewGroupIntent" Margin="3,0,0,0"
+                                                     IsChecked="{Binding NewGroupUninstall}">
+                                            <TextBlock Text="Uninstall" VerticalAlignment="Center"/>
                                         </RadioButton>
                                     </StackPanel>
                                 </Border>
@@ -630,6 +637,10 @@
                                                         <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0"
                                                                      IsChecked="{Binding IsRequired}">
                                                             <TextBlock Text="Required" VerticalAlignment="Center"/>
+                                                        </RadioButton>
+                                                        <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0"
+                                                                     IsChecked="{Binding IsUninstall}">
+                                                            <TextBlock Text="Uninstall" VerticalAlignment="Center"/>
                                                         </RadioButton>
                                                     </StackPanel>
                                                 </Border>

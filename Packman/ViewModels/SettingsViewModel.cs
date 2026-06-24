@@ -19,20 +19,31 @@ public sealed class GroupAssignmentRow : ObservableObject
 {
     public string GroupName { get; }
 
-    private bool _isRequired;
-    public bool IsRequired
+    private AssignmentIntent _intent;
+    public AssignmentIntent Intent
     {
-        get => _isRequired;
-        set { if (Set(ref _isRequired, value)) OnPropertyChanged(nameof(IsAvailable)); }
+        get => _intent;
+        set
+        {
+            if (Set(ref _intent, value))
+            {
+                OnPropertyChanged(nameof(IsAvailable));
+                OnPropertyChanged(nameof(IsRequired));
+                OnPropertyChanged(nameof(IsUninstall));
+            }
+        }
     }
-    public bool IsAvailable { get => !_isRequired; set => IsRequired = !value; }
+
+    public bool IsAvailable { get => _intent == AssignmentIntent.Available; set { if (value) Intent = AssignmentIntent.Available; } }
+    public bool IsRequired { get => _intent == AssignmentIntent.Required; set { if (value) Intent = AssignmentIntent.Required; } }
+    public bool IsUninstall { get => _intent == AssignmentIntent.Uninstall; set { if (value) Intent = AssignmentIntent.Uninstall; } }
 
     public RelayCommand RemoveCommand { get; }
 
     public GroupAssignmentRow(string name, AssignmentIntent intent, Action<GroupAssignmentRow> remove)
     {
         GroupName = name;
-        _isRequired = intent == AssignmentIntent.Required;
+        _intent = intent;
         RemoveCommand = new RelayCommand(() => remove(this));
     }
 }
@@ -154,13 +165,23 @@ public sealed class SettingsViewModel : ObservableObject
     // Live example using sample values so the user can see how tokens resolve.
     public string GroupNamePreview => GroupAssignmentNamer.Build(GroupNameTemplate, "Contoso", "Acme Reader", "1.2.3");
 
-    private bool _newGroupRequired = true;
-    public bool NewGroupRequired
+    private AssignmentIntent _newGroupIntent = AssignmentIntent.Required;
+    public AssignmentIntent NewGroupIntent
     {
-        get => _newGroupRequired;
-        set { if (Set(ref _newGroupRequired, value)) OnPropertyChanged(nameof(NewGroupAvailable)); }
+        get => _newGroupIntent;
+        set
+        {
+            if (Set(ref _newGroupIntent, value))
+            {
+                OnPropertyChanged(nameof(NewGroupAvailable));
+                OnPropertyChanged(nameof(NewGroupRequired));
+                OnPropertyChanged(nameof(NewGroupUninstall));
+            }
+        }
     }
-    public bool NewGroupAvailable { get => !_newGroupRequired; set => NewGroupRequired = !value; }
+    public bool NewGroupAvailable { get => _newGroupIntent == AssignmentIntent.Available; set { if (value) NewGroupIntent = AssignmentIntent.Available; } }
+    public bool NewGroupRequired { get => _newGroupIntent == AssignmentIntent.Required; set { if (value) NewGroupIntent = AssignmentIntent.Required; } }
+    public bool NewGroupUninstall { get => _newGroupIntent == AssignmentIntent.Uninstall; set { if (value) NewGroupIntent = AssignmentIntent.Uninstall; } }
 
     private string _newGroupNameInput = "";
     public string NewGroupNameInput { get => _newGroupNameInput; set => Set(ref _newGroupNameInput, value); }
@@ -215,7 +236,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         CreateGroupPerPackage = s.GroupAssignment.CreateGroupPerPackage;
         GroupNameTemplate = s.GroupAssignment.GroupNameTemplate;
-        NewGroupRequired = s.GroupAssignment.NewGroupIntent == AssignmentIntent.Required;
+        NewGroupIntent = s.GroupAssignment.NewGroupIntent;
         ExistingGroups.Clear();
         foreach (var g in s.GroupAssignment.ExistingGroups)
             ExistingGroups.Add(new GroupAssignmentRow(g.GroupName, g.Intent, RemoveGroup));
@@ -318,12 +339,12 @@ public sealed class SettingsViewModel : ObservableObject
 
         s.GroupAssignment.CreateGroupPerPackage = CreateGroupPerPackage;
         s.GroupAssignment.GroupNameTemplate = GroupNameTemplate;
-        s.GroupAssignment.NewGroupIntent = NewGroupRequired ? AssignmentIntent.Required : AssignmentIntent.Available;
+        s.GroupAssignment.NewGroupIntent = NewGroupIntent;
         s.GroupAssignment.ExistingGroups = ExistingGroups
             .Select(g => new AppSettings.ExistingGroupAssignment
             {
                 GroupName = g.GroupName,
-                Intent = g.IsRequired ? AssignmentIntent.Required : AssignmentIntent.Available
+                Intent = g.Intent
             })
             .ToList();
 
