@@ -60,7 +60,16 @@ public class PSADTGenerator
     {
         var toTry = new List<string>();
         if (!string.IsNullOrWhiteSpace(_templatePath))
+        {
+            // The path may point at the Invoke-AppDeployToolkit.ps1 file rather than
+            // the template folder; resolve from its directory in that case.
+            if (_templatePath.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase))
+            {
+                var dir = Path.GetDirectoryName(_templatePath);
+                if (!string.IsNullOrEmpty(dir)) toTry.Add(dir);
+            }
             toTry.Add(_templatePath);
+        }
 
         foreach (var basePath in toTry)
         {
@@ -71,7 +80,7 @@ public class PSADTGenerator
 
         throw new DirectoryNotFoundException(
             $"PSADT template not found. Searched: '{_templatePath}'. " +
-            "Set PSADTTemplate in appsettings.json to the folder containing Application, Icon, Intune subfolders.");
+            "Set the PSADT Template Path in Settings > Network Paths to the folder containing the Application, Icon and Intune subfolders.");
     }
 
     private string? TryResolve(string basePath)
