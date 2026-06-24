@@ -172,7 +172,9 @@ public sealed class SettingsViewModel : ObservableObject
         SaveStatus = "Signing in…";
         try
         {
-            await _auth.SignInAsync(TenantId);
+            var hwnd = new System.Windows.Interop.WindowInteropHelper(
+                System.Windows.Application.Current.MainWindow).Handle;
+            await _auth.SignInAsync(TenantId, hwnd);
             IsSignedIn = true;
             SignedInUser = _auth.SignedInUser ?? "";
             SaveStatus = "";

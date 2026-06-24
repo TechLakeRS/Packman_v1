@@ -1,4 +1,5 @@
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Broker;
 
 namespace Packman.Services;
 
@@ -18,7 +19,7 @@ public class IntuneAuthService
 
     public string? SignedInUser { get; private set; }
 
-    public async Task SignInAsync(string? tenantId)
+    public async Task SignInAsync(string? tenantId, nint hwnd)
     {
         var authority = string.IsNullOrWhiteSpace(tenantId)
             ? "https://login.microsoftonline.com/organizations"
@@ -27,7 +28,7 @@ public class IntuneAuthService
         _pca = PublicClientApplicationBuilder
             .Create(IntuneClientId)
             .WithAuthority(authority)
-            .WithDefaultRedirectUri()
+            .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows))
             .Build();
 
         AuthenticationResult result;
@@ -38,7 +39,9 @@ public class IntuneAuthService
         }
         catch (MsalUiRequiredException)
         {
-            result = await _pca.AcquireTokenInteractive(Scopes).ExecuteAsync();
+            result = await _pca.AcquireTokenInteractive(Scopes)
+                .WithParentActivityOrWindow(hwnd)
+                .ExecuteAsync();
         }
 
         _account = result.Account;
