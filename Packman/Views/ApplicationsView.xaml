@@ -79,7 +79,7 @@
                     <Border Height="1" Background="{DynamicResource LineBrush}"/>
 
                     <!-- Rows -->
-                    <ItemsControl ItemsSource="{Binding Apps}">
+                    <ItemsControl ItemsSource="{Binding Page}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -167,6 +167,31 @@
                         <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource MutedBrush}" FontSize="12.5" Margin="0,6,0,0"
                                    HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="420" TextAlignment="Center"/>
                     </StackPanel>
+
+                    <!-- Pagination footer -->
+                    <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="18,12"
+                            Visibility="{Binding ShowPager, Converter={StaticResource BoolToVis}}">
+                        <Grid>
+                            <TextBlock Text="{Binding RangeText}" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                       FontSize="12.5" Foreground="{DynamicResource MutedBrush}"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Style="{StaticResource GhostButton}" Command="{Binding PrevPageCommand}" Padding="12,0" Height="34">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="13" Height="13" Margin="0,0,5,0"><Path Data="{StaticResource IconChevL}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox>
+                                        <TextBlock Text="Previous" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <TextBlock Text="{Binding PageDisplay}" VerticalAlignment="Center" Margin="14,0" FontSize="12.5"
+                                           FontWeight="Bold" Foreground="{DynamicResource TextBrush}"/>
+                                <Button Style="{StaticResource GhostButton}" Command="{Binding NextPageCommand}" Padding="12,0" Height="34">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Next" VerticalAlignment="Center"/>
+                                        <Viewbox Width="13" Height="13" Margin="5,0,0,0"><Path Data="{StaticResource IconChevR}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </StackPanel>
             </Border>
         </StackPanel>

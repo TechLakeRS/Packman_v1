@@ -1,40 +1,45 @@
 using Packman.Models;
 using Packman.Services;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows.Data;
 
 namespace Packman.ViewModels;
 
 /// <summary>
 /// Drives the Applications library screen: loads the lightweight Win32 app list from
-/// Intune and exposes a searchable, category-filterable view over it.
+/// Intune, then filters (search + category) and pages it client-side. Paging mirrors
+/// the reference suite (50 per page) so a 700-app tenant isn't one endless scroll.
 /// </summary>
 public sealed class ApplicationsViewModel : ObservableObject
 {
     private const string AllCategories = "All Categories";
+    private const int PageSize = 50;
 
     private readonly IntuneService _apps = AppServices.Apps;
     private readonly IntuneAuthService _auth = AppServices.Auth;
 
-    private readonly ObservableCollection<IntuneApplication> _all = new();
-    public ICollectionView Apps { get; }
+    private readonly List<IntuneApplication> _all = new();
+
+    /// <summary>The current page of filtered apps; bound by the list.</summary>
+    public ObservableCollection<IntuneApplication> Page { get; } = new();
     public ObservableCollection<string> Categories { get; } = new() { AllCategories };
 
     public RelayCommand RefreshCommand { get; }
+    public RelayCommand NextPageCommand { get; }
+    public RelayCommand PrevPageCommand { get; }
     public RelayCommand<IntuneApplication> OpenCommand { get; }
 
     /// <summary>Raised when a row is activated; the host swaps in the detail screen.</summary>
     public event Action<IntuneApplication>? OpenRequested;
 
     private bool _loadedOnce;
+    private int _currentPage = 1;
+    private int _totalCount;
 
     public ApplicationsViewModel()
     {
-        Apps = CollectionViewSource.GetDefaultView(_all);
-        Apps.Filter = o => Matches((IntuneApplication)o);
-
         RefreshCommand = new RelayCommand(async () => await LoadAsync(force: true), () => !IsLoading);
+        NextPageCommand = new RelayCommand(() => GoToPage(_currentPage + 1), () => CanNext);
+        PrevPageCommand = new RelayCommand(() => GoToPage(_currentPage - 1), () => CanPrev);
         OpenCommand = new RelayCommand<IntuneApplication>(app => { if (app != null) OpenRequested?.Invoke(app); });
     }
 
@@ -42,18 +47,32 @@ public sealed class ApplicationsViewModel : ObservableObject
     public string Search
     {
         get => _search;
-        set { if (Set(ref _search, value)) Apps.Refresh(); }
+        set { if (Set(ref _search, value)) { _currentPage = 1; ApplyFilters(); } }
     }
 
     private string _selectedCategory = AllCategories;
     public string SelectedCategory
     {
         get => _selectedCategory;
-        set { if (Set(ref _selectedCategory, value)) Apps.Refresh(); }
+        set { if (Set(ref _selectedCategory, value)) { _currentPage = 1; ApplyFilters(); } }
     }
 
-    public int TotalCount => _all.Count;
-    public int ShownCount => Apps.Cast<object>().Count();
+    public int CurrentPage { get => _currentPage; private set => Set(ref _currentPage, value); }
+
+    private int _maxPage = 1;
+    public int MaxPage { get => _maxPage; private set => Set(ref _maxPage, value); }
+
+    private bool _canPrev, _canNext;
+    public bool CanPrev { get => _canPrev; private set { if (Set(ref _canPrev, value)) PrevPageCommand.RaiseCanExecuteChanged(); } }
+    public bool CanNext { get => _canNext; private set { if (Set(ref _canNext, value)) NextPageCommand.RaiseCanExecuteChanged(); } }
+
+    private string _pageDisplay = "Page 1 of 1";
+    public string PageDisplay { get => _pageDisplay; private set => Set(ref _pageDisplay, value); }
+
+    private string _rangeText = "";
+    public string RangeText { get => _rangeText; private set => Set(ref _rangeText, value); }
+
+    public bool ShowPager => !IsLoading && _all.Count > 0;
 
     private bool _isLoading;
     public bool IsLoading
@@ -63,6 +82,7 @@ public sealed class ApplicationsViewModel : ObservableObject
         {
             if (!Set(ref _isLoading, value)) return;
             OnPropertyChanged(nameof(ShowEmpty));
+            OnPropertyChanged(nameof(ShowPager));
             RefreshCommand.RaiseCanExecuteChanged();
         }
     }
@@ -76,11 +96,7 @@ public sealed class ApplicationsViewModel : ObservableObject
     public bool HasStatus => !string.IsNullOrEmpty(_statusText);
 
     private string _loadStatus = "";
-    public string LoadStatus
-    {
-        get => _loadStatus;
-        private set => Set(ref _loadStatus, value);
-    }
+    public string LoadStatus { get => _loadStatus; private set => Set(ref _loadStatus, value); }
 
     public bool ShowEmpty => !IsLoading && _all.Count == 0;
 
@@ -91,7 +107,8 @@ public sealed class ApplicationsViewModel : ObservableObject
 
         if (!_auth.IsSignedIn)
         {
-            ResetList();
+            _all.Clear();
+            ApplyFilters();
             StatusText = "Sign in on the Settings page to load applications from Intune.";
             OnPropertyChanged(nameof(ShowEmpty));
             return;
@@ -105,12 +122,11 @@ public sealed class ApplicationsViewModel : ObservableObject
             var progress = new Progress<int>(n => LoadStatus = $"Loading applications… {n} fetched");
             var apps = await _apps.GetApplicationsAsync(force, progress);
             _all.Clear();
-            foreach (var a in apps) _all.Add(a);
+            _all.AddRange(apps);
             _loadedOnce = true;
+            _currentPage = 1;
             RebuildCategories();
-            Apps.Refresh();
-            OnPropertyChanged(nameof(TotalCount));
-            OnPropertyChanged(nameof(ShownCount));
+            ApplyFilters();
             if (_all.Count == 0)
                 StatusText = "No Win32 applications found in this tenant.";
         }
@@ -122,20 +138,41 @@ public sealed class ApplicationsViewModel : ObservableObject
         {
             IsLoading = false;
             OnPropertyChanged(nameof(ShowEmpty));
+            OnPropertyChanged(nameof(ShowPager));
         }
     }
 
-    private void ResetList()
+    private void GoToPage(int page)
     {
-        _all.Clear();
-        Apps.Refresh();
-        OnPropertyChanged(nameof(TotalCount));
-        OnPropertyChanged(nameof(ShownCount));
+        _currentPage = Math.Clamp(page, 1, MaxPage);
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = _all.Where(Matches).OrderBy(a => a.DisplayName).ToList();
+        _totalCount = filtered.Count;
+
+        MaxPage = _totalCount > 0 ? (int)Math.Ceiling(_totalCount / (double)PageSize) : 1;
+        if (_currentPage > MaxPage) _currentPage = MaxPage;
+        if (_currentPage < 1) _currentPage = 1;
+        CurrentPage = _currentPage;
+
+        var skip = (_currentPage - 1) * PageSize;
+        var paged = filtered.Skip(skip).Take(PageSize).ToList();
+
+        Page.Clear();
+        foreach (var a in paged) Page.Add(a);
+
+        PageDisplay = $"Page {_currentPage} of {MaxPage}";
+        RangeText = _totalCount > 0 ? $"Showing {skip + 1}–{skip + paged.Count} of {_totalCount}" : "No applications";
+        CanPrev = _currentPage > 1;
+        CanNext = _currentPage < MaxPage;
     }
 
     private void RebuildCategories()
     {
-        var current = SelectedCategory;
+        var previous = _selectedCategory;
         Categories.Clear();
         Categories.Add(AllCategories);
         foreach (var c in _all
@@ -144,13 +181,14 @@ public sealed class ApplicationsViewModel : ObservableObject
                      .OrderBy(c => c))
             Categories.Add(c);
 
-        if (!Categories.Contains(current)) _selectedCategory = AllCategories;
+        // Setting the field directly avoids a redundant ApplyFilters from the property setter.
+        _selectedCategory = !string.IsNullOrEmpty(previous) && Categories.Contains(previous) ? previous : AllCategories;
         OnPropertyChanged(nameof(SelectedCategory));
     }
 
     private bool Matches(IntuneApplication a)
     {
-        if (_selectedCategory != AllCategories &&
+        if (!string.IsNullOrEmpty(_selectedCategory) && _selectedCategory != AllCategories &&
             !a.Category.Split(',', StringSplitOptions.TrimEntries).Contains(_selectedCategory))
             return false;
 
