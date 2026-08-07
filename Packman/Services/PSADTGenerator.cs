@@ -135,6 +135,8 @@ public class PSADTGenerator
                 lines[i] = $"    AppScriptDate = '{DateTime.Now:MM/dd/yyyy}'";
             else if (line.StartsWith("AppScriptAuthor") && line.Contains("="))
                 lines[i] = $"    AppScriptAuthor = '{(string.IsNullOrWhiteSpace(appInfo.Author) ? Environment.UserName : appInfo.Author)}'";
+            else if (line.StartsWith("RequireAdmin") && line.Contains("="))
+                lines[i] = $"    RequireAdmin = ${(appInfo.InstallContext.Equals("User", StringComparison.OrdinalIgnoreCase) ? "false" : "true")}";
         }
         return string.Join('\n', lines);
     }
