@@ -90,25 +90,6 @@ public partial class StepGenerate : UserControl
             VM?.Upgrade.LoadPackage(dialog.FolderName);
     }
 
-    private void ConfigurePsadt_Click(object sender, RoutedEventArgs e)
-    {
-        var create = VM?.CreatePackage;
-        if (create == null) return;
-
-        var packageType = string.IsNullOrEmpty(create.DetectedPackageType) || create.DetectedPackageType == "Unknown"
-            ? "MSI" : create.DetectedPackageType;
-        var sourceFileName = !string.IsNullOrEmpty(create.SourcesPath) ? Path.GetFileName(create.SourcesPath) : "";
-
-        var dialog = new PSADTConfigDialog { Owner = Window.GetWindow(this) };
-        dialog.SetPackageInfo(create.Manufacturer, create.AppName, create.Version, packageType,
-            sourceFileName, create.CurrentMsiInfo?.ProductCode ?? "");
-        if (create.CurrentPSADTOptions != null)
-            dialog.LoadOptions(create.CurrentPSADTOptions);
-
-        if (dialog.ShowDialog() == true)
-            create.CurrentPSADTOptions = dialog.SelectedOptions;
-    }
-
     private void BrowseUpgradeSource_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog

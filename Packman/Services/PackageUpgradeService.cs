@@ -63,7 +63,7 @@ public class PackageUpgradeService
                     SourcesPath = newSourcesPath
                 };
 
-                var templatePackagePath = await generator.CreatePackageAsync(appInfo, null, true, cancellationToken);
+                var templatePackagePath = await generator.CreatePackageAsync(appInfo, true, cancellationToken);
 
                 if (!templatePackagePath.Equals(newPackagePath, StringComparison.OrdinalIgnoreCase))
                 {

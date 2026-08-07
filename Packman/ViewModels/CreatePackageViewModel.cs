@@ -17,7 +17,6 @@ public class CreatePackageViewModel : ObservableObject
     private string _author = "";
     private string _detectedPackageType = "";
     private MsiInfoService.MsiInfo? _currentMsiInfo;
-    private PSADTOptions? _currentPSADTOptions;
     private string _currentPackagePath = "";
     private string _statusText = "";
     private bool _isGenerating = false;
@@ -78,26 +77,6 @@ public class CreatePackageViewModel : ObservableObject
     {
         get => _currentMsiInfo;
         set => Set(ref _currentMsiInfo, value);
-    }
-
-    public PSADTOptions? CurrentPSADTOptions
-    {
-        get => _currentPSADTOptions;
-        set { if (Set(ref _currentPSADTOptions, value)) OnPropertyChanged(nameof(PSADTSummary)); }
-    }
-
-    /// <summary>
-    /// Human-readable summary of configured PSADT functions, shown on the Generate step.
-    /// </summary>
-    public string PSADTSummary
-    {
-        get
-        {
-            var count = _currentPSADTOptions?.GetEnabledOptionsCount() ?? 0;
-            return count == 0
-                ? "No custom functions added — the package uses the default install/uninstall logic."
-                : $"{count} custom PSADT function{(count == 1 ? "" : "s")} configured.";
-        }
     }
 
     public string CurrentPackagePath
@@ -218,10 +197,9 @@ public class CreatePackageViewModel : ObservableObject
             }
 
             var appInfo = BuildApplicationInfo();
-            var options = CurrentPSADTOptions ?? new PSADTOptions { PackageType = DetectedPackageType };
 
             var generator = new PSADTGenerator(outputPath, templatePath);
-            var packagePath = await generator.CreatePackageAsync(appInfo, options);
+            var packagePath = await generator.CreatePackageAsync(appInfo);
 
             if (!string.IsNullOrEmpty(packagePath) && !string.IsNullOrEmpty(ExtractedIconPath))
                 IconExtractor.CopyIconToPackage(ExtractedIconPath, packagePath, appInfo.Name);
@@ -255,7 +233,6 @@ public class CreatePackageViewModel : ObservableObject
         Author = "";
         DetectedPackageType = "";
         CurrentMsiInfo = null;
-        CurrentPSADTOptions = null;
         CurrentPackagePath = "";
         StatusText = "";
         PredecessorAppId = "";

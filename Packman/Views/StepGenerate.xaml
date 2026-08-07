@@ -245,31 +245,6 @@
                     </Border>
                 </StackPanel>
 
-                <!-- PSADT options -->
-                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                        CornerRadius="10" Padding="14" Margin="0,20,0,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBlock Text="PSADT Functions" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
-                            <TextBlock Text="{Binding CreatePackage.PSADTSummary}" FontSize="12.5"
-                                       Foreground="{DynamicResource MutedBrush}" Margin="0,3,0,0" TextWrapping="Wrap"/>
-                        </StackPanel>
-                        <Button Grid.Column="1" Style="{StaticResource GhostButton}" VerticalAlignment="Center"
-                                Margin="14,0,0,0" Click="ConfigurePsadt_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="15" Height="15">
-                                    <Path Data="{StaticResource IconCode}" Stroke="{DynamicResource InkBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="Configure PSADT" Margin="7,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </Border>
-
                 <!-- Status text -->
                 <TextBlock Text="{Binding CreatePackage.StatusText}" FontSize="12.5"
                            Foreground="{DynamicResource MutedBrush}" Margin="0,16,0,0"/>
