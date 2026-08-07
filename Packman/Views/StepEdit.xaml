@@ -9,9 +9,14 @@
              FontFamily="{StaticResource UIFontFamily}">
 
     <Border Style="{StaticResource Card}">
-        <StackPanel>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <!-- Card header -->
-            <Grid Margin="0,0,0,20">
+            <Grid Grid.Row="0" Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -42,14 +47,14 @@
             </Grid>
 
             <!-- No package yet -->
-            <Border x:Name="EmptyState" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                    CornerRadius="11" Padding="20" Visibility="Collapsed">
+            <Border x:Name="EmptyState" Grid.Row="1" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                    CornerRadius="11" Padding="20" Visibility="Collapsed" VerticalAlignment="Top">
                 <TextBlock Text="No package generated yet. Go back to the Generate step to create the package first."
                            FontSize="12.5" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"/>
             </Border>
 
-            <!-- Editor: tree + code preview -->
-            <Grid x:Name="EditorGrid">
+            <!-- Editor: tree + code editor, fills the remaining height -->
+            <Grid x:Name="EditorGrid" Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="240"/>
                     <ColumnDefinition Width="14"/>
@@ -57,19 +62,24 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Tree -->
-                <Border Grid.Column="0" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11" Padding="8" MinHeight="360">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="10,8">
+                <Border Grid.Column="0" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11" Padding="8">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
                             <Viewbox Width="14" Height="14">
                                 <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource InkBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
                             <TextBlock x:Name="PackageNameText" Text="Package" Margin="7,0,0,0" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
 
-                        <TreeView x:Name="FileTree" BorderThickness="0" Background="Transparent" MaxHeight="500"
+                        <TreeView x:Name="FileTree" Grid.Row="1" BorderThickness="0" Background="Transparent"
                                   Foreground="{DynamicResource InkBrush}" FontSize="12.5"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   SelectedItemChanged="FileTree_SelectedItemChanged"/>
-                    </StackPanel>
+                    </Grid>
                 </Border>
 
                 <!-- Code editor (Monaco in WebView2) -->
@@ -106,15 +116,16 @@
                             </Grid>
                         </Border>
 
-                        <!-- Monaco editor -->
-                        <Grid Grid.Row="1" MinHeight="420">
-                            <wv2:WebView2 x:Name="EditorWebView" DefaultBackgroundColor="#0C1322"/>
+                        <!-- Monaco editor. The bottom margin keeps the HWND clear of the
+                             border's rounded corners, which it cannot be clipped to. -->
+                        <Grid Grid.Row="1" MinHeight="300">
+                            <wv2:WebView2 x:Name="EditorWebView" DefaultBackgroundColor="#0C1322" Margin="1,0,1,8"/>
                             <TextBlock x:Name="EditorFallbackText" Visibility="Collapsed" Margin="16,14" TextWrapping="Wrap"
                                        FontFamily="{StaticResource MonoFontFamily}" FontSize="12.5" Foreground="{DynamicResource CodeBarTxtBrush}"/>
                         </Grid>
                     </Grid>
                 </Border>
             </Grid>
-        </StackPanel>
+        </Grid>
     </Border>
 </UserControl>
