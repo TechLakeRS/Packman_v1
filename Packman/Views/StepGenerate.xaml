@@ -8,7 +8,8 @@
              FontFamily="{StaticResource UIFontFamily}">
 
     <StackPanel>
-        <!-- Mode toggle (Create New / Upgrade Existing) -->
+        <!-- Mode toggle (Create New / Upgrade Existing) + upload cross-link -->
+        <Grid>
         <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                 CornerRadius="11" Padding="4" HorizontalAlignment="Left">
             <Border.Effect>
@@ -35,6 +36,15 @@
                 </RadioButton>
             </StackPanel>
         </Border>
+
+        <!-- Cross-link to the standalone Upload to Intune page -->
+        <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12.5">
+            <Run Text="Already have a built package?" Foreground="{DynamicResource MutedBrush}"/>
+            <Hyperlink Click="UploadExisting_Click" Foreground="{DynamicResource PrimaryBrush}" TextDecorations="{x:Null}" FontWeight="SemiBold">
+                Upload it directly →
+            </Hyperlink>
+        </TextBlock>
+        </Grid>
 
         <!-- Application Information Card -->
         <Border x:Name="CreateModeCard" Style="{StaticResource Card}" Margin="0,18,0,0">

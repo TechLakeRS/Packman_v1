@@ -198,48 +198,37 @@
             </Border>
 
             <Grid Grid.Column="1">
-            <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0">
-                <StackPanel Margin="30,24,30,26">
-                    <StackPanel>
-                        <TextBlock Text="Create Package" Style="{StaticResource H1}"/>
-                        <TextBlock Text="Build a new application package for Intune deployment" Style="{StaticResource SubText}" Margin="0,5,0,0"/>
-                    </StackPanel>
+            <Grid x:Name="CreatePackagePage">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                    <!-- Stepper -->
-                    <ItemsControl ItemsSource="{Binding Steps}" Margin="8,24,8,22">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Rows="1"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type vm:StepViewModel}">
-                                <Button Cursor="Hand"
-                                        Command="{Binding DataContext.GoToStepCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                                        CommandParameter="{Binding Index}">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <ContentPresenter/>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                    <Grid Background="Transparent">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="34"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
+                <!-- Fixed chrome: title + compact stepper -->
+                <StackPanel Grid.Row="0" Margin="30,24,30,0">
+                    <TextBlock Text="Create Package" Style="{StaticResource H1}"/>
+                    <TextBlock Text="Build a new application package for Intune deployment" Style="{StaticResource SubText}" Margin="0,5,0,0"/>
 
-                                        <Border Grid.Column="0" Grid.Row="0" Height="2" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <!-- Stepper: single line, dot + label per step -->
+                    <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Margin="0,18,0,0" Padding="0,0,0,12">
+                        <ItemsControl ItemsSource="{Binding Steps}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:StepViewModel}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <!-- Connector into this step -->
+                                        <Border Width="34" Height="2" VerticalAlignment="Center">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Background" Value="{DynamicResource LineBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsFirst}" Value="True">
-                                                            <Setter Property="Visibility" Value="Hidden"/>
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsActive}" Value="True">
                                                             <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
@@ -248,131 +237,138 @@
                                                 </Style>
                                             </Border.Style>
                                         </Border>
-
-                                        <Border Grid.Column="2" Grid.Row="0" Height="2" VerticalAlignment="Center" Margin="4,0,0,0">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{DynamicResource LineBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsLast}" Value="True">
-                                                            <Setter Property="Visibility" Value="Hidden"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding IsDone}" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
-
-                                        <Border Grid.Column="1" Grid.Row="0" Width="34" Height="34" CornerRadius="17" BorderThickness="2">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
-                                                    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
-                                                            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
-                                                            <Setter Property="Effect">
-                                                                <Setter.Value>
-                                                                    <DropShadowEffect Color="#3B67F5" Opacity="0.22" ShadowDepth="0" BlurRadius="14"/>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                            <Grid>
-                                                <TextBlock Text="{Binding Number}" FontSize="14" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <!-- Node: dot + label (+ optional chip) -->
+                                        <Button Cursor="Hand"
+                                                Command="{Binding DataContext.GoToStepCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                                CommandParameter="{Binding Index}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="bd" Background="Transparent" CornerRadius="10" Padding="10,6">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource Line2Brush}"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="26" Height="26" CornerRadius="13" BorderThickness="2">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                    <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+                                                                    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                                    <Setter Property="Effect">
+                                                                        <Setter.Value>
+                                                                            <DropShadowEffect Color="#3B67F5" Opacity="0.22" ShadowDepth="0" BlurRadius="12"/>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <Grid>
+                                                        <TextBlock Text="{Binding Number}" FontSize="12" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                                            <Setter Property="Foreground" Value="White"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding IsDone}" Value="True">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                        <Viewbox Width="12" Height="12" Visibility="{Binding IsDone, Converter={StaticResource BoolToVis}}">
+                                                            <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                        </Viewbox>
+                                                    </Grid>
+                                                </Border>
+                                                <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" Margin="9,0,0,0">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
-                                                            <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
                                                             <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
-                                                                    <Setter Property="Foreground" Value="White"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsDone}" Value="True">
-                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <Viewbox Width="15" Height="15" Visibility="{Binding IsDone, Converter={StaticResource BoolToVis}}">
-                                                    <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                                </Viewbox>
-                                            </Grid>
-                                        </Border>
+                                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                                                        CornerRadius="7" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                        Visibility="{Binding Optional, Converter={StaticResource BoolToVis}}">
+                                                    <TextBlock Text="OPTIONAL" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource Muted2Brush}"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </StackPanel>
 
-                                        <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" HorizontalAlignment="Center" Margin="0,9,0,0">
-                                            <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="Bold" HorizontalAlignment="Center">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                                <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                            <TextBlock Text="{Binding Subtitle}" FontSize="11" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!-- Step stage: visibility tied to each step's IsCurrent -->
-                    <Grid>
+                <!-- Scrolling step content: visibility tied to each step's IsCurrent -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="30,20,30,24">
                         <views:StepGenerate Visibility="{Binding Steps[0].IsCurrent, Converter={StaticResource BoolToVis}}"/>
                         <views:StepEdit     Visibility="{Binding Steps[1].IsCurrent, Converter={StaticResource BoolToVis}}"/>
                         <views:StepTest     Visibility="{Binding Steps[2].IsCurrent, Converter={StaticResource BoolToVis}}"/>
                         <views:StepUpload   Visibility="{Binding Steps[3].IsCurrent, Converter={StaticResource BoolToVis}}"/>
                     </Grid>
+                </ScrollViewer>
 
-                    <!-- Footer -->
-                    <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="0,18,0,0" Margin="0,18,0,0">
-                        <Grid>
-                            <Button Style="{StaticResource BackButton}" HorizontalAlignment="Left" Command="{Binding BackCommand}">
+                <!-- Fixed footer -->
+                <Border Grid.Row="2" Background="{DynamicResource Card2Brush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="30,12">
+                    <Grid>
+                        <Button Style="{StaticResource BackButton}" HorizontalAlignment="Left" Command="{Binding BackCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Width="16" Height="16">
+                                    <Path Data="{StaticResource IconChevL}" Stroke="{DynamicResource TextBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                                <TextBlock Text="Back" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <TextBlock Text="{Binding StepPosition}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Muted2Brush}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Style="{StaticResource SkipButton}" Content="Skip" Margin="0,0,10,0"
+                                    Command="{Binding SkipCommand}"
+                                    Visibility="{Binding SkipVisible, Converter={StaticResource BoolToVis}}"/>
+                            <Button Style="{StaticResource PrimaryButton}" Command="{Binding PrimaryCommand}">
                                 <StackPanel Orientation="Horizontal">
-                                    <Viewbox Width="16" Height="16">
-                                        <Path Data="{StaticResource IconChevL}" Stroke="{DynamicResource TextBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    <TextBlock Text="{Binding PrimaryLabel}" VerticalAlignment="Center"/>
+                                    <Viewbox Width="16" Height="16" Margin="8,0,0,0">
+                                        <Viewbox.Style>
+                                            <Style TargetType="Viewbox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLastStep}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Viewbox.Style>
+                                        <Path Data="{StaticResource IconChevR}" Stroke="White" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     </Viewbox>
-                                    <TextBlock Text="Back" Margin="6,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Style="{StaticResource SkipButton}" Content="Skip" Margin="0,0,10,0"
-                                        Command="{Binding SkipCommand}"
-                                        Visibility="{Binding SkipVisible, Converter={StaticResource BoolToVis}}"/>
-                                <Button Style="{StaticResource PrimaryButton}" Command="{Binding PrimaryCommand}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding PrimaryLabel}" VerticalAlignment="Center"/>
-                                        <Viewbox Width="16" Height="16" Margin="8,0,0,0">
-                                            <Viewbox.Style>
-                                                <Style TargetType="Viewbox">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsLastStep}" Value="True">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Viewbox.Style>
-                                            <Path Data="{StaticResource IconChevR}" Stroke="White" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                        </Viewbox>
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
             <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" Margin="30,24,30,26"/>
             <views:UploadToIntuneView x:Name="UploadIntunePage" Visibility="Collapsed"/>
             <views:ApplicationsView x:Name="ApplicationsPage" Visibility="Collapsed"/>

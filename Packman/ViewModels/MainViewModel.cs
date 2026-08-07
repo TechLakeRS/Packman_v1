@@ -49,6 +49,7 @@ public sealed class MainViewModel : ObservableObject
             OnPropertyChanged(nameof(PrimaryLabel));
             OnPropertyChanged(nameof(IsLastStep));
             OnPropertyChanged(nameof(SkipVisible));
+            OnPropertyChanged(nameof(StepPosition));
             BackCommand.RaiseCanExecuteChanged();
             SkipCommand.RaiseCanExecuteChanged();
         }
@@ -58,6 +59,7 @@ public sealed class MainViewModel : ObservableObject
         CurrentStepIndex == 0 && IsUpgradeMode ? "Upgrade Package" : Steps[CurrentStepIndex].PrimaryLabel;
     public bool IsLastStep => CurrentStepIndex == Steps.Count - 1;
     public bool SkipVisible => Steps[CurrentStepIndex].Optional && !IsLastStep;
+    public string StepPosition => $"Step {CurrentStepIndex + 1} of {Steps.Count}";
 
     private bool _isDarkTheme;
     public bool IsDarkTheme
@@ -78,10 +80,10 @@ public sealed class MainViewModel : ObservableObject
 
         Steps = new ObservableCollection<StepViewModel>
         {
-            new(0, "Generate",    "PSADT structure",   false, "Generate Package", isFirst: true,  isLast: false),
-            new(1, "Edit Script", "Optional",          true,  "Continue",         isFirst: false, isLast: false),
-            new(2, "Remote Test", "Optional",          true,  "Continue",         isFirst: false, isLast: false),
-            new(3, "Upload",      "Deploy to Intune",  false, "Build & Upload",   isFirst: false, isLast: true),
+            new(0, "Generate",    false, "Generate Package", isFirst: true,  isLast: false),
+            new(1, "Edit Script", true,  "Continue",         isFirst: false, isLast: false),
+            new(2, "Remote Test", true,  "Continue",         isFirst: false, isLast: false),
+            new(3, "Upload",      false, "Build & Upload",   isFirst: false, isLast: true),
         };
 
         BackCommand        = new RelayCommand(() => CurrentStepIndex--, () => CurrentStepIndex > 0);

@@ -28,11 +28,14 @@ public partial class MainWindow : Window
     /// <summary>Shows exactly one content page and collapses the rest. Null-safe for load-time calls.</summary>
     private void ShowOnly(UIElement? page)
     {
-        foreach (var p in new UIElement?[] { MainScrollViewer, SettingsPage, UploadIntunePage, ApplicationsPage, AppDetailPage })
+        foreach (var p in new UIElement?[] { CreatePackagePage, SettingsPage, UploadIntunePage, ApplicationsPage, AppDetailPage })
             if (p != null) p.Visibility = ReferenceEquals(p, page) ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void CreatePackageNavBtn_Checked(object sender, RoutedEventArgs e) => ShowOnly(MainScrollViewer);
+    /// <summary>Switches to the Upload to Intune page (used by the wizard's cross-link).</summary>
+    public void NavigateToUploadIntune() => UploadIntuneNavBtn.IsChecked = true;
+
+    private void CreatePackageNavBtn_Checked(object sender, RoutedEventArgs e) => ShowOnly(CreatePackagePage);
 
     private void UploadIntuneNavBtn_Checked(object sender, RoutedEventArgs e)
     {

@@ -49,6 +49,9 @@ public partial class StepGenerate : UserControl
         }
     }
 
+    private void UploadExisting_Click(object sender, RoutedEventArgs e)
+        => (Window.GetWindow(this) as MainWindow)?.NavigateToUploadIntune();
+
     private void SystemContext_Checked(object sender, RoutedEventArgs e)
     {
         if (VM != null) VM.CreatePackage.UserInstall = false;
