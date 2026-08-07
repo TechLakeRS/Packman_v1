@@ -29,7 +29,7 @@ public class PSADTGenerator
         };
     }
 
-    public async Task<string> CreatePackageAsync(ApplicationInfo appInfo, PSADTOptions? options = null,
+    public async Task<string> CreatePackageAsync(ApplicationInfo appInfo,
         bool overwriteExisting = false, CancellationToken cancellationToken = default)
     {
         var appFolderName = $"{appInfo.Manufacturer.Replace(" ", "_")}_{appInfo.Name.Replace(" ", "_")}";
@@ -50,7 +50,7 @@ public class PSADTGenerator
         if (!string.IsNullOrWhiteSpace(appInfo.SourcesPath))
             await CopySourceFilesAsync(appInfo.SourcesPath, packagePath, cancellationToken);
 
-        await ModifyScriptAsync(packagePath, appInfo, options, cancellationToken);
+        await ModifyScriptAsync(packagePath, appInfo, cancellationToken);
 
         Debug.WriteLine($"Package created at: {packagePath}");
         return packagePath;
@@ -105,8 +105,7 @@ public class PSADTGenerator
         }, ct);
     }
 
-    private async Task ModifyScriptAsync(string packagePath, ApplicationInfo appInfo,
-        PSADTOptions? options, CancellationToken ct)
+    private async Task ModifyScriptAsync(string packagePath, ApplicationInfo appInfo, CancellationToken ct)
     {
         var scriptPath = Path.Combine(packagePath, "Application", "Invoke-AppDeployToolkit.ps1");
         if (!File.Exists(scriptPath))
@@ -115,7 +114,6 @@ public class PSADTGenerator
         var content = await File.ReadAllTextAsync(scriptPath, ct);
         content = UpdateMetadata(content, appInfo);
         content = InjectInstallCommands(content, appInfo);
-        if (options != null) content = InjectFunctions(content, options);
         await File.WriteAllTextAsync(scriptPath, content, ct);
     }
 
@@ -137,6 +135,8 @@ public class PSADTGenerator
                 lines[i] = $"    AppScriptDate = '{DateTime.Now:MM/dd/yyyy}'";
             else if (line.StartsWith("AppScriptAuthor") && line.Contains("="))
                 lines[i] = $"    AppScriptAuthor = '{(string.IsNullOrWhiteSpace(appInfo.Author) ? Environment.UserName : appInfo.Author)}'";
+            else if (line.StartsWith("RequireAdmin") && line.Contains("="))
+                lines[i] = $"    RequireAdmin = ${(appInfo.InstallContext.Equals("User", StringComparison.OrdinalIgnoreCase) ? "false" : "true")}";
         }
         return string.Join('\n', lines);
     }
@@ -163,30 +163,6 @@ public class PSADTGenerator
                 ? $"\n## Uninstall MSI\nStart-ADTMsiProcess -Action 'Uninstall' -FilePath '{(string.IsNullOrEmpty(appInfo.MsiProductCode) ? "{ProductCode}" : appInfo.MsiProductCode)}'"
                 : $"\n## Uninstall EXE\nStart-ADTProcess -FilePath \"$($adtSession.DirFiles)\\{sourceFileName ?? "setup.exe"}\" -ArgumentList '<uninstall flags>'";
             Insert(lines, uninstallIdx, code);
-        }
-
-        return string.Join('\n', lines);
-    }
-
-    private string InjectFunctions(string content, PSADTOptions options)
-    {
-        var lines = content.Split('\n').ToList();
-        var phaseMap = new Dictionary<ScriptPhase, string>
-        {
-            { ScriptPhase.PreInstallation, "Pre-Installation" },
-            { ScriptPhase.Installation, "Installation" },
-            { ScriptPhase.PostInstallation, "Post-Installation" },
-            { ScriptPhase.PreUninstallation, "Pre-Uninstallation" },
-            { ScriptPhase.Uninstallation, "Uninstallation" },
-            { ScriptPhase.PostUninstallation, "Post-Uninstallation" },
-        };
-
-        foreach (var phase in phaseMap.Keys.Reverse())
-        {
-            var code = options.GetPhaseCode(phase);
-            if (string.IsNullOrWhiteSpace(code)) continue;
-            int idx = FindSection(lines, phaseMap[phase]);
-            if (idx > 0) Insert(lines, idx, code);
         }
 
         return string.Join('\n', lines);

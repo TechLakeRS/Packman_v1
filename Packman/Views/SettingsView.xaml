@@ -10,17 +10,22 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- ══ Page header ══════════════════════════════════════════════ -->
-        <Grid Grid.Row="0" Margin="0,0,0,22">
+        <Grid Grid.Row="0" Margin="0,0,0,18">
             <StackPanel VerticalAlignment="Center">
                 <TextBlock Text="Settings" Style="{StaticResource H1}"/>
                 <TextBlock Text="Configure your packaging environment, authentication and integrations"
                            Style="{StaticResource SubText}" Margin="0,5,0,0"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <!-- Save status -->
+                <TextBlock Text="{Binding SaveStatus}" FontSize="12.5" Foreground="{DynamicResource OkBrush}"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
                 <!-- Version pill -->
                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
                         BorderThickness="1" CornerRadius="20" Padding="12,5" Margin="0,0,10,0">
@@ -47,21 +52,116 @@
             </StackPanel>
         </Grid>
 
-        <!-- ══ Two-column body ══════════════════════════════════════════ -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="16"/>
-                <ColumnDefinition Width="268"/>
-            </Grid.ColumnDefinitions>
+        <!-- ══ First-run setup banner ═══════════════════════════════════ -->
+        <Border x:Name="FirstRunBanner" Grid.Row="1" Background="{DynamicResource PrimarySoftBrush}"
+                BorderBrush="{DynamicResource PrimaryDimBrush}" BorderThickness="1" CornerRadius="12"
+                Padding="16,11" Margin="0,0,0,18">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Width="15" Height="15" Margin="0,0,10,0" VerticalAlignment="Center">
+                    <Path Data="{StaticResource IconBulb}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                </Viewbox>
+                <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="12.5">
+                    <Run Text="First-run setup" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                    <Run Text="  Complete authentication and network paths, then save. This hint is cleared automatically once configuration is valid."
+                         Foreground="{DynamicResource MutedBrush}"/>
+                </TextBlock>
+                <Button Grid.Column="2" Style="{StaticResource RowIconButton}" Click="DismissFirstRun_Click"
+                        VerticalAlignment="Center" ToolTip="Dismiss">
+                    <Viewbox Width="12" Height="12">
+                        <Path Data="{StaticResource IconX}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Viewbox>
+                </Button>
+            </Grid>
+        </Border>
 
-            <!-- ── Left: scrollable sections ──────────────────────────── -->
-            <ScrollViewer x:Name="LeftScroll" Grid.Column="0"
-                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <!-- ══ Tab strip ════════════════════════════════════════════════ -->
+        <Border Grid.Row="2" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="TabAuth" Style="{StaticResource PageTab}" GroupName="SettingsTabs" IsChecked="True">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
+                            <Path Data="{StaticResource IconShield}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="Authentication" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton x:Name="TabCodeSign" Style="{StaticResource PageTab}" GroupName="SettingsTabs">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
+                            <Path Data="{StaticResource IconShield}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="Code Signing" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton x:Name="TabNetworkPaths" Style="{StaticResource PageTab}" GroupName="SettingsTabs">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
+                            <Path Data="{StaticResource IconFolder}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="Network Paths" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton x:Name="TabGroupAssignment" Style="{StaticResource PageTab}" GroupName="SettingsTabs">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
+                            <Path Data="{StaticResource IconGroup}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="Group Assignment" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+                <!-- Planned sections -->
+                <RadioButton Style="{StaticResource PageTab}" GroupName="SettingsTabs" IsEnabled="False">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
+                            <Path Data="{StaticResource IconMonitor}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="WDAC Hyper-V" VerticalAlignment="Center"/>
+                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="SOON" FontSize="9" Foreground="{DynamicResource Muted2Brush}"/>
+                        </Border>
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton Style="{StaticResource PageTab}" GroupName="SettingsTabs" IsEnabled="False">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
+                            <Path Data="{StaticResource IconCode}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="GitLab" VerticalAlignment="Center"/>
+                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="SOON" FontSize="9" Foreground="{DynamicResource Muted2Brush}"/>
+                        </Border>
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton Style="{StaticResource PageTab}" GroupName="SettingsTabs" IsEnabled="False">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
+                            <Path Data="{StaticResource IconGear}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="Key Vault Caching" VerticalAlignment="Center"/>
+                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="SOON" FontSize="9" Foreground="{DynamicResource Muted2Brush}"/>
+                        </Border>
+                    </StackPanel>
+                </RadioButton>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ Tab content ══════════════════════════════════════════════ -->
+        <ScrollViewer Grid.Row="3" Margin="0,16,0,0"
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
 
                     <!-- Authentication card -->
-                    <Border x:Name="AuthCard" Style="{StaticResource Card}">
+                    <Border Style="{StaticResource Card}"
+                            Visibility="{Binding IsChecked, ElementName=TabAuth, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
 
                             <!-- Card header -->
@@ -342,7 +442,8 @@
                     </Border>
 
                     <!-- Code Signing card -->
-                    <Border x:Name="CodeSignCard" Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <Border Style="{StaticResource Card}"
+                            Visibility="{Binding IsChecked, ElementName=TabCodeSign, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
 
                             <!-- Card header -->
@@ -506,7 +607,8 @@
                     </Border>
 
                     <!-- Network Paths card -->
-                    <Border x:Name="NetworkPathsCard" Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <Border Style="{StaticResource Card}"
+                            Visibility="{Binding IsChecked, ElementName=TabNetworkPaths, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
 
                             <!-- Card header -->
@@ -559,7 +661,8 @@
                     </Border>
 
                     <!-- Group Assignment card -->
-                    <Border x:Name="GroupAssignmentCard" Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <Border Style="{StaticResource Card}"
+                            Visibility="{Binding IsChecked, ElementName=TabGroupAssignment, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
 
                             <!-- Card header -->
@@ -729,104 +832,6 @@
                     <Border Height="16"/>
 
                 </StackPanel>
-            </ScrollViewer>
-
-            <!-- ── Right: sections nav ─────────────────────────────────── -->
-            <StackPanel Grid.Column="2">
-
-                <!-- First-run setup card -->
-                <Border Style="{StaticResource CardSoft}" BorderBrush="{DynamicResource PrimaryDimBrush}" BorderThickness="1" Margin="0,0,0,12">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Viewbox Width="14" Height="14" Margin="0,0,8,0">
-                                <Path Data="{StaticResource IconBulb}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
-                            <TextBlock Text="First-run setup" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
-                        </StackPanel>
-                        <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource MutedBrush}" LineHeight="18">
-                            Complete authentication and network paths, then save. This flag is cleared automatically once configuration is valid.
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
-
-                <!-- Sections nav card -->
-                <Border Style="{StaticResource Card}" Padding="0">
-                    <StackPanel>
-                        <StackPanel Margin="16,14,16,8">
-                            <TextBlock Text="Sections" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
-                            <TextBlock Text="Jump to a configuration area" FontSize="11.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        <Border Height="1" Background="{DynamicResource LineBrush}"/>
-                        <!-- Authentication (active) -->
-                        <Border Cursor="Hand" MouseLeftButtonUp="NavAuth_Click"
-                                Background="{DynamicResource PrimaryDimBrush}" Padding="16,11">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="14" Height="14" Margin="0,0,10,0">
-                                    <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="Authentication" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <!-- Code Signing -->
-                        <Border Cursor="Hand" MouseLeftButtonUp="NavCodeSign_Click" Padding="16,11">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="14" Height="14" Margin="0,0,10,0">
-                                    <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="Code Signing" FontSize="13" Foreground="{DynamicResource MutedBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <!-- Network Paths -->
-                        <Border Cursor="Hand" MouseLeftButtonUp="NavNetworkPaths_Click" Padding="16,11">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="14" Height="14" Margin="0,0,10,0">
-                                    <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="Network Paths" FontSize="13" Foreground="{DynamicResource MutedBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <!-- Greyed-out future sections -->
-                        <Border Padding="16,11" Opacity="0.4">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="14" Height="14" Margin="0,0,10,0">
-                                    <Path Data="{StaticResource IconMonitor}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="WDAC Hyper-V" FontSize="13" Foreground="{DynamicResource MutedBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Padding="16,11" Opacity="0.4">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="14" Height="14" Margin="0,0,10,0">
-                                    <Path Data="{StaticResource IconCode}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="GitLab" FontSize="13" Foreground="{DynamicResource MutedBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Cursor="Hand" MouseLeftButtonUp="NavGroupAssignment_Click" Padding="16,11">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="14" Height="14" Margin="0,0,10,0">
-                                    <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="Group Assignment" FontSize="13" Foreground="{DynamicResource MutedBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Padding="16,11" Opacity="0.4">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox Width="14" Height="14" Margin="0,0,10,0">
-                                    <Path Data="{StaticResource IconGear}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                                <TextBlock Text="Key Vault Caching" FontSize="13" Foreground="{DynamicResource MutedBrush}"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Border>
-
-                <!-- Save status -->
-                <TextBlock Text="{Binding SaveStatus}" FontSize="12.5" Foreground="{DynamicResource OkBrush}"
-                           HorizontalAlignment="Center" Margin="0,10,0,0"/>
-
-            </StackPanel>
-
-        </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

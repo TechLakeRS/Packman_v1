@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              mc:Ignorable="d"
              IsVisibleChanged="StepEdit_IsVisibleChanged"
              FontFamily="{StaticResource UIFontFamily}">
@@ -28,14 +29,14 @@
                             <TextBlock Text="OPTIONAL" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}"/>
                         </Border>
                     </StackPanel>
-                    <TextBlock Text="Review &amp; customize the generated PSADT deployment script" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                    <TextBlock Text="Edit the generated PSADT deployment script — completions come from the PSADT v4 catalog" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                 </StackPanel>
                 <Button Grid.Column="2" Style="{StaticResource CardActionButton}" VerticalAlignment="Center" Click="OpenEditor_Click">
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="15" Height="15">
                             <Path Data="{StaticResource IconCode}" Stroke="{DynamicResource InkBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                         </Viewbox>
-                        <TextBlock Text="Open in Editor" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Open in VS Code" Margin="7,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </Grid>
@@ -71,7 +72,7 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Code preview -->
+                <!-- Code editor (Monaco in WebView2) -->
                 <Border Grid.Column="2" Background="{DynamicResource CodeBgBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -79,19 +80,38 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <!-- Code top bar -->
-                        <Border Grid.Row="0" BorderBrush="#1AFFFFFF" BorderThickness="0,0,0,1" Padding="14,10">
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="9" Height="9" Fill="{DynamicResource PrimaryBrush}"/>
-                                <TextBlock x:Name="CodeFileName" Text="Invoke-AppDeployToolkit.ps1" Margin="9,0,0,0" FontFamily="{StaticResource MonoFontFamily}" FontSize="12" Foreground="{DynamicResource CodeBarTxtBrush}"/>
-                            </StackPanel>
+                        <Border Grid.Row="0" BorderBrush="#1AFFFFFF" BorderThickness="0,0,0,1" Padding="14,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse Width="9" Height="9" Fill="{DynamicResource PrimaryBrush}"/>
+                                    <TextBlock x:Name="CodeFileName" Text="Invoke-AppDeployToolkit.ps1" Margin="9,0,0,0" FontFamily="{StaticResource MonoFontFamily}" FontSize="12" Foreground="{DynamicResource CodeBarTxtBrush}"/>
+                                    <TextBlock x:Name="DirtyDot" Text="●" Margin="7,0,0,0" FontSize="12" Foreground="{DynamicResource WarnBrush}"
+                                               ToolTip="Unsaved changes" Visibility="Collapsed"/>
+                                    <Border Background="#2E3B67F5" BorderBrush="#733B67F5" BorderThickness="1" CornerRadius="8" Padding="7,2" Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="PSADT INTELLISENSE" FontSize="9" FontWeight="Bold" Foreground="#8FA9F9"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="EditActions" Visibility="Collapsed">
+                                    <Button x:Name="RevertButton" Content="Revert" Click="Revert_Click" Cursor="Hand"
+                                            Background="Transparent" BorderBrush="#26FFFFFF" BorderThickness="1" Padding="10,3"
+                                            Foreground="{DynamicResource CodeBarTxtBrush}" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,6,0"/>
+                                    <Button x:Name="SaveButton" Content="Save" Click="Save_Click" Cursor="Hand"
+                                            Background="{DynamicResource PrimaryBrush}" BorderThickness="0" Padding="12,3"
+                                            Foreground="White" FontSize="11.5" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Grid>
                         </Border>
 
-                        <!-- Code body -->
-                        <TextBox Grid.Row="1" x:Name="CodeBox" IsReadOnly="True" BorderThickness="0" Background="Transparent"
-                                 Foreground="{DynamicResource CodeTxtBrush}" FontFamily="{StaticResource MonoFontFamily}" FontSize="12.5"
-                                 Padding="16,14" MaxHeight="520"
-                                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                                 TextWrapping="NoWrap"/>
+                        <!-- Monaco editor -->
+                        <Grid Grid.Row="1" MinHeight="420">
+                            <wv2:WebView2 x:Name="EditorWebView" DefaultBackgroundColor="#0C1322"/>
+                            <TextBlock x:Name="EditorFallbackText" Visibility="Collapsed" Margin="16,14" TextWrapping="Wrap"
+                                       FontFamily="{StaticResource MonoFontFamily}" FontSize="12.5" Foreground="{DynamicResource CodeBarTxtBrush}"/>
+                        </Grid>
                     </Grid>
                 </Border>
             </Grid>

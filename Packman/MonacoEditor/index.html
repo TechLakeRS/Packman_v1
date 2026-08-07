@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body, #editor { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #0C1322; }
+</style>
+</head>
+<body>
+<div id="editor"></div>
+<script src="vs/loader.js"></script>
+<script>
+  // Hosted by StepEdit via WebView2. Messages from C#:
+  //   { type: 'init', catalog: [...] }
+  //   { type: 'setContent', content, language, readOnly }
+  //   { type: 'getContent' }  -> replies { type: 'content', content }
+  //   { type: 'markSaved' }
+  // Messages to C#:
+  //   { type: 'ready' } | { type: 'dirty', dirty } | { type: 'content', content }
+  let editor = null;
+  let catalog = [];
+  let savedVersionId = 0;
+  let lastDirty = false;
+
+  const post = msg => window.chrome.webview.postMessage(msg);
+
+  require.config({ paths: { vs: 'vs' } });
+  require(['vs/editor/editor.main'], function () {
+    monaco.editor.defineTheme('packman-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [],
+      colors: { 'editor.background': '#0C1322' }
+    });
+
+    editor = monaco.editor.create(document.getElementById('editor'), {
+      value: '',
+      language: 'powershell',
+      theme: 'packman-dark',
+      fontSize: 13,
+      fontFamily: "'Cascadia Code', Consolas, 'Courier New', monospace",
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      automaticLayout: true,
+      renderWhitespace: 'none',
+      tabSize: 4
+    });
+
+    editor.onDidChangeModelContent(() => {
+      const dirty = editor.getModel().getAlternativeVersionId() !== savedVersionId;
+      if (dirty !== lastDirty) { lastDirty = dirty; post({ type: 'dirty', dirty }); }
+    });
+
+    registerPsadtProviders();
+    post({ type: 'ready' });
+  });
+
+  // <PLACEHOLDER> tokens from the catalog become snippet tab-stops.
+  function toSnippet(call) {
+    let i = 0;
+    return call.replace(/<([A-Z_]+)>/g, (_, name) => '${' + (++i) + ':' + name + '}');
+  }
+
+  function signatureLabel(fn) {
+    return fn.name + ' ' + fn.params.map(p => {
+      const part = '-' + p.name + (p.isSwitch ? '' : ' <' + p.type + '>');
+      return p.mandatory ? part : '[' + part + ']';
+    }).join(' ');
+  }
+
+  function docFor(fn) {
+    return { value: '**' + fn.name + '**  \n_' + fn.category + '_\n\n' + fn.synopsis };
+  }
+
+  function registerPsadtProviders() {
+    // Completion: the catalog is the only suggestion source, so only ADT functions appear.
+    monaco.languages.registerCompletionItemProvider('powershell', {
+      provideCompletionItems(model, position) {
+        const word = model.getWordUntilPosition(position);
+        const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
+        return {
+          suggestions: catalog.map(fn => ({
+            label: fn.name,
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: docFor(fn),
+            detail: fn.category,
+            insertText: toSnippet(fn.snippet),
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range
+          }))
+        };
+      }
+    });
+
+    monaco.languages.registerHoverProvider('powershell', {
+      provideHover(model, position) {
+        const word = model.getWordAtPosition(position);
+        if (!word) return null;
+        const fn = catalog.find(f => f.name.toLowerCase() === word.word.toLowerCase());
+        if (!fn) return null;
+        return { contents: [docFor(fn), { value: '`' + signatureLabel(fn) + '`' }] };
+      }
+    });
+
+    monaco.languages.registerSignatureHelpProvider('powershell', {
+      signatureHelpTriggerCharacters: [' ', '-'],
+      provideSignatureHelp(model, position) {
+        const line = model.getLineContent(position.lineNumber).slice(0, position.column - 1);
+        const m = line.match(/([A-Za-z]+-ADT[A-Za-z]+)\b/);
+        const fn = m && catalog.find(f => f.name.toLowerCase() === m[1].toLowerCase());
+        if (!fn) return null;
+        return {
+          value: {
+            signatures: [{
+              label: signatureLabel(fn),
+              documentation: fn.synopsis,
+              parameters: fn.params.map(p => ({ label: '-' + p.name, documentation: p.description }))
+            }],
+            activeSignature: 0,
+            activeParameter: 0
+          },
+          dispose() {}
+        };
+      }
+    });
+  }
+
+  window.chrome.webview.addEventListener('message', e => {
+    const msg = e.data;
+    if (!editor) return;
+    switch (msg.type) {
+      case 'init':
+        catalog = msg.catalog || [];
+        break;
+      case 'setContent':
+        monaco.editor.setModelLanguage(editor.getModel(), msg.language || 'plaintext');
+        editor.setValue(msg.content);
+        editor.updateOptions({ readOnly: !!msg.readOnly });
+        savedVersionId = editor.getModel().getAlternativeVersionId();
+        lastDirty = false;
+        post({ type: 'dirty', dirty: false });
+        break;
+      case 'getContent':
+        post({ type: 'content', content: editor.getValue() });
+        break;
+      case 'markSaved':
+        savedVersionId = editor.getModel().getAlternativeVersionId();
+        lastDirty = false;
+        post({ type: 'dirty', dirty: false });
+        break;
+    }
+  });
+</script>
+</body>
+</html>
