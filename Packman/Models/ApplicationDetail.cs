@@ -12,6 +12,9 @@ public class ApplicationDetail : IntuneApplication
 
     public string Owner { get; set; } = "";
     public string Developer { get; set; } = "";
+    public string RestartBehavior { get; set; } = "";
+    public int MaxRunTimeMinutes { get; set; }
+    public int MinDiskSpaceMB { get; set; }
     public string Notes { get; set; } = "";
     public string FileName { get; set; } = "";
     public long Size { get; set; }
@@ -53,6 +56,21 @@ public class ApplicationDetail : IntuneApplication
         "processing" => "warn",
         _ => "mut",
     };
+
+    /// <summary>App ID shortened for the sidebar (full value goes to the clipboard).</summary>
+    public string IdShort => Id.Length > 13 ? $"{Id[..8]}…{Id[^4..]}" : Id;
+
+    // ── Requirements (Deployment tab tile strip) ──
+    public string RestartBehaviorText => RestartBehavior switch
+    {
+        "basedOnReturnCode" => "By return code",
+        "allow" => "App may restart",
+        "suppress" => "Suppress restart",
+        "force" => "Force restart",
+        _ => "—",
+    };
+    public string MaxRunTimeText => MaxRunTimeMinutes > 0 ? $"{MaxRunTimeMinutes} min" : "—";
+    public string MinDiskSpaceText => MinDiskSpaceMB > 0 ? $"{MinDiskSpaceMB} MB" : "Not specified";
 }
 
 public class AssignedGroup
@@ -60,6 +78,22 @@ public class AssignedGroup
     public string GroupId { get; set; } = "";
     public string GroupName { get; set; } = "";
     public string AssignmentType { get; set; } = "";   // required | available | uninstall
+
+    // Badge/chip helpers (StatusBadgeTemplate binds StatusLabel + StatusKind).
+    public string StatusLabel => AssignmentType?.ToLowerInvariant() switch
+    {
+        "required" => "Required",
+        "uninstall" => "Uninstall",
+        "available" or "availablewithoutenrollment" => "Available",
+        _ => string.IsNullOrEmpty(AssignmentType) ? "Unknown" : AssignmentType,
+    };
+    public string StatusKind => AssignmentType?.ToLowerInvariant() switch
+    {
+        "required" => "ok",
+        "uninstall" => "bad",
+        _ => "mut",
+    };
+    public string ChipText => $"{GroupName} · {StatusLabel}";
 }
 
 /// <summary>Per-app device install rollup from the Intune reporting endpoint.</summary>

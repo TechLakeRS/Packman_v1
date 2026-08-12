@@ -103,12 +103,20 @@ public partial class IntuneService
         };
         detail.LastModified = detail.LastModifiedDateTime;
 
-        if (app.TryGetProperty("installExperience", out var ie) && ie.ValueKind == JsonValueKind.Object
-            && ie.TryGetProperty("runAsAccount", out var acc))
+        if (app.TryGetProperty("installExperience", out var ie) && ie.ValueKind == JsonValueKind.Object)
         {
-            var runAs = acc.ValueKind == JsonValueKind.Number ? acc.GetInt32().ToString() : acc.GetString();
-            detail.InstallContext = string.Equals(runAs, "user", StringComparison.OrdinalIgnoreCase) ? "User" : "System";
+            if (ie.TryGetProperty("runAsAccount", out var acc))
+            {
+                var runAs = acc.ValueKind == JsonValueKind.Number ? acc.GetInt32().ToString() : acc.GetString();
+                detail.InstallContext = string.Equals(runAs, "user", StringComparison.OrdinalIgnoreCase) ? "User" : "System";
+            }
+            if (ie.TryGetProperty("deviceRestartBehavior", out var rb) && rb.ValueKind == JsonValueKind.String)
+                detail.RestartBehavior = rb.GetString() ?? "";
+            if (ie.TryGetProperty("maxRunTimeInMinutes", out var mrt) && mrt.ValueKind == JsonValueKind.Number)
+                detail.MaxRunTimeMinutes = mrt.GetInt32();
         }
+        if (app.TryGetProperty("minimumFreeDiskSpaceInMB", out var mds) && mds.ValueKind == JsonValueKind.Number)
+            detail.MinDiskSpaceMB = mds.GetInt32();
 
         detail.DetectionRules = ParseDetectionRules(app);
         detail.AssignedGroups = await GetAssignedGroupsAsync(id);

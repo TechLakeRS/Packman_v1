@@ -1,13 +1,16 @@
+using Packman.Helpers;
 using Packman.Models;
 using Packman.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 
 namespace Packman.ViewModels;
 
 /// <summary>
 /// Backs the Application detail screen: loads full metadata, assignments, detection
-/// rules and the install-status rollup for a single Intune app.
+/// rules and the install-status rollup for a single Intune app, and locates the
+/// package's source folder on the configured network share.
 /// </summary>
 public sealed class ApplicationDetailViewModel : ObservableObject
 {
@@ -25,8 +28,8 @@ public sealed class ApplicationDetailViewModel : ObservableObject
             Category = app.Category,
             LastModified = app.LastModified,
             LastModifiedDateTime = app.LastModified,
+            PublishingState = app.PublishingState,
         };
-        BuildActivity();
     }
 
     private ApplicationDetail _detail = null!;
@@ -42,41 +45,66 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         }
     }
 
-    // ── Tabs ──
+    // ── Tabs: Overview / Package / Deployment ──
     private string _tab = "overview";
     public string Tab
     {
         get => _tab;
-        set { if (Set(ref _tab, value)) RaiseTabFlags(); }
+        set
+        {
+            if (!Set(ref _tab, value)) return;
+            OnPropertyChanged(nameof(IsOverview));
+            OnPropertyChanged(nameof(IsPackage));
+            OnPropertyChanged(nameof(IsDeployment));
+        }
     }
     public bool IsOverview => _tab == "overview";
-    public bool IsAssignments => _tab == "assignments";
-    public bool IsDetection => _tab == "detection";
-    public bool IsActivity => _tab == "activity";
-
-    private void RaiseTabFlags()
-    {
-        OnPropertyChanged(nameof(IsOverview));
-        OnPropertyChanged(nameof(IsAssignments));
-        OnPropertyChanged(nameof(IsDetection));
-        OnPropertyChanged(nameof(IsActivity));
-    }
+    public bool IsPackage => _tab == "package";
+    public bool IsDeployment => _tab == "deployment";
 
     public bool HasInstall => !string.IsNullOrWhiteSpace(Detail.InstallCommand);
     public bool HasUninstall => !string.IsNullOrWhiteSpace(Detail.UninstallCommand);
 
-    public ObservableCollection<AssignedGroup> RequiredAssignments { get; } = new();
-    public ObservableCollection<AssignedGroup> AvailableAssignments { get; } = new();
-    public ObservableCollection<AssignedGroup> UninstallAssignments { get; } = new();
     public ObservableCollection<DetectionRuleDisplay> DetectionDisplays { get; } = new();
     public bool HasDetectionRules => Detail.DetectionRules.Count > 0;
     public bool HasAssignments => Detail.AssignedGroups.Count > 0;
+    public string DetectionRulesHint => Detail.DetectionRules.Count switch
+    {
+        0 => "No rules",
+        1 => "1 rule",
+        var n => $"{n} rules · all must match",
+    };
 
-    public ObservableCollection<ActivityEntry> Activity { get; } = new();
+    // ── Package source (network share) ──
+    private string? _sourcePath;
+    public string? SourcePath
+    {
+        get => _sourcePath;
+        private set
+        {
+            if (!Set(ref _sourcePath, value)) return;
+            OnPropertyChanged(nameof(HasSource));
+            OnPropertyChanged(nameof(SourcePathDisplay));
+            OnPropertyChanged(nameof(SourceHintText));
+            OnPropertyChanged(nameof(SourceHintOk));
+        }
+    }
+    public bool HasSource => !string.IsNullOrEmpty(_sourcePath);
+    public string SourcePathDisplay => _sourcePath ?? "Package not found on the configured share";
+    public string SourceHintText => HasSource
+        ? "Package path validated — ready for updates"
+        : "No matching folder on the share — check the Intune Applications path in Settings";
+    public bool SourceHintOk => HasSource;
+
+    /// <summary>Full path of the PSADT script inside the source package, when found.</summary>
+    public string? SourceScriptPath { get; private set; }
+
+    public ObservableCollection<SourceCheck> SourceChecks { get; } = new();
 
     // ── Deployment status (fixed 252px track to avoid binding GridLengths) ──
     private const double BarWidth = 252;
     public bool HasSummary => Detail.Statistics is { TotalDevices: > 0 };
+    public string TargetedDevicesText => (Detail.Statistics?.TotalDevices ?? 0).ToString("N0");
     public int SumInstalled => Detail.Statistics?.SuccessfulInstalls ?? 0;
     public int SumPending => Detail.Statistics?.PendingInstalls ?? 0;
     public int SumFailed => Detail.Statistics?.FailedInstalls ?? 0;
@@ -104,10 +132,9 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         try
         {
             Detail = await _apps.GetApplicationDetailAsync(Detail.Id);
-            RebuildAssignments();
             RebuildDetection();
-            BuildActivity();
             RaiseDerived();
+            await LocateSourceAsync();
         }
         catch (Exception ex)
         {
@@ -144,7 +171,9 @@ public sealed class ApplicationDetailViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(HasDetectionRules));
         OnPropertyChanged(nameof(HasAssignments));
+        OnPropertyChanged(nameof(DetectionRulesHint));
         OnPropertyChanged(nameof(HasSummary));
+        OnPropertyChanged(nameof(TargetedDevicesText));
         OnPropertyChanged(nameof(SumInstalled));
         OnPropertyChanged(nameof(SumPending));
         OnPropertyChanged(nameof(SumFailed));
@@ -155,22 +184,6 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         OnPropertyChanged(nameof(BarFailed));
     }
 
-    private void RebuildAssignments()
-    {
-        RequiredAssignments.Clear();
-        AvailableAssignments.Clear();
-        UninstallAssignments.Clear();
-        foreach (var a in Detail.AssignedGroups)
-        {
-            switch (a.AssignmentType?.ToLowerInvariant())
-            {
-                case "required": RequiredAssignments.Add(a); break;
-                case "available": case "availablewithoutenrollment": AvailableAssignments.Add(a); break;
-                case "uninstall": UninstallAssignments.Add(a); break;
-            }
-        }
-    }
-
     private void RebuildDetection()
     {
         DetectionDisplays.Clear();
@@ -178,98 +191,133 @@ public sealed class ApplicationDetailViewModel : ObservableObject
             DetectionDisplays.Add(DetectionRuleDisplay.From(r));
     }
 
-    private void BuildActivity()
+    /// <summary>
+    /// Finds the package's version folder on the share and runs the integrity checks.
+    /// Share enumeration happens off the UI thread; failures just leave "not found".
+    /// </summary>
+    private async Task LocateSourceAsync()
     {
-        Activity.Clear();
-        if (string.Equals(Detail.PublishingState, "published", StringComparison.OrdinalIgnoreCase))
-            Activity.Add(new ActivityEntry("Published to Intune", Detail.UpdatedText, "ok"));
-        if (Detail.AssignedGroups.Count > 0)
-            Activity.Add(new ActivityEntry($"Assigned to {Detail.AssignedGroups.Count} group{(Detail.AssignedGroups.Count > 1 ? "s" : "")}", Detail.UpdatedText, "ok"));
-        Activity.Add(new ActivityEntry("Last updated", Detail.LastModifiedFormatted, "mut"));
-        Activity.Add(new ActivityEntry("Package created", Detail.CreatedFormatted, "mut"));
+        var root = AppServices.Settings.Settings.NetworkPaths.IntuneApplications;
+        var d = Detail;
+
+        var (path, script, checks) = await Task.Run(() =>
+        {
+            var p = PackageSourceLocator.Locate(root, d.Publisher, d.DisplayName, d.Version);
+            return p == null
+                ? ((string?)null, (string?)null, new List<SourceCheck>())
+                : (p, FindScript(p), BuildChecks(p, d.Size, d.SizeFormatted));
+        });
+
+        SourceScriptPath = script;
+        SourceChecks.Clear();
+        foreach (var c in checks) SourceChecks.Add(c);
+        SourcePath = path;
     }
+
+    private static string? FindScript(string packagePath) =>
+        FolderBrowserHelper.GetPSADTScriptPath(Path.Combine(packagePath, "Application"))
+        ?? FolderBrowserHelper.GetPSADTScriptPath(packagePath);
+
+    private static List<SourceCheck> BuildChecks(string packagePath, long intuneSize, string intuneSizeText)
+    {
+        var checks = new List<SourceCheck>();
+
+        var script = FindScript(packagePath);
+        checks.Add(script != null
+            ? new SourceCheck(Path.GetFileName(script), "deployment script present", ok: true)
+            : new SourceCheck("Invoke-AppDeployToolkit.ps1", "deployment script not found", ok: false));
+
+        var intuneDir = Path.Combine(packagePath, "Intune");
+        var intunewin = Directory.Exists(intuneDir) ? Directory.GetFiles(intuneDir, "*.intunewin").FirstOrDefault() : null;
+        if (intunewin == null)
+        {
+            checks.Add(new SourceCheck("*.intunewin", "package file not found", ok: false));
+        }
+        else
+        {
+            var size = new FileInfo(intunewin).Length;
+            // The Graph size is the committed upload; allow slack for encryption overhead.
+            var matches = intuneSize <= 0 || Math.Abs(size - intuneSize) <= intuneSize * 0.1;
+            checks.Add(new SourceCheck(Path.GetFileName(intunewin), matches
+                ? $"{FormatSize(size)} — matches the Intune upload"
+                : $"{FormatSize(size)} on share vs {intuneSizeText} in Intune — re-upload?", ok: matches));
+        }
+
+        checks.Add(File.Exists(Path.Combine(intuneDir, "detection.xml"))
+            ? new SourceCheck("detection.xml", "detection definition present", ok: true)
+            : new SourceCheck("detection.xml", "not found", ok: false));
+
+        var iconDir = Path.Combine(packagePath, "Icon");
+        var hasIcon = Directory.Exists(iconDir) && Directory.EnumerateFiles(iconDir).Any();
+        checks.Add(new SourceCheck(hasIcon ? @"Icon\" + Path.GetFileName(Directory.EnumerateFiles(iconDir).First()) : @"Icon\",
+            hasIcon ? "icon present" : "no icon file", ok: hasIcon));
+
+        return checks;
+    }
+
+    private static string FormatSize(long bytes) => bytes switch
+    {
+        > 1024L * 1024 * 1024 => $"{bytes / (1024.0 * 1024 * 1024):F1} GB",
+        > 1024L * 1024 => $"{bytes / (1024.0 * 1024):F1} MB",
+        > 1024 => $"{bytes / 1024.0:F1} KB",
+        _ => $"{bytes} B",
+    };
 }
 
-public sealed class ActivityEntry
+/// <summary>One row of the Package tab's integrity checklist.</summary>
+public sealed class SourceCheck
 {
-    public ActivityEntry(string title, string when, string kind)
+    public SourceCheck(string file, string note, bool ok)
     {
-        Title = title;
-        When = when;
-        Kind = kind;
+        File = file;
+        Note = note;
+        IsOk = ok;
     }
-    public string Title { get; }
-    public string When { get; }
-    public string Kind { get; }   // ok | mut
-    public bool IsOk => Kind == "ok";
+    public string File { get; }
+    public string Note { get; }
+    public bool IsOk { get; }
 }
 
-/// <summary>A single detection rule rendered as the design's labelled key/value card.</summary>
+/// <summary>A detection rule rendered as the design's "type tag + summary" row.</summary>
 public sealed class DetectionRuleDisplay
 {
-    public string RuleTypeLabel { get; private init; } = "";
-    public List<DetectionField> Fields { get; } = new();
+    public DetectionRule Rule { get; private init; } = null!;
+    public string TypeTag { get; private init; } = "";
+    public string Summary { get; private init; } = "";
 
-    public static DetectionRuleDisplay From(Packman.Models.DetectionRule r)
+    public static DetectionRuleDisplay From(DetectionRule r) => new()
     {
-        var d = new DetectionRuleDisplay { RuleTypeLabel = TypeLabel(r.Type) };
-        d.Fields.Add(new DetectionField("Rule type", d.RuleTypeLabel));
-
-        switch (r.Type)
+        Rule = r,
+        TypeTag = r.Type switch
         {
-            case Packman.Models.DetectionRuleType.MSI:
-                d.Fields.Add(new DetectionField("Product code", Dash(r.Path)));
-                d.Fields.Add(new DetectionField("Version check",
-                    r.CheckVersion ? $"{OperatorWords(r.Operator)} {r.FileOrFolderName}" : "Not checked"));
-                d.Fields.Add(new DetectionField("Operator", r.CheckVersion ? OperatorSymbol(r.Operator) : "—"));
-                break;
-            case Packman.Models.DetectionRuleType.File:
-                d.Fields.Add(new DetectionField("Path", Dash(r.Path)));
-                d.Fields.Add(new DetectionField("File or folder", Dash(r.FileOrFolderName)));
-                d.Fields.Add(new DetectionField("Detection", DetectionSummary(r)));
-                break;
-            case Packman.Models.DetectionRuleType.Registry:
-                d.Fields.Add(new DetectionField("Key path", Dash(r.Path)));
-                d.Fields.Add(new DetectionField("Value name", Dash(r.FileOrFolderName)));
-                d.Fields.Add(new DetectionField("Detection", DetectionSummary(r)));
-                break;
-            case Packman.Models.DetectionRuleType.Script:
-                d.Fields.Add(new DetectionField("Method", "PowerShell detection script"));
-                break;
-        }
-        return d;
-    }
-
-    private static string TypeLabel(Packman.Models.DetectionRuleType t) => t switch
-    {
-        Packman.Models.DetectionRuleType.MSI => "MSI",
-        Packman.Models.DetectionRuleType.File => "File",
-        Packman.Models.DetectionRuleType.Registry => "Registry",
-        Packman.Models.DetectionRuleType.Script => "PowerShell",
-        _ => t.ToString(),
+            DetectionRuleType.MSI => "MSI",
+            DetectionRuleType.File => "FILE",
+            DetectionRuleType.Registry => "REG",
+            DetectionRuleType.Script => "PS1",
+            _ => r.Type.ToString().ToUpperInvariant(),
+        },
+        Summary = r.Type switch
+        {
+            DetectionRuleType.MSI => r.CheckVersion
+                ? $"{Dash(r.Path)} · version {OperatorSymbol(r.Operator)} {r.FileOrFolderName}"
+                : $"{Dash(r.Path)} · product code present",
+            DetectionRuleType.File => $@"{Dash(r.Path)}\{r.FileOrFolderName} · {DetectionSummary(r)}",
+            DetectionRuleType.Registry => $"{Dash(r.Path)} · {Dash(r.FileOrFolderName)} · {DetectionSummary(r)}",
+            DetectionRuleType.Script => "PowerShell detection script",
+            _ => "",
+        },
     };
 
-    private static string DetectionSummary(Packman.Models.DetectionRule r) => r.DetectionType switch
+    private static string DetectionSummary(DetectionRule r) => r.DetectionType switch
     {
-        "exists" => "Exists",
-        "doesNotExist" => "Does not exist",
-        "version" => $"Version {OperatorSymbol(r.Operator)} {r.DetectionValue}",
-        "string" => $"String {OperatorSymbol(r.Operator)} \"{r.DetectionValue}\"",
-        "integer" => $"Integer {OperatorSymbol(r.Operator)} {r.DetectionValue}",
-        "sizeInMB" => $"Size {OperatorSymbol(r.Operator)} {r.DetectionValue} MB",
-        "modifiedDate" => $"Modified {OperatorSymbol(r.Operator)} {r.DetectionValue}",
-        _ => string.IsNullOrEmpty(r.DetectionType) ? "Exists" : r.DetectionType,
-    };
-
-    private static string OperatorWords(string op) => op switch
-    {
-        "greaterThanOrEqual" => "Greater than or equal to",
-        "greaterThan" => "Greater than",
-        "equal" => "Equal to",
-        "notEqual" => "Not equal to",
-        "lessThan" => "Less than",
-        "lessThanOrEqual" => "Less than or equal to",
-        _ => string.IsNullOrEmpty(op) ? "Equal to" : op,
+        "exists" => "exists",
+        "doesNotExist" => "does not exist",
+        "version" => $"version {OperatorSymbol(r.Operator)} {r.DetectionValue}",
+        "string" => $"string {OperatorSymbol(r.Operator)} \"{r.DetectionValue}\"",
+        "integer" => $"integer {OperatorSymbol(r.Operator)} {r.DetectionValue}",
+        "sizeInMB" => $"size {OperatorSymbol(r.Operator)} {r.DetectionValue} MB",
+        "modifiedDate" => $"modified {OperatorSymbol(r.Operator)} {r.DetectionValue}",
+        _ => string.IsNullOrEmpty(r.DetectionType) ? "exists" : r.DetectionType,
     };
 
     private static string OperatorSymbol(string op) => op switch
@@ -284,11 +332,4 @@ public sealed class DetectionRuleDisplay
     };
 
     private static string Dash(string s) => string.IsNullOrWhiteSpace(s) ? "—" : s;
-}
-
-public sealed class DetectionField
-{
-    public DetectionField(string label, string value) { Label = label; Value = value; }
-    public string Label { get; }
-    public string Value { get; }
 }
