@@ -17,7 +17,6 @@ public class ApplicationDetail : IntuneApplication
     public long Size { get; set; }
     public DateTime CreatedDateTime { get; set; } = DateTime.MinValue;
     public DateTime LastModifiedDateTime { get; set; } = DateTime.MinValue;
-    public string PublishingState { get; set; } = "";
     public string SetupFilePath { get; set; } = "";
 
     public List<DetectionRule> DetectionRules { get; set; } = new();

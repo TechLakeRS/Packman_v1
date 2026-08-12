@@ -255,6 +255,7 @@ public partial class IntuneService
             Publisher = app.TryGetProperty("publisher", out var pub) ? pub.GetString() ?? "" : "",
             Category = category,
             LastModified = app.GetSafeDateTime("lastModifiedDateTime"),
+            PublishingState = ReadStateString(app, "publishingState"),
         };
     }
 

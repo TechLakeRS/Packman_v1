@@ -11,7 +11,6 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         ApplicationsPage.AppOpened += app => { AppDetailPage.Show(app); ShowOnly(AppDetailPage); };
-        ApplicationsPage.NewPackageRequested += () => CreatePackageNavBtn.IsChecked = true;
         ApplicationsPage.ConnectRequested += () => SettingsNavBtn.IsChecked = true;
 
         AppDetailPage.BackRequested += () => ShowOnly(ApplicationsPage);

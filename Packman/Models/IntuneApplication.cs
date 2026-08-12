@@ -19,6 +19,15 @@ public class IntuneApplication : ApplicationBase
     public string Id { get; set; } = "";
     public string Category { get; set; } = "";
     public DateTime LastModified { get; set; }
+    public string PublishingState { get; set; } = "";
+
+    /// <summary>True when the app isn't fully published — the list shows a warning pill.</summary>
+    public bool ShowStateWarning =>
+        !string.IsNullOrEmpty(PublishingState) &&
+        !PublishingState.Equals("published", StringComparison.OrdinalIgnoreCase);
+
+    public string StateWarningText =>
+        PublishingState.Equals("processing", StringComparison.OrdinalIgnoreCase) ? "Processing…" : "Upload incomplete";
 
     // ── UI helpers for the design's table rendering ──
     private static readonly string[] Palette =
