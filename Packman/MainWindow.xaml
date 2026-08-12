@@ -321,15 +321,26 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Scrolling step content: visibility tied to each step's IsCurrent -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Grid Margin="30,20,30,24">
-                        <views:StepGenerate Visibility="{Binding Steps[0].IsCurrent, Converter={StaticResource BoolToVis}}"/>
-                        <views:StepEdit     Visibility="{Binding Steps[1].IsCurrent, Converter={StaticResource BoolToVis}}"/>
-                        <views:StepTest     Visibility="{Binding Steps[2].IsCurrent, Converter={StaticResource BoolToVis}}"/>
-                        <views:StepUpload   Visibility="{Binding Steps[3].IsCurrent, Converter={StaticResource BoolToVis}}"/>
-                    </Grid>
-                </ScrollViewer>
+                <!-- Step content: visibility tied to each step's IsCurrent.
+                     StepEdit hosts a WebView2 (HWND-based, ignores WPF clipping) so it
+                     must not live inside a ScrollViewer — it fills the viewport and the
+                     editor scrolls internally; the other steps each get their own. -->
+                <Grid Grid.Row="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                  Visibility="{Binding Steps[0].IsCurrent, Converter={StaticResource BoolToVis}}">
+                        <views:StepGenerate Margin="30,20,30,24"/>
+                    </ScrollViewer>
+                    <views:StepEdit Margin="30,20,30,24"
+                                    Visibility="{Binding Steps[1].IsCurrent, Converter={StaticResource BoolToVis}}"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                  Visibility="{Binding Steps[2].IsCurrent, Converter={StaticResource BoolToVis}}">
+                        <views:StepTest Margin="30,20,30,24"/>
+                    </ScrollViewer>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                  Visibility="{Binding Steps[3].IsCurrent, Converter={StaticResource BoolToVis}}">
+                        <views:StepUpload Margin="30,20,30,24"/>
+                    </ScrollViewer>
+                </Grid>
 
                 <!-- Fixed footer -->
                 <Border Grid.Row="2" Background="{DynamicResource Card2Brush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="30,12">
