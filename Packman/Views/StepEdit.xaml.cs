@@ -213,6 +213,13 @@ public partial class StepEdit : UserControl
         Tag = file
     };
 
+    private void ToggleTree_Click(object sender, RoutedEventArgs e)
+    {
+        var show = TreePanel.Visibility != Visibility.Visible;
+        TreePanel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        TreeRail.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
+    }
+
     private void FileTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
         if (e.NewValue is TreeViewItem { Tag: string path } && File.Exists(path) && path != _currentFilePath)

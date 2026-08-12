@@ -103,12 +103,20 @@ public partial class IntuneService
         };
         detail.LastModified = detail.LastModifiedDateTime;
 
-        if (app.TryGetProperty("installExperience", out var ie) && ie.ValueKind == JsonValueKind.Object
-            && ie.TryGetProperty("runAsAccount", out var acc))
+        if (app.TryGetProperty("installExperience", out var ie) && ie.ValueKind == JsonValueKind.Object)
         {
-            var runAs = acc.ValueKind == JsonValueKind.Number ? acc.GetInt32().ToString() : acc.GetString();
-            detail.InstallContext = string.Equals(runAs, "user", StringComparison.OrdinalIgnoreCase) ? "User" : "System";
+            if (ie.TryGetProperty("runAsAccount", out var acc))
+            {
+                var runAs = acc.ValueKind == JsonValueKind.Number ? acc.GetInt32().ToString() : acc.GetString();
+                detail.InstallContext = string.Equals(runAs, "user", StringComparison.OrdinalIgnoreCase) ? "User" : "System";
+            }
+            if (ie.TryGetProperty("deviceRestartBehavior", out var rb) && rb.ValueKind == JsonValueKind.String)
+                detail.RestartBehavior = rb.GetString() ?? "";
+            if (ie.TryGetProperty("maxRunTimeInMinutes", out var mrt) && mrt.ValueKind == JsonValueKind.Number)
+                detail.MaxRunTimeMinutes = mrt.GetInt32();
         }
+        if (app.TryGetProperty("minimumFreeDiskSpaceInMB", out var mds) && mds.ValueKind == JsonValueKind.Number)
+            detail.MinDiskSpaceMB = mds.GetInt32();
 
         detail.DetectionRules = ParseDetectionRules(app);
         detail.AssignedGroups = await GetAssignedGroupsAsync(id);
@@ -117,7 +125,7 @@ public partial class IntuneService
     }
 
     // ── Assignments ─────────────────────────────────────
-    private async Task<List<AssignedGroup>> GetAssignedGroupsAsync(string appId)
+    public async Task<List<AssignedGroup>> GetAssignedGroupsAsync(string appId)
     {
         var groups = new List<AssignedGroup>();
         try
@@ -133,6 +141,7 @@ public partial class IntuneService
             var needNames = new List<(AssignedGroup group, string groupId)>();
             foreach (var a in arr.EnumerateArray())
             {
+                var assignmentId = a.GetSafeString("id");
                 var intent = a.TryGetProperty("intent", out var ip) ? ip.GetString() ?? "Unknown" : "Unknown";
                 if (!a.TryGetProperty("target", out var t)) continue;
                 var type = t.TryGetProperty("@odata.type", out var tp) ? tp.GetString() ?? "" : "";
@@ -142,18 +151,18 @@ public partial class IntuneService
                     case "#microsoft.graph.groupAssignmentTarget":
                         var gid = t.TryGetProperty("groupId", out var g) ? g.GetString() ?? "" : "";
                         if (string.IsNullOrEmpty(gid)) break;
-                        var group = new AssignedGroup { GroupId = gid, GroupName = $"Group {Shorten(gid)}", AssignmentType = intent };
+                        var group = new AssignedGroup { AssignmentId = assignmentId, GroupId = gid, GroupName = $"Group {Shorten(gid)}", AssignmentType = intent };
                         groups.Add(group);
                         needNames.Add((group, gid));
                         break;
                     case "#microsoft.graph.allLicensedUsersAssignmentTarget":
-                        groups.Add(new AssignedGroup { GroupName = "All Licensed Users", AssignmentType = intent });
+                        groups.Add(new AssignedGroup { AssignmentId = assignmentId, GroupName = "All Licensed Users", AssignmentType = intent });
                         break;
                     case "#microsoft.graph.allDevicesAssignmentTarget":
-                        groups.Add(new AssignedGroup { GroupName = "All Devices", AssignmentType = intent });
+                        groups.Add(new AssignedGroup { AssignmentId = assignmentId, GroupName = "All Devices", AssignmentType = intent });
                         break;
                     default:
-                        groups.Add(new AssignedGroup { GroupName = type.Replace("#microsoft.graph.", ""), AssignmentType = intent });
+                        groups.Add(new AssignedGroup { AssignmentId = assignmentId, GroupName = type.Replace("#microsoft.graph.", ""), AssignmentType = intent });
                         break;
                 }
             }
@@ -255,6 +264,7 @@ public partial class IntuneService
             Publisher = app.TryGetProperty("publisher", out var pub) ? pub.GetString() ?? "" : "",
             Category = category,
             LastModified = app.GetSafeDateTime("lastModifiedDateTime"),
+            PublishingState = ReadStateString(app, "publishingState"),
         };
     }
 
@@ -289,6 +299,7 @@ public partial class IntuneService
                         DetectionType = r.GetSafeString("detectionType"),
                         Operator = r.GetSafeString("operator"),
                         DetectionValue = r.GetSafeString("detectionValue"),
+                        Check32BitOn64System = GetSafeBool(r, "check32BitOn64System"),
                     });
                     break;
                 case "#microsoft.graph.win32LobAppRegistryDetection":
@@ -300,15 +311,25 @@ public partial class IntuneService
                         DetectionType = r.GetSafeString("detectionType"),
                         Operator = r.GetSafeString("operator"),
                         DetectionValue = r.GetSafeString("detectionValue"),
+                        Check32BitOn64System = GetSafeBool(r, "check32BitOn64System"),
                     });
                     break;
                 case "#microsoft.graph.win32LobAppPowerShellScriptDetection":
-                    rules.Add(new DetectionRule { Type = DetectionRuleType.Script });
+                    rules.Add(new DetectionRule
+                    {
+                        Type = DetectionRuleType.Script,
+                        ScriptContent = r.GetSafeString("scriptContent"),
+                        EnforceSignatureCheck = GetSafeBool(r, "enforceSignatureCheck"),
+                        RunAs32Bit = GetSafeBool(r, "runAs32Bit"),
+                    });
                     break;
             }
         }
         return rules;
     }
+
+    private static bool GetSafeBool(JsonElement el, string prop)
+        => el.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.True;
 
     private static string ReadStateString(JsonElement app, string prop)
     {

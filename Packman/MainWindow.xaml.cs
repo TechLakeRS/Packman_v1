@@ -11,7 +11,6 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         ApplicationsPage.AppOpened += app => { AppDetailPage.Show(app); ShowOnly(AppDetailPage); };
-        ApplicationsPage.NewPackageRequested += () => CreatePackageNavBtn.IsChecked = true;
         ApplicationsPage.ConnectRequested += () => SettingsNavBtn.IsChecked = true;
 
         AppDetailPage.BackRequested += () => ShowOnly(ApplicationsPage);
@@ -21,8 +20,6 @@ public partial class MainWindow : Window
             _ = ApplicationsPage.ViewModel.LoadAsync(force: true);
         };
         AppDetailPage.UpdateRequested += _ => CreatePackageNavBtn.IsChecked = true;
-        // Remote Test screen isn't built yet; "Run test" returns to the wizard's test step.
-        AppDetailPage.TestRequested += () => CreatePackageNavBtn.IsChecked = true;
     }
 
     /// <summary>Shows exactly one content page and collapses the rest. Null-safe for load-time calls.</summary>

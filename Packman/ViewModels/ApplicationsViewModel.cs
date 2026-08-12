@@ -12,7 +12,16 @@ namespace Packman.ViewModels;
 public sealed class ApplicationsViewModel : ObservableObject
 {
     private const string AllCategories = "All Categories";
+    private const string AllManufacturers = "All Manufacturers";
     private const int PageSize = 50;
+
+    private static readonly (string Label, int Days)[] UpdatedWindowChoices =
+    {
+        ("Updated: Any time", 0),
+        ("Updated: Last 7 days", 7),
+        ("Updated: Last 30 days", 30),
+        ("Updated: Last 90 days", 90),
+    };
 
     private readonly IntuneService _apps = AppServices.Apps;
     private readonly IntuneAuthService _auth = AppServices.Auth;
@@ -22,12 +31,17 @@ public sealed class ApplicationsViewModel : ObservableObject
     /// <summary>The current page of filtered apps; bound by the list.</summary>
     public ObservableCollection<IntuneApplication> Page { get; } = new();
     public ObservableCollection<string> Categories { get; } = new() { AllCategories };
+    public ObservableCollection<string> Manufacturers { get; } = new() { AllManufacturers };
+    public ObservableCollection<string> UpdatedWindows { get; } =
+        new(UpdatedWindowChoices.Select(w => w.Label));
 
     public RelayCommand RefreshCommand { get; }
     public RelayCommand NextPageCommand { get; }
     public RelayCommand PrevPageCommand { get; }
     public RelayCommand<IntuneApplication> OpenCommand { get; }
     public RelayCommand ConnectCommand { get; }
+    public RelayCommand SortByNameCommand { get; }
+    public RelayCommand SortByUpdatedCommand { get; }
 
     /// <summary>Raised when a row is activated; the host swaps in the detail screen.</summary>
     public event Action<IntuneApplication>? OpenRequested;
@@ -46,6 +60,8 @@ public sealed class ApplicationsViewModel : ObservableObject
         PrevPageCommand = new RelayCommand(() => GoToPage(_currentPage - 1), () => CanPrev);
         OpenCommand = new RelayCommand<IntuneApplication>(app => { if (app != null) OpenRequested?.Invoke(app); });
         ConnectCommand = new RelayCommand(() => ConnectRequested?.Invoke());
+        SortByNameCommand = new RelayCommand(() => ToggleSort("name"));
+        SortByUpdatedCommand = new RelayCommand(() => ToggleSort("updated"));
     }
 
     private string _search = "";
@@ -60,6 +76,44 @@ public sealed class ApplicationsViewModel : ObservableObject
     {
         get => _selectedCategory;
         set { if (Set(ref _selectedCategory, value)) { _currentPage = 1; ApplyFilters(); } }
+    }
+
+    private string _selectedManufacturer = AllManufacturers;
+    public string SelectedManufacturer
+    {
+        get => _selectedManufacturer;
+        set { if (Set(ref _selectedManufacturer, value)) { _currentPage = 1; ApplyFilters(); } }
+    }
+
+    private string _selectedUpdatedWindow = UpdatedWindowChoices[0].Label;
+    public string SelectedUpdatedWindow
+    {
+        get => _selectedUpdatedWindow;
+        set { if (Set(ref _selectedUpdatedWindow, value)) { _currentPage = 1; ApplyFilters(); } }
+    }
+
+    // ── Sorting (column headers): default is Updated, newest first ──
+    private string _sortColumn = "updated";
+    private bool _sortDesc = true;
+
+    public string NameHeader => _sortColumn == "name" ? (_sortDesc ? "APPLICATION ↓" : "APPLICATION ↑") : "APPLICATION";
+    public string UpdatedHeader => _sortColumn == "updated" ? (_sortDesc ? "UPDATED ↓" : "UPDATED ↑") : "UPDATED";
+
+    private void ToggleSort(string column)
+    {
+        if (_sortColumn == column)
+        {
+            _sortDesc = !_sortDesc;
+        }
+        else
+        {
+            _sortColumn = column;
+            _sortDesc = column == "updated";   // dates newest-first, names A→Z
+        }
+        OnPropertyChanged(nameof(NameHeader));
+        OnPropertyChanged(nameof(UpdatedHeader));
+        _currentPage = 1;
+        ApplyFilters();
     }
 
     public int CurrentPage { get => _currentPage; private set => Set(ref _currentPage, value); }
@@ -136,6 +190,7 @@ public sealed class ApplicationsViewModel : ObservableObject
             _loadedOnce = true;
             _currentPage = 1;
             RebuildCategories();
+            RebuildManufacturers();
             ApplyFilters();
             if (_all.Count == 0)
                 StatusText = "No Win32 applications found in this tenant.";
@@ -160,7 +215,12 @@ public sealed class ApplicationsViewModel : ObservableObject
 
     private void ApplyFilters()
     {
-        var filtered = _all.Where(Matches).OrderBy(a => a.DisplayName).ToList();
+        var matched = _all.Where(Matches);
+        var filtered = (_sortColumn switch
+        {
+            "name" => _sortDesc ? matched.OrderByDescending(a => a.DisplayName) : matched.OrderBy(a => a.DisplayName),
+            _ => _sortDesc ? matched.OrderByDescending(a => a.LastModified) : matched.OrderBy(a => a.LastModified),
+        }).ToList();
         _totalCount = filtered.Count;
 
         MaxPage = _totalCount > 0 ? (int)Math.Ceiling(_totalCount / (double)PageSize) : 1;
@@ -196,10 +256,34 @@ public sealed class ApplicationsViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedCategory));
     }
 
+    private void RebuildManufacturers()
+    {
+        var previous = _selectedManufacturer;
+        Manufacturers.Clear();
+        Manufacturers.Add(AllManufacturers);
+        foreach (var m in _all
+                     .Select(a => a.Publisher.Trim())
+                     .Where(m => !string.IsNullOrEmpty(m))
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(m => m))
+            Manufacturers.Add(m);
+
+        _selectedManufacturer = !string.IsNullOrEmpty(previous) && Manufacturers.Contains(previous) ? previous : AllManufacturers;
+        OnPropertyChanged(nameof(SelectedManufacturer));
+    }
+
     private bool Matches(IntuneApplication a)
     {
         if (!string.IsNullOrEmpty(_selectedCategory) && _selectedCategory != AllCategories &&
             !a.Category.Split(',', StringSplitOptions.TrimEntries).Contains(_selectedCategory))
+            return false;
+
+        if (!string.IsNullOrEmpty(_selectedManufacturer) && _selectedManufacturer != AllManufacturers &&
+            !string.Equals(a.Publisher.Trim(), _selectedManufacturer, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        var days = UpdatedWindowChoices.FirstOrDefault(w => w.Label == _selectedUpdatedWindow).Days;
+        if (days > 0 && a.LastModified < DateTime.Now.AddDays(-days))
             return false;
 
         if (string.IsNullOrWhiteSpace(_search)) return true;

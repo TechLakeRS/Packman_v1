@@ -1,13 +1,16 @@
+using Packman.Helpers;
 using Packman.Models;
 using Packman.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 
 namespace Packman.ViewModels;
 
 /// <summary>
 /// Backs the Application detail screen: loads full metadata, assignments, detection
-/// rules and the install-status rollup for a single Intune app.
+/// rules and the install-status rollup for a single Intune app, and locates the
+/// package's source folder on the configured network share.
 /// </summary>
 public sealed class ApplicationDetailViewModel : ObservableObject
 {
@@ -25,8 +28,8 @@ public sealed class ApplicationDetailViewModel : ObservableObject
             Category = app.Category,
             LastModified = app.LastModified,
             LastModifiedDateTime = app.LastModified,
+            PublishingState = app.PublishingState,
         };
-        BuildActivity();
     }
 
     private ApplicationDetail _detail = null!;
@@ -42,41 +45,66 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         }
     }
 
-    // ── Tabs ──
+    // ── Tabs: Overview / Package / Deployment ──
     private string _tab = "overview";
     public string Tab
     {
         get => _tab;
-        set { if (Set(ref _tab, value)) RaiseTabFlags(); }
+        set
+        {
+            if (!Set(ref _tab, value)) return;
+            OnPropertyChanged(nameof(IsOverview));
+            OnPropertyChanged(nameof(IsPackage));
+            OnPropertyChanged(nameof(IsDeployment));
+        }
     }
     public bool IsOverview => _tab == "overview";
-    public bool IsAssignments => _tab == "assignments";
-    public bool IsDetection => _tab == "detection";
-    public bool IsActivity => _tab == "activity";
-
-    private void RaiseTabFlags()
-    {
-        OnPropertyChanged(nameof(IsOverview));
-        OnPropertyChanged(nameof(IsAssignments));
-        OnPropertyChanged(nameof(IsDetection));
-        OnPropertyChanged(nameof(IsActivity));
-    }
+    public bool IsPackage => _tab == "package";
+    public bool IsDeployment => _tab == "deployment";
 
     public bool HasInstall => !string.IsNullOrWhiteSpace(Detail.InstallCommand);
     public bool HasUninstall => !string.IsNullOrWhiteSpace(Detail.UninstallCommand);
 
-    public ObservableCollection<AssignedGroup> RequiredAssignments { get; } = new();
-    public ObservableCollection<AssignedGroup> AvailableAssignments { get; } = new();
-    public ObservableCollection<AssignedGroup> UninstallAssignments { get; } = new();
     public ObservableCollection<DetectionRuleDisplay> DetectionDisplays { get; } = new();
     public bool HasDetectionRules => Detail.DetectionRules.Count > 0;
     public bool HasAssignments => Detail.AssignedGroups.Count > 0;
+    public string DetectionRulesHint => Detail.DetectionRules.Count switch
+    {
+        0 => "No rules",
+        1 => "1 rule",
+        var n => $"{n} rules · all must match",
+    };
 
-    public ObservableCollection<ActivityEntry> Activity { get; } = new();
+    // ── Package source (network share) ──
+    private string? _sourcePath;
+    public string? SourcePath
+    {
+        get => _sourcePath;
+        private set
+        {
+            if (!Set(ref _sourcePath, value)) return;
+            OnPropertyChanged(nameof(HasSource));
+            OnPropertyChanged(nameof(SourcePathDisplay));
+            OnPropertyChanged(nameof(SourceHintText));
+            OnPropertyChanged(nameof(SourceHintOk));
+        }
+    }
+    public bool HasSource => !string.IsNullOrEmpty(_sourcePath);
+    public string SourcePathDisplay => _sourcePath ?? "Package not found on the configured share";
+    public string SourceHintText => HasSource
+        ? "Package path validated — ready for updates"
+        : "No matching folder on the share — check the Intune Applications path in Settings";
+    public bool SourceHintOk => HasSource;
+
+    /// <summary>Full path of the PSADT script inside the source package, when found.</summary>
+    public string? SourceScriptPath { get; private set; }
+
+    public ObservableCollection<SourceCheck> SourceChecks { get; } = new();
 
     // ── Deployment status (fixed 252px track to avoid binding GridLengths) ──
     private const double BarWidth = 252;
     public bool HasSummary => Detail.Statistics is { TotalDevices: > 0 };
+    public string TargetedDevicesText => (Detail.Statistics?.TotalDevices ?? 0).ToString("N0");
     public int SumInstalled => Detail.Statistics?.SuccessfulInstalls ?? 0;
     public int SumPending => Detail.Statistics?.PendingInstalls ?? 0;
     public int SumFailed => Detail.Statistics?.FailedInstalls ?? 0;
@@ -104,10 +132,9 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         try
         {
             Detail = await _apps.GetApplicationDetailAsync(Detail.Id);
-            RebuildAssignments();
             RebuildDetection();
-            BuildActivity();
             RaiseDerived();
+            await LocateSourceAsync();
         }
         catch (Exception ex)
         {
@@ -144,7 +171,9 @@ public sealed class ApplicationDetailViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(HasDetectionRules));
         OnPropertyChanged(nameof(HasAssignments));
+        OnPropertyChanged(nameof(DetectionRulesHint));
         OnPropertyChanged(nameof(HasSummary));
+        OnPropertyChanged(nameof(TargetedDevicesText));
         OnPropertyChanged(nameof(SumInstalled));
         OnPropertyChanged(nameof(SumPending));
         OnPropertyChanged(nameof(SumFailed));
@@ -155,22 +184,6 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         OnPropertyChanged(nameof(BarFailed));
     }
 
-    private void RebuildAssignments()
-    {
-        RequiredAssignments.Clear();
-        AvailableAssignments.Clear();
-        UninstallAssignments.Clear();
-        foreach (var a in Detail.AssignedGroups)
-        {
-            switch (a.AssignmentType?.ToLowerInvariant())
-            {
-                case "required": RequiredAssignments.Add(a); break;
-                case "available": case "availablewithoutenrollment": AvailableAssignments.Add(a); break;
-                case "uninstall": UninstallAssignments.Add(a); break;
-            }
-        }
-    }
-
     private void RebuildDetection()
     {
         DetectionDisplays.Clear();
@@ -178,98 +191,524 @@ public sealed class ApplicationDetailViewModel : ObservableObject
             DetectionDisplays.Add(DetectionRuleDisplay.From(r));
     }
 
-    private void BuildActivity()
+    // ── Detection rule editing (the whole array is PATCHed on save) ──
+
+    public DetectionRuleDisplay AddDetectionRule(DetectionRuleType type)
     {
-        Activity.Clear();
-        if (string.Equals(Detail.PublishingState, "published", StringComparison.OrdinalIgnoreCase))
-            Activity.Add(new ActivityEntry("Published to Intune", Detail.UpdatedText, "ok"));
-        if (Detail.AssignedGroups.Count > 0)
-            Activity.Add(new ActivityEntry($"Assigned to {Detail.AssignedGroups.Count} group{(Detail.AssignedGroups.Count > 1 ? "s" : "")}", Detail.UpdatedText, "ok"));
-        Activity.Add(new ActivityEntry("Last updated", Detail.LastModifiedFormatted, "mut"));
-        Activity.Add(new ActivityEntry("Package created", Detail.CreatedFormatted, "mut"));
+        var rule = new DetectionRule { Type = type, DetectionType = "exists" };
+        Detail.DetectionRules.Add(rule);
+        var display = DetectionRuleDisplay.From(rule, isNew: true);
+        DetectionDisplays.Add(display);
+        display.BeginEdit();
+        OnPropertyChanged(nameof(HasDetectionRules));
+        OnPropertyChanged(nameof(DetectionRulesHint));
+        return display;
     }
-}
 
-public sealed class ActivityEntry
-{
-    public ActivityEntry(string title, string when, string kind)
+    /// <summary>Cancel on a rule that was never saved removes it again.</summary>
+    public void DiscardNewRule(DetectionRuleDisplay display)
     {
-        Title = title;
-        When = when;
-        Kind = kind;
+        Detail.DetectionRules.Remove(display.Rule);
+        DetectionDisplays.Remove(display);
+        OnPropertyChanged(nameof(HasDetectionRules));
+        OnPropertyChanged(nameof(DetectionRulesHint));
     }
-    public string Title { get; }
-    public string When { get; }
-    public string Kind { get; }   // ok | mut
-    public bool IsOk => Kind == "ok";
-}
 
-/// <summary>A single detection rule rendered as the design's labelled key/value card.</summary>
-public sealed class DetectionRuleDisplay
-{
-    public string RuleTypeLabel { get; private init; } = "";
-    public List<DetectionField> Fields { get; } = new();
-
-    public static DetectionRuleDisplay From(Packman.Models.DetectionRule r)
+    public async Task<bool> SaveDetectionRulesAsync()
     {
-        var d = new DetectionRuleDisplay { RuleTypeLabel = TypeLabel(r.Type) };
-        d.Fields.Add(new DetectionField("Rule type", d.RuleTypeLabel));
-
-        switch (r.Type)
+        try
         {
-            case Packman.Models.DetectionRuleType.MSI:
-                d.Fields.Add(new DetectionField("Product code", Dash(r.Path)));
-                d.Fields.Add(new DetectionField("Version check",
-                    r.CheckVersion ? $"{OperatorWords(r.Operator)} {r.FileOrFolderName}" : "Not checked"));
-                d.Fields.Add(new DetectionField("Operator", r.CheckVersion ? OperatorSymbol(r.Operator) : "—"));
-                break;
-            case Packman.Models.DetectionRuleType.File:
-                d.Fields.Add(new DetectionField("Path", Dash(r.Path)));
-                d.Fields.Add(new DetectionField("File or folder", Dash(r.FileOrFolderName)));
-                d.Fields.Add(new DetectionField("Detection", DetectionSummary(r)));
-                break;
-            case Packman.Models.DetectionRuleType.Registry:
-                d.Fields.Add(new DetectionField("Key path", Dash(r.Path)));
-                d.Fields.Add(new DetectionField("Value name", Dash(r.FileOrFolderName)));
-                d.Fields.Add(new DetectionField("Detection", DetectionSummary(r)));
-                break;
-            case Packman.Models.DetectionRuleType.Script:
-                d.Fields.Add(new DetectionField("Method", "PowerShell detection script"));
-                break;
+            await _apps.UpdateDetectionRulesAsync(Detail.Id, Detail.DetectionRules);
+            StatusText = "";
+            RebuildDetection();
+            OnPropertyChanged(nameof(HasDetectionRules));
+            OnPropertyChanged(nameof(DetectionRulesHint));
+            return true;
         }
-        return d;
+        catch (Exception ex)
+        {
+            StatusText = $"Could not save detection rules: {ex.Message}";
+            return false;
+        }
     }
 
-    private static string TypeLabel(Packman.Models.DetectionRuleType t) => t switch
+    public async Task DeleteDetectionRuleAsync(DetectionRuleDisplay display)
     {
-        Packman.Models.DetectionRuleType.MSI => "MSI",
-        Packman.Models.DetectionRuleType.File => "File",
-        Packman.Models.DetectionRuleType.Registry => "Registry",
-        Packman.Models.DetectionRuleType.Script => "PowerShell",
-        _ => t.ToString(),
+        Detail.DetectionRules.Remove(display.Rule);
+        if (!await SaveDetectionRulesAsync())
+        {
+            // PATCH failed — put the rule back so the UI matches Intune.
+            Detail.DetectionRules.Add(display.Rule);
+            RebuildDetection();
+        }
+    }
+
+    // ── Assignment editing ──
+
+    public string[] IntentChoices { get; } = { "Required", "Available", "Uninstall" };
+
+    private string _selectedIntent = "Required";
+    public string SelectedIntent { get => _selectedIntent; set => Set(ref _selectedIntent, value); }
+
+    private string _groupSearch = "";
+    public string GroupSearch
+    {
+        get => _groupSearch;
+        set
+        {
+            if (!Set(ref _groupSearch, value)) return;
+            _selectedGroup = null;
+            OnPropertyChanged(nameof(CanAddAssignment));
+            _ = RunGroupSearchAsync(value);
+        }
+    }
+
+    public ObservableCollection<EntraGroup> GroupResults { get; } = new();
+    public bool HasGroupResults => GroupResults.Count > 0;
+
+    private EntraGroup? _selectedGroup;
+    public bool CanAddAssignment => _selectedGroup != null;
+
+    private int _groupSearchSeq;
+    private async Task RunGroupSearchAsync(string query)
+    {
+        var seq = ++_groupSearchSeq;
+        if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < 2)
+        {
+            GroupResults.Clear();
+            OnPropertyChanged(nameof(HasGroupResults));
+            return;
+        }
+        try
+        {
+            var results = await _apps.SearchGroupsAsync(query);
+            if (seq != _groupSearchSeq) return;   // stale response
+            GroupResults.Clear();
+            foreach (var g in results) GroupResults.Add(g);
+        }
+        catch
+        {
+            if (seq != _groupSearchSeq) return;
+            GroupResults.Clear();
+        }
+        OnPropertyChanged(nameof(HasGroupResults));
+    }
+
+    public void SelectGroupResult(EntraGroup group)
+    {
+        _selectedGroup = group;
+        _groupSearch = group.DisplayName;     // field write: don't retrigger the search
+        OnPropertyChanged(nameof(GroupSearch));
+        OnPropertyChanged(nameof(CanAddAssignment));
+        GroupResults.Clear();
+        OnPropertyChanged(nameof(HasGroupResults));
+    }
+
+    public async Task AddAssignmentAsync()
+    {
+        if (_selectedGroup == null) return;
+        try
+        {
+            await _apps.AddAssignmentAsync(Detail.Id, _selectedGroup.Id, SelectedIntent.ToLowerInvariant());
+            _selectedGroup = null;
+            _groupSearch = "";
+            OnPropertyChanged(nameof(GroupSearch));
+            OnPropertyChanged(nameof(CanAddAssignment));
+            await RefreshAssignmentsAsync();
+            StatusText = "";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Could not add assignment: {ex.Message}";
+        }
+    }
+
+    public async Task RemoveAssignmentAsync(AssignedGroup group)
+    {
+        if (string.IsNullOrEmpty(group.AssignmentId))
+        {
+            StatusText = "This assignment has no id — refresh and try again.";
+            return;
+        }
+        try
+        {
+            await _apps.RemoveAssignmentAsync(Detail.Id, group.AssignmentId);
+            await RefreshAssignmentsAsync();
+            StatusText = "";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Could not remove assignment: {ex.Message}";
+        }
+    }
+
+    private async Task RefreshAssignmentsAsync()
+    {
+        Detail.AssignedGroups = await _apps.GetAssignedGroupsAsync(Detail.Id);
+        OnPropertyChanged(nameof(Detail));
+        OnPropertyChanged(nameof(HasAssignments));
+    }
+
+    // ── Group members slide-over ──
+
+    private AssignedGroup? _flyoutGroup;
+    public AssignedGroup? FlyoutGroup { get => _flyoutGroup; private set { _flyoutGroup = value; OnPropertyChanged(nameof(FlyoutGroup)); } }
+
+    private bool _isFlyoutOpen;
+    public bool IsFlyoutOpen { get => _isFlyoutOpen; private set => Set(ref _isFlyoutOpen, value); }
+
+    public ObservableCollection<GroupMember> Members { get; } = new();
+
+    private string _membersStatus = "";
+    public string MembersStatus { get => _membersStatus; private set => Set(ref _membersStatus, value); }
+
+    /// <summary>True for real Entra groups; built-in targets (All Devices/Users) have no member list.</summary>
+    public bool FlyoutHasGroup => !string.IsNullOrEmpty(_flyoutGroup?.GroupId);
+
+    public async Task OpenMembersAsync(AssignedGroup group)
+    {
+        FlyoutGroup = group;
+        OnPropertyChanged(nameof(FlyoutHasGroup));
+        Members.Clear();
+        MemberSearchResults.Clear();
+        OnPropertyChanged(nameof(HasMemberResults));
+        _memberSearch = "";
+        OnPropertyChanged(nameof(MemberSearch));
+        IsFlyoutOpen = true;
+
+        if (!FlyoutHasGroup)
+        {
+            MembersStatus = "Built-in assignment target — membership is implicit.";
+            return;
+        }
+
+        MembersStatus = "Loading members…";
+        try
+        {
+            var members = await _apps.GetGroupMembersAsync(group.GroupId);
+            if (!ReferenceEquals(_flyoutGroup, group)) return;   // flyout switched meanwhile
+            Members.Clear();
+            foreach (var m in members) Members.Add(m);
+            MembersStatus = members.Count == 100 ? "Showing the first 100 members" : $"{members.Count} member{(members.Count == 1 ? "" : "s")}";
+        }
+        catch (Exception ex)
+        {
+            MembersStatus = $"Could not load members: {ex.Message}";
+        }
+    }
+
+    public void CloseFlyout() => IsFlyoutOpen = false;
+
+    private string _memberSearch = "";
+    public string MemberSearch
+    {
+        get => _memberSearch;
+        set
+        {
+            if (!Set(ref _memberSearch, value)) return;
+            _ = RunMemberSearchAsync(value);
+        }
+    }
+
+    public ObservableCollection<GroupMember> MemberSearchResults { get; } = new();
+    public bool HasMemberResults => MemberSearchResults.Count > 0;
+
+    private int _memberSearchSeq;
+    private async Task RunMemberSearchAsync(string query)
+    {
+        var seq = ++_memberSearchSeq;
+        if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < 2)
+        {
+            MemberSearchResults.Clear();
+            OnPropertyChanged(nameof(HasMemberResults));
+            return;
+        }
+        try
+        {
+            var results = await _apps.SearchDevicesAndUsersAsync(query);
+            if (seq != _memberSearchSeq) return;
+            MemberSearchResults.Clear();
+            foreach (var m in results) MemberSearchResults.Add(m);
+        }
+        catch
+        {
+            if (seq != _memberSearchSeq) return;
+            MemberSearchResults.Clear();
+        }
+        OnPropertyChanged(nameof(HasMemberResults));
+    }
+
+    public async Task AddMemberAsync(GroupMember member)
+    {
+        var group = _flyoutGroup;
+        if (group == null || string.IsNullOrEmpty(group.GroupId)) return;
+        try
+        {
+            await _apps.AddGroupMemberAsync(group.GroupId, member.Id);
+            _memberSearch = "";
+            OnPropertyChanged(nameof(MemberSearch));
+            MemberSearchResults.Clear();
+            OnPropertyChanged(nameof(HasMemberResults));
+            await OpenMembersAsync(group);
+        }
+        catch (Exception ex)
+        {
+            MembersStatus = ex.Message.Contains("403")
+                ? "No permission to change membership — the signed-in account needs GroupMember.ReadWrite.All."
+                : $"Could not add member: {ex.Message}";
+        }
+    }
+
+    public async Task RemoveMemberAsync(GroupMember member)
+    {
+        var group = _flyoutGroup;
+        if (group == null || string.IsNullOrEmpty(group.GroupId)) return;
+        try
+        {
+            await _apps.RemoveGroupMemberAsync(group.GroupId, member.Id);
+            await OpenMembersAsync(group);
+        }
+        catch (Exception ex)
+        {
+            MembersStatus = ex.Message.Contains("403")
+                ? "No permission to change membership — the signed-in account needs GroupMember.ReadWrite.All."
+                : $"Could not remove member: {ex.Message}";
+        }
+    }
+
+    /// <summary>
+    /// Finds the package's version folder on the share and runs the integrity checks.
+    /// Share enumeration happens off the UI thread; failures just leave "not found".
+    /// </summary>
+    private async Task LocateSourceAsync()
+    {
+        var root = AppServices.Settings.Settings.NetworkPaths.IntuneApplications;
+        var d = Detail;
+
+        var (path, script, checks) = await Task.Run(() =>
+        {
+            var p = PackageSourceLocator.Locate(root, d.Publisher, d.DisplayName, d.Version);
+            return p == null
+                ? ((string?)null, (string?)null, new List<SourceCheck>())
+                : (p, FindScript(p), BuildChecks(p, d.Size, d.SizeFormatted));
+        });
+
+        SourceScriptPath = script;
+        SourceChecks.Clear();
+        foreach (var c in checks) SourceChecks.Add(c);
+        SourcePath = path;
+    }
+
+    private static string? FindScript(string packagePath) =>
+        FolderBrowserHelper.GetPSADTScriptPath(Path.Combine(packagePath, "Application"))
+        ?? FolderBrowserHelper.GetPSADTScriptPath(packagePath);
+
+    private static List<SourceCheck> BuildChecks(string packagePath, long intuneSize, string intuneSizeText)
+    {
+        var checks = new List<SourceCheck>();
+
+        var script = FindScript(packagePath);
+        checks.Add(script != null
+            ? new SourceCheck(Path.GetFileName(script), "deployment script present", ok: true)
+            : new SourceCheck("Invoke-AppDeployToolkit.ps1", "deployment script not found", ok: false));
+
+        var intuneDir = Path.Combine(packagePath, "Intune");
+        var intunewin = Directory.Exists(intuneDir) ? Directory.GetFiles(intuneDir, "*.intunewin").FirstOrDefault() : null;
+        if (intunewin == null)
+        {
+            checks.Add(new SourceCheck("*.intunewin", "package file not found", ok: false));
+        }
+        else
+        {
+            var size = new FileInfo(intunewin).Length;
+            // The Graph size is the committed upload; allow slack for encryption overhead.
+            var matches = intuneSize <= 0 || Math.Abs(size - intuneSize) <= intuneSize * 0.1;
+            checks.Add(new SourceCheck(Path.GetFileName(intunewin), matches
+                ? $"{FormatSize(size)} — matches the Intune upload"
+                : $"{FormatSize(size)} on share vs {intuneSizeText} in Intune — re-upload?", ok: matches));
+        }
+
+        checks.Add(File.Exists(Path.Combine(intuneDir, "detection.xml"))
+            ? new SourceCheck("detection.xml", "detection definition present", ok: true)
+            : new SourceCheck("detection.xml", "not found", ok: false));
+
+        var iconDir = Path.Combine(packagePath, "Icon");
+        var hasIcon = Directory.Exists(iconDir) && Directory.EnumerateFiles(iconDir).Any();
+        checks.Add(new SourceCheck(hasIcon ? @"Icon\" + Path.GetFileName(Directory.EnumerateFiles(iconDir).First()) : @"Icon\",
+            hasIcon ? "icon present" : "no icon file", ok: hasIcon));
+
+        return checks;
+    }
+
+    private static string FormatSize(long bytes) => bytes switch
+    {
+        > 1024L * 1024 * 1024 => $"{bytes / (1024.0 * 1024 * 1024):F1} GB",
+        > 1024L * 1024 => $"{bytes / (1024.0 * 1024):F1} MB",
+        > 1024 => $"{bytes / 1024.0:F1} KB",
+        _ => $"{bytes} B",
+    };
+}
+
+/// <summary>One row of the Package tab's integrity checklist.</summary>
+public sealed class SourceCheck
+{
+    public SourceCheck(string file, string note, bool ok)
+    {
+        File = file;
+        Note = note;
+        IsOk = ok;
+    }
+    public string File { get; }
+    public string Note { get; }
+    public bool IsOk { get; }
+}
+
+/// <summary>One choice in a detection editor dropdown: display label + Graph value.</summary>
+public sealed record Option(string Label, string Value);
+
+/// <summary>
+/// A detection rule rendered as the design's "type tag + summary" row, with inline
+/// editing state. ApplyEdit writes back into the underlying rule; the view model
+/// PATCHes the whole rule array afterwards.
+/// </summary>
+public sealed class DetectionRuleDisplay : ObservableObject
+{
+    private static readonly Option[] Operators =
+    {
+        new("=", "equal"), new("≠", "notEqual"), new(">", "greaterThan"),
+        new("≥", "greaterThanOrEqual"), new("<", "lessThan"), new("≤", "lessThanOrEqual"),
+    };
+    private static readonly Option[] FileTypes =
+    {
+        new("Exists", "exists"), new("Does not exist", "doesNotExist"), new("Version", "version"),
+        new("String", "string"), new("Size (MB)", "sizeInMB"), new("Modified date", "modifiedDate"),
+    };
+    private static readonly Option[] RegistryTypes =
+    {
+        new("Exists", "exists"), new("Does not exist", "doesNotExist"), new("String", "string"),
+        new("Integer", "integer"), new("Version", "version"),
     };
 
-    private static string DetectionSummary(Packman.Models.DetectionRule r) => r.DetectionType switch
+    public DetectionRule Rule { get; private init; } = null!;
+    public string TypeTag { get; private init; } = "";
+    public bool IsNew { get; private set; }
+
+    public string Summary => Compose(Rule);
+
+    public bool IsMsi => Rule.Type == DetectionRuleType.MSI;
+    public bool IsFile => Rule.Type == DetectionRuleType.File;
+    public bool IsRegistry => Rule.Type == DetectionRuleType.Registry;
+    public bool IsScript => Rule.Type == DetectionRuleType.Script;
+    public bool IsFileOrRegistry => IsFile || IsRegistry;
+    /// <summary>Script rules carry base64 PowerShell — edited via the script file, not fields.</summary>
+    public bool CanEdit => !IsScript;
+
+    public IReadOnlyList<Option> OperatorChoices => Operators;
+    public IReadOnlyList<Option> DetectionTypeChoices => IsRegistry ? RegistryTypes : FileTypes;
+
+    private bool _isEditing;
+    public bool IsEditing { get => _isEditing; private set => Set(ref _isEditing, value); }
+
+    private string _editPath = "";
+    public string EditPath { get => _editPath; set => Set(ref _editPath, value); }
+
+    private string _editName = "";
+    public string EditName { get => _editName; set => Set(ref _editName, value); }
+
+    private bool _editCheckVersion;
+    public bool EditCheckVersion
     {
-        "exists" => "Exists",
-        "doesNotExist" => "Does not exist",
-        "version" => $"Version {OperatorSymbol(r.Operator)} {r.DetectionValue}",
-        "string" => $"String {OperatorSymbol(r.Operator)} \"{r.DetectionValue}\"",
-        "integer" => $"Integer {OperatorSymbol(r.Operator)} {r.DetectionValue}",
-        "sizeInMB" => $"Size {OperatorSymbol(r.Operator)} {r.DetectionValue} MB",
-        "modifiedDate" => $"Modified {OperatorSymbol(r.Operator)} {r.DetectionValue}",
-        _ => string.IsNullOrEmpty(r.DetectionType) ? "Exists" : r.DetectionType,
+        get => _editCheckVersion;
+        set { if (Set(ref _editCheckVersion, value)) OnPropertyChanged(nameof(EditNeedsValue)); }
+    }
+
+    private string _editDetectionType = "exists";
+    public string EditDetectionType
+    {
+        get => _editDetectionType;
+        set { if (Set(ref _editDetectionType, value)) OnPropertyChanged(nameof(EditNeedsValue)); }
+    }
+
+    /// <summary>Whether the operator + value inputs apply to the current edit state.</summary>
+    public bool EditNeedsValue => IsMsi
+        ? EditCheckVersion
+        : _editDetectionType is "version" or "string" or "integer" or "sizeInMB" or "modifiedDate";
+
+    private string _editOperator = "equal";
+    public string EditOperator { get => _editOperator; set => Set(ref _editOperator, value); }
+
+    private string _editValue = "";
+    public string EditValue { get => _editValue; set => Set(ref _editValue, value); }
+
+    public void BeginEdit()
+    {
+        EditPath = Rule.Path;
+        EditName = IsMsi ? "" : Rule.FileOrFolderName;
+        EditCheckVersion = Rule.CheckVersion;
+        EditDetectionType = string.IsNullOrEmpty(Rule.DetectionType) ? "exists" : Rule.DetectionType;
+        EditOperator = string.IsNullOrEmpty(Rule.Operator) || Rule.Operator == "notConfigured" ? "equal" : Rule.Operator;
+        EditValue = IsMsi ? Rule.FileOrFolderName : Rule.DetectionValue;
+        IsEditing = true;
+    }
+
+    public void CancelEdit() => IsEditing = false;
+
+    public void ApplyEdit()
+    {
+        Rule.Path = EditPath.Trim();
+        if (IsMsi)
+        {
+            Rule.CheckVersion = EditCheckVersion;
+            Rule.FileOrFolderName = EditCheckVersion ? EditValue.Trim() : "";
+            Rule.Operator = EditCheckVersion ? EditOperator : "";
+        }
+        else if (IsFile || IsRegistry)
+        {
+            Rule.FileOrFolderName = EditName.Trim();
+            Rule.DetectionType = EditDetectionType;
+            Rule.Operator = EditNeedsValue ? EditOperator : "";
+            Rule.DetectionValue = EditNeedsValue ? EditValue.Trim() : "";
+        }
+        IsEditing = false;
+        IsNew = false;
+        OnPropertyChanged(nameof(Summary));
+    }
+
+    public static DetectionRuleDisplay From(DetectionRule r, bool isNew = false) => new()
+    {
+        Rule = r,
+        IsNew = isNew,
+        TypeTag = r.Type switch
+        {
+            DetectionRuleType.MSI => "MSI",
+            DetectionRuleType.File => "FILE",
+            DetectionRuleType.Registry => "REG",
+            DetectionRuleType.Script => "PS1",
+            _ => r.Type.ToString().ToUpperInvariant(),
+        },
     };
 
-    private static string OperatorWords(string op) => op switch
+    private static string Compose(DetectionRule r) => r.Type switch
     {
-        "greaterThanOrEqual" => "Greater than or equal to",
-        "greaterThan" => "Greater than",
-        "equal" => "Equal to",
-        "notEqual" => "Not equal to",
-        "lessThan" => "Less than",
-        "lessThanOrEqual" => "Less than or equal to",
-        _ => string.IsNullOrEmpty(op) ? "Equal to" : op,
+        DetectionRuleType.MSI => r.CheckVersion
+            ? $"{Dash(r.Path)} · version {OperatorSymbol(r.Operator)} {r.FileOrFolderName}"
+            : $"{Dash(r.Path)} · product code present",
+        DetectionRuleType.File => $@"{Dash(r.Path)}\{r.FileOrFolderName} · {DetectionSummary(r)}",
+        DetectionRuleType.Registry => $"{Dash(r.Path)} · {Dash(r.FileOrFolderName)} · {DetectionSummary(r)}",
+        DetectionRuleType.Script => "PowerShell detection script",
+        _ => "",
+    };
+
+    private static string DetectionSummary(DetectionRule r) => r.DetectionType switch
+    {
+        "exists" => "exists",
+        "doesNotExist" => "does not exist",
+        "version" => $"version {OperatorSymbol(r.Operator)} {r.DetectionValue}",
+        "string" => $"string {OperatorSymbol(r.Operator)} \"{r.DetectionValue}\"",
+        "integer" => $"integer {OperatorSymbol(r.Operator)} {r.DetectionValue}",
+        "sizeInMB" => $"size {OperatorSymbol(r.Operator)} {r.DetectionValue} MB",
+        "modifiedDate" => $"modified {OperatorSymbol(r.Operator)} {r.DetectionValue}",
+        _ => string.IsNullOrEmpty(r.DetectionType) ? "exists" : r.DetectionType,
     };
 
     private static string OperatorSymbol(string op) => op switch
@@ -284,11 +723,4 @@ public sealed class DetectionRuleDisplay
     };
 
     private static string Dash(string s) => string.IsNullOrWhiteSpace(s) ? "—" : s;
-}
-
-public sealed class DetectionField
-{
-    public DetectionField(string label, string value) { Label = label; Value = value; }
-    public string Label { get; }
-    public string Value { get; }
 }

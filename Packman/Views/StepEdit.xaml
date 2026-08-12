@@ -53,27 +53,51 @@
                            FontSize="12.5" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"/>
             </Border>
 
-            <!-- Editor: tree + code editor, fills the remaining height -->
+            <!-- Editor: tree + code editor, fills the remaining height.
+                 The tree starts collapsed to a slim rail so the editor gets the width;
+                 the rail button (or the chevron in the tree header) toggles it. -->
             <Grid x:Name="EditorGrid" Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="14"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
+                <!-- Collapsed rail -->
+                <Border x:Name="TreeRail" Grid.Column="0" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11" Padding="4">
+                    <Button Style="{StaticResource IconButton}" Width="32" Height="32" Background="Transparent" BorderThickness="0"
+                            VerticalAlignment="Top" ToolTip="Show files" Click="ToggleTree_Click">
+                        <Viewbox Width="15" Height="15">
+                            <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource InkBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                    </Button>
+                </Border>
+
                 <!-- Tree -->
-                <Border Grid.Column="0" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11" Padding="8">
+                <Border x:Name="TreePanel" Grid.Column="0" Width="240" Visibility="Collapsed" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11" Padding="8">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
-                            <Viewbox Width="14" Height="14">
-                                <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource InkBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
-                            <TextBlock x:Name="PackageNameText" Text="Package" Margin="7,0,0,0" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
+                        <Grid Grid.Row="0" Margin="10,4,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Viewbox Width="14" Height="14">
+                                    <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource InkBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                                <TextBlock x:Name="PackageNameText" Text="Package" Margin="7,0,0,0" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Style="{StaticResource IconButton}" Width="28" Height="28" Background="Transparent" BorderThickness="0"
+                                    ToolTip="Hide files" Click="ToggleTree_Click">
+                                <Viewbox Width="13" Height="13">
+                                    <Path Data="{StaticResource IconChevL}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                            </Button>
+                        </Grid>
 
                         <TreeView x:Name="FileTree" Grid.Row="1" BorderThickness="0" Background="Transparent"
                                   Foreground="{DynamicResource InkBrush}" FontSize="12.5"
