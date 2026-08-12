@@ -75,6 +75,7 @@ public class ApplicationDetail : IntuneApplication
 
 public class AssignedGroup
 {
+    public string AssignmentId { get; set; } = "";
     public string GroupId { get; set; } = "";
     public string GroupName { get; set; } = "";
     public string AssignmentType { get; set; } = "";   // required | available | uninstall

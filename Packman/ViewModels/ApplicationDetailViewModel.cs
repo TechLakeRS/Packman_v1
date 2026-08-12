@@ -191,6 +191,291 @@ public sealed class ApplicationDetailViewModel : ObservableObject
             DetectionDisplays.Add(DetectionRuleDisplay.From(r));
     }
 
+    // ── Detection rule editing (the whole array is PATCHed on save) ──
+
+    public DetectionRuleDisplay AddDetectionRule(DetectionRuleType type)
+    {
+        var rule = new DetectionRule { Type = type, DetectionType = "exists" };
+        Detail.DetectionRules.Add(rule);
+        var display = DetectionRuleDisplay.From(rule, isNew: true);
+        DetectionDisplays.Add(display);
+        display.BeginEdit();
+        OnPropertyChanged(nameof(HasDetectionRules));
+        OnPropertyChanged(nameof(DetectionRulesHint));
+        return display;
+    }
+
+    /// <summary>Cancel on a rule that was never saved removes it again.</summary>
+    public void DiscardNewRule(DetectionRuleDisplay display)
+    {
+        Detail.DetectionRules.Remove(display.Rule);
+        DetectionDisplays.Remove(display);
+        OnPropertyChanged(nameof(HasDetectionRules));
+        OnPropertyChanged(nameof(DetectionRulesHint));
+    }
+
+    public async Task<bool> SaveDetectionRulesAsync()
+    {
+        try
+        {
+            await _apps.UpdateDetectionRulesAsync(Detail.Id, Detail.DetectionRules);
+            StatusText = "";
+            RebuildDetection();
+            OnPropertyChanged(nameof(HasDetectionRules));
+            OnPropertyChanged(nameof(DetectionRulesHint));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Could not save detection rules: {ex.Message}";
+            return false;
+        }
+    }
+
+    public async Task DeleteDetectionRuleAsync(DetectionRuleDisplay display)
+    {
+        Detail.DetectionRules.Remove(display.Rule);
+        if (!await SaveDetectionRulesAsync())
+        {
+            // PATCH failed — put the rule back so the UI matches Intune.
+            Detail.DetectionRules.Add(display.Rule);
+            RebuildDetection();
+        }
+    }
+
+    // ── Assignment editing ──
+
+    public string[] IntentChoices { get; } = { "Required", "Available", "Uninstall" };
+
+    private string _selectedIntent = "Required";
+    public string SelectedIntent { get => _selectedIntent; set => Set(ref _selectedIntent, value); }
+
+    private string _groupSearch = "";
+    public string GroupSearch
+    {
+        get => _groupSearch;
+        set
+        {
+            if (!Set(ref _groupSearch, value)) return;
+            _selectedGroup = null;
+            OnPropertyChanged(nameof(CanAddAssignment));
+            _ = RunGroupSearchAsync(value);
+        }
+    }
+
+    public ObservableCollection<EntraGroup> GroupResults { get; } = new();
+    public bool HasGroupResults => GroupResults.Count > 0;
+
+    private EntraGroup? _selectedGroup;
+    public bool CanAddAssignment => _selectedGroup != null;
+
+    private int _groupSearchSeq;
+    private async Task RunGroupSearchAsync(string query)
+    {
+        var seq = ++_groupSearchSeq;
+        if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < 2)
+        {
+            GroupResults.Clear();
+            OnPropertyChanged(nameof(HasGroupResults));
+            return;
+        }
+        try
+        {
+            var results = await _apps.SearchGroupsAsync(query);
+            if (seq != _groupSearchSeq) return;   // stale response
+            GroupResults.Clear();
+            foreach (var g in results) GroupResults.Add(g);
+        }
+        catch
+        {
+            if (seq != _groupSearchSeq) return;
+            GroupResults.Clear();
+        }
+        OnPropertyChanged(nameof(HasGroupResults));
+    }
+
+    public void SelectGroupResult(EntraGroup group)
+    {
+        _selectedGroup = group;
+        _groupSearch = group.DisplayName;     // field write: don't retrigger the search
+        OnPropertyChanged(nameof(GroupSearch));
+        OnPropertyChanged(nameof(CanAddAssignment));
+        GroupResults.Clear();
+        OnPropertyChanged(nameof(HasGroupResults));
+    }
+
+    public async Task AddAssignmentAsync()
+    {
+        if (_selectedGroup == null) return;
+        try
+        {
+            await _apps.AddAssignmentAsync(Detail.Id, _selectedGroup.Id, SelectedIntent.ToLowerInvariant());
+            _selectedGroup = null;
+            _groupSearch = "";
+            OnPropertyChanged(nameof(GroupSearch));
+            OnPropertyChanged(nameof(CanAddAssignment));
+            await RefreshAssignmentsAsync();
+            StatusText = "";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Could not add assignment: {ex.Message}";
+        }
+    }
+
+    public async Task RemoveAssignmentAsync(AssignedGroup group)
+    {
+        if (string.IsNullOrEmpty(group.AssignmentId))
+        {
+            StatusText = "This assignment has no id — refresh and try again.";
+            return;
+        }
+        try
+        {
+            await _apps.RemoveAssignmentAsync(Detail.Id, group.AssignmentId);
+            await RefreshAssignmentsAsync();
+            StatusText = "";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Could not remove assignment: {ex.Message}";
+        }
+    }
+
+    private async Task RefreshAssignmentsAsync()
+    {
+        Detail.AssignedGroups = await _apps.GetAssignedGroupsAsync(Detail.Id);
+        OnPropertyChanged(nameof(Detail));
+        OnPropertyChanged(nameof(HasAssignments));
+    }
+
+    // ── Group members slide-over ──
+
+    private AssignedGroup? _flyoutGroup;
+    public AssignedGroup? FlyoutGroup { get => _flyoutGroup; private set { _flyoutGroup = value; OnPropertyChanged(nameof(FlyoutGroup)); } }
+
+    private bool _isFlyoutOpen;
+    public bool IsFlyoutOpen { get => _isFlyoutOpen; private set => Set(ref _isFlyoutOpen, value); }
+
+    public ObservableCollection<GroupMember> Members { get; } = new();
+
+    private string _membersStatus = "";
+    public string MembersStatus { get => _membersStatus; private set => Set(ref _membersStatus, value); }
+
+    /// <summary>True for real Entra groups; built-in targets (All Devices/Users) have no member list.</summary>
+    public bool FlyoutHasGroup => !string.IsNullOrEmpty(_flyoutGroup?.GroupId);
+
+    public async Task OpenMembersAsync(AssignedGroup group)
+    {
+        FlyoutGroup = group;
+        OnPropertyChanged(nameof(FlyoutHasGroup));
+        Members.Clear();
+        MemberSearchResults.Clear();
+        OnPropertyChanged(nameof(HasMemberResults));
+        _memberSearch = "";
+        OnPropertyChanged(nameof(MemberSearch));
+        IsFlyoutOpen = true;
+
+        if (!FlyoutHasGroup)
+        {
+            MembersStatus = "Built-in assignment target — membership is implicit.";
+            return;
+        }
+
+        MembersStatus = "Loading members…";
+        try
+        {
+            var members = await _apps.GetGroupMembersAsync(group.GroupId);
+            if (!ReferenceEquals(_flyoutGroup, group)) return;   // flyout switched meanwhile
+            Members.Clear();
+            foreach (var m in members) Members.Add(m);
+            MembersStatus = members.Count == 100 ? "Showing the first 100 members" : $"{members.Count} member{(members.Count == 1 ? "" : "s")}";
+        }
+        catch (Exception ex)
+        {
+            MembersStatus = $"Could not load members: {ex.Message}";
+        }
+    }
+
+    public void CloseFlyout() => IsFlyoutOpen = false;
+
+    private string _memberSearch = "";
+    public string MemberSearch
+    {
+        get => _memberSearch;
+        set
+        {
+            if (!Set(ref _memberSearch, value)) return;
+            _ = RunMemberSearchAsync(value);
+        }
+    }
+
+    public ObservableCollection<GroupMember> MemberSearchResults { get; } = new();
+    public bool HasMemberResults => MemberSearchResults.Count > 0;
+
+    private int _memberSearchSeq;
+    private async Task RunMemberSearchAsync(string query)
+    {
+        var seq = ++_memberSearchSeq;
+        if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < 2)
+        {
+            MemberSearchResults.Clear();
+            OnPropertyChanged(nameof(HasMemberResults));
+            return;
+        }
+        try
+        {
+            var results = await _apps.SearchDevicesAndUsersAsync(query);
+            if (seq != _memberSearchSeq) return;
+            MemberSearchResults.Clear();
+            foreach (var m in results) MemberSearchResults.Add(m);
+        }
+        catch
+        {
+            if (seq != _memberSearchSeq) return;
+            MemberSearchResults.Clear();
+        }
+        OnPropertyChanged(nameof(HasMemberResults));
+    }
+
+    public async Task AddMemberAsync(GroupMember member)
+    {
+        var group = _flyoutGroup;
+        if (group == null || string.IsNullOrEmpty(group.GroupId)) return;
+        try
+        {
+            await _apps.AddGroupMemberAsync(group.GroupId, member.Id);
+            _memberSearch = "";
+            OnPropertyChanged(nameof(MemberSearch));
+            MemberSearchResults.Clear();
+            OnPropertyChanged(nameof(HasMemberResults));
+            await OpenMembersAsync(group);
+        }
+        catch (Exception ex)
+        {
+            MembersStatus = ex.Message.Contains("403")
+                ? "No permission to change membership — the signed-in account needs GroupMember.ReadWrite.All."
+                : $"Could not add member: {ex.Message}";
+        }
+    }
+
+    public async Task RemoveMemberAsync(GroupMember member)
+    {
+        var group = _flyoutGroup;
+        if (group == null || string.IsNullOrEmpty(group.GroupId)) return;
+        try
+        {
+            await _apps.RemoveGroupMemberAsync(group.GroupId, member.Id);
+            await OpenMembersAsync(group);
+        }
+        catch (Exception ex)
+        {
+            MembersStatus = ex.Message.Contains("403")
+                ? "No permission to change membership — the signed-in account needs GroupMember.ReadWrite.All."
+                : $"Could not remove member: {ex.Message}";
+        }
+    }
+
     /// <summary>
     /// Finds the package's version folder on the share and runs the integrity checks.
     /// Share enumeration happens off the UI thread; failures just leave "not found".
@@ -278,16 +563,121 @@ public sealed class SourceCheck
     public bool IsOk { get; }
 }
 
-/// <summary>A detection rule rendered as the design's "type tag + summary" row.</summary>
-public sealed class DetectionRuleDisplay
+/// <summary>One choice in a detection editor dropdown: display label + Graph value.</summary>
+public sealed record Option(string Label, string Value);
+
+/// <summary>
+/// A detection rule rendered as the design's "type tag + summary" row, with inline
+/// editing state. ApplyEdit writes back into the underlying rule; the view model
+/// PATCHes the whole rule array afterwards.
+/// </summary>
+public sealed class DetectionRuleDisplay : ObservableObject
 {
+    private static readonly Option[] Operators =
+    {
+        new("=", "equal"), new("≠", "notEqual"), new(">", "greaterThan"),
+        new("≥", "greaterThanOrEqual"), new("<", "lessThan"), new("≤", "lessThanOrEqual"),
+    };
+    private static readonly Option[] FileTypes =
+    {
+        new("Exists", "exists"), new("Does not exist", "doesNotExist"), new("Version", "version"),
+        new("String", "string"), new("Size (MB)", "sizeInMB"), new("Modified date", "modifiedDate"),
+    };
+    private static readonly Option[] RegistryTypes =
+    {
+        new("Exists", "exists"), new("Does not exist", "doesNotExist"), new("String", "string"),
+        new("Integer", "integer"), new("Version", "version"),
+    };
+
     public DetectionRule Rule { get; private init; } = null!;
     public string TypeTag { get; private init; } = "";
-    public string Summary { get; private init; } = "";
+    public bool IsNew { get; private set; }
 
-    public static DetectionRuleDisplay From(DetectionRule r) => new()
+    public string Summary => Compose(Rule);
+
+    public bool IsMsi => Rule.Type == DetectionRuleType.MSI;
+    public bool IsFile => Rule.Type == DetectionRuleType.File;
+    public bool IsRegistry => Rule.Type == DetectionRuleType.Registry;
+    public bool IsScript => Rule.Type == DetectionRuleType.Script;
+    public bool IsFileOrRegistry => IsFile || IsRegistry;
+    /// <summary>Script rules carry base64 PowerShell — edited via the script file, not fields.</summary>
+    public bool CanEdit => !IsScript;
+
+    public IReadOnlyList<Option> OperatorChoices => Operators;
+    public IReadOnlyList<Option> DetectionTypeChoices => IsRegistry ? RegistryTypes : FileTypes;
+
+    private bool _isEditing;
+    public bool IsEditing { get => _isEditing; private set => Set(ref _isEditing, value); }
+
+    private string _editPath = "";
+    public string EditPath { get => _editPath; set => Set(ref _editPath, value); }
+
+    private string _editName = "";
+    public string EditName { get => _editName; set => Set(ref _editName, value); }
+
+    private bool _editCheckVersion;
+    public bool EditCheckVersion
+    {
+        get => _editCheckVersion;
+        set { if (Set(ref _editCheckVersion, value)) OnPropertyChanged(nameof(EditNeedsValue)); }
+    }
+
+    private string _editDetectionType = "exists";
+    public string EditDetectionType
+    {
+        get => _editDetectionType;
+        set { if (Set(ref _editDetectionType, value)) OnPropertyChanged(nameof(EditNeedsValue)); }
+    }
+
+    /// <summary>Whether the operator + value inputs apply to the current edit state.</summary>
+    public bool EditNeedsValue => IsMsi
+        ? EditCheckVersion
+        : _editDetectionType is "version" or "string" or "integer" or "sizeInMB" or "modifiedDate";
+
+    private string _editOperator = "equal";
+    public string EditOperator { get => _editOperator; set => Set(ref _editOperator, value); }
+
+    private string _editValue = "";
+    public string EditValue { get => _editValue; set => Set(ref _editValue, value); }
+
+    public void BeginEdit()
+    {
+        EditPath = Rule.Path;
+        EditName = IsMsi ? "" : Rule.FileOrFolderName;
+        EditCheckVersion = Rule.CheckVersion;
+        EditDetectionType = string.IsNullOrEmpty(Rule.DetectionType) ? "exists" : Rule.DetectionType;
+        EditOperator = string.IsNullOrEmpty(Rule.Operator) || Rule.Operator == "notConfigured" ? "equal" : Rule.Operator;
+        EditValue = IsMsi ? Rule.FileOrFolderName : Rule.DetectionValue;
+        IsEditing = true;
+    }
+
+    public void CancelEdit() => IsEditing = false;
+
+    public void ApplyEdit()
+    {
+        Rule.Path = EditPath.Trim();
+        if (IsMsi)
+        {
+            Rule.CheckVersion = EditCheckVersion;
+            Rule.FileOrFolderName = EditCheckVersion ? EditValue.Trim() : "";
+            Rule.Operator = EditCheckVersion ? EditOperator : "";
+        }
+        else if (IsFile || IsRegistry)
+        {
+            Rule.FileOrFolderName = EditName.Trim();
+            Rule.DetectionType = EditDetectionType;
+            Rule.Operator = EditNeedsValue ? EditOperator : "";
+            Rule.DetectionValue = EditNeedsValue ? EditValue.Trim() : "";
+        }
+        IsEditing = false;
+        IsNew = false;
+        OnPropertyChanged(nameof(Summary));
+    }
+
+    public static DetectionRuleDisplay From(DetectionRule r, bool isNew = false) => new()
     {
         Rule = r,
+        IsNew = isNew,
         TypeTag = r.Type switch
         {
             DetectionRuleType.MSI => "MSI",
@@ -296,16 +686,17 @@ public sealed class DetectionRuleDisplay
             DetectionRuleType.Script => "PS1",
             _ => r.Type.ToString().ToUpperInvariant(),
         },
-        Summary = r.Type switch
-        {
-            DetectionRuleType.MSI => r.CheckVersion
-                ? $"{Dash(r.Path)} · version {OperatorSymbol(r.Operator)} {r.FileOrFolderName}"
-                : $"{Dash(r.Path)} · product code present",
-            DetectionRuleType.File => $@"{Dash(r.Path)}\{r.FileOrFolderName} · {DetectionSummary(r)}",
-            DetectionRuleType.Registry => $"{Dash(r.Path)} · {Dash(r.FileOrFolderName)} · {DetectionSummary(r)}",
-            DetectionRuleType.Script => "PowerShell detection script",
-            _ => "",
-        },
+    };
+
+    private static string Compose(DetectionRule r) => r.Type switch
+    {
+        DetectionRuleType.MSI => r.CheckVersion
+            ? $"{Dash(r.Path)} · version {OperatorSymbol(r.Operator)} {r.FileOrFolderName}"
+            : $"{Dash(r.Path)} · product code present",
+        DetectionRuleType.File => $@"{Dash(r.Path)}\{r.FileOrFolderName} · {DetectionSummary(r)}",
+        DetectionRuleType.Registry => $"{Dash(r.Path)} · {Dash(r.FileOrFolderName)} · {DetectionSummary(r)}",
+        DetectionRuleType.Script => "PowerShell detection script",
+        _ => "",
     };
 
     private static string DetectionSummary(DetectionRule r) => r.DetectionType switch

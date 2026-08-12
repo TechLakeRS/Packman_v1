@@ -110,6 +110,114 @@ public partial class ApplicationDetailView : UserControl
         }
     }
 
+    // ── Detection rule editing ──
+
+    private static T? RowContext<T>(object sender) where T : class =>
+        (sender as FrameworkElement)?.DataContext as T;
+
+    private void AddRule_Click(object sender, RoutedEventArgs e)
+    {
+        if (_vm == null) return;
+        var type = NewRuleType.SelectedIndex switch
+        {
+            0 => DetectionRuleType.MSI,
+            2 => DetectionRuleType.Registry,
+            _ => DetectionRuleType.File,
+        };
+        _vm.AddDetectionRule(type);
+    }
+
+    private void EditRule_Click(object sender, RoutedEventArgs e) =>
+        RowContext<DetectionRuleDisplay>(sender)?.BeginEdit();
+
+    private void CancelRule_Click(object sender, RoutedEventArgs e)
+    {
+        var display = RowContext<DetectionRuleDisplay>(sender);
+        if (display == null || _vm == null) return;
+        if (display.IsNew)
+            _vm.DiscardNewRule(display);
+        else
+            display.CancelEdit();
+    }
+
+    private async void SaveRule_Click(object sender, RoutedEventArgs e)
+    {
+        var display = RowContext<DetectionRuleDisplay>(sender);
+        if (display == null || _vm == null) return;
+        display.ApplyEdit();
+        await _vm.SaveDetectionRulesAsync();
+    }
+
+    private async void DeleteRule_Click(object sender, RoutedEventArgs e)
+    {
+        var display = RowContext<DetectionRuleDisplay>(sender);
+        if (display == null || _vm == null) return;
+
+        var result = MessageBox.Show(
+            "Delete this detection rule?\n\nIf no rule matches anymore, Intune considers the app not installed and required assignments will reinstall it.",
+            "Delete detection rule", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (result != MessageBoxResult.Yes) return;
+
+        await _vm.DeleteDetectionRuleAsync(display);
+    }
+
+    // ── Assignments ──
+
+    private async void AddAssignment_Click(object sender, RoutedEventArgs e)
+    {
+        if (_vm != null) await _vm.AddAssignmentAsync();
+    }
+
+    private void GroupResult_Click(object sender, RoutedEventArgs e)
+    {
+        var group = RowContext<EntraGroup>(sender);
+        if (group != null) _vm?.SelectGroupResult(group);
+    }
+
+    private async void RemoveAssignment_Click(object sender, RoutedEventArgs e)
+    {
+        var group = RowContext<AssignedGroup>(sender);
+        if (group == null || _vm == null) return;
+
+        var result = MessageBox.Show(
+            $"Remove the {group.StatusLabel} assignment for \"{group.GroupName}\"?",
+            "Remove assignment", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (result != MessageBoxResult.Yes) return;
+
+        await _vm.RemoveAssignmentAsync(group);
+    }
+
+    // ── Group members slide-over ──
+
+    private async void GroupRow_Click(object sender, RoutedEventArgs e)
+    {
+        var group = RowContext<AssignedGroup>(sender);
+        if (group != null && _vm != null) await _vm.OpenMembersAsync(group);
+    }
+
+    private void FlyoutClose_Click(object sender, RoutedEventArgs e) => _vm?.CloseFlyout();
+
+    private void FlyoutBackdrop_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) => _vm?.CloseFlyout();
+
+    private async void MemberResult_Click(object sender, RoutedEventArgs e)
+    {
+        var member = RowContext<GroupMember>(sender);
+        if (member != null && _vm != null) await _vm.AddMemberAsync(member);
+    }
+
+    private async void RemoveMember_Click(object sender, RoutedEventArgs e)
+    {
+        var member = RowContext<GroupMember>(sender);
+        if (member == null || _vm == null) return;
+
+        var result = MessageBox.Show(
+            $"Remove \"{member.DisplayName}\" from \"{_vm.FlyoutGroup?.GroupName}\"?\n\nThis affects every app assigned to the group.",
+            "Remove member", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (result != MessageBoxResult.Yes) return;
+
+        await _vm.RemoveMemberAsync(member);
+    }
+
     private async void Retire_Click(object sender, RoutedEventArgs e)
     {
         if (_vm == null) return;
