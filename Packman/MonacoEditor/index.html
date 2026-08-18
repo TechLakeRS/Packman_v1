@@ -10,33 +10,33 @@
 <div id="editor"></div>
 <script src="vs/loader.js"></script>
 <script>
-  // Hosted by StepEdit via WebView2. Messages from C#:
-  //   { type: 'init', catalog: [...] }
-  //   { type: 'setContent', content, language, readOnly }
-  //   { type: 'getContent' }  -> replies { type: 'content', content }
-  //   { type: 'markSaved' }
+  // Hosted by StepEdit via WebView2. One model per open file, so switching tabs
+  // keeps unsaved edits, undo history and scroll position.
+  //
+  // Messages from C#:
+  //   { type: 'init', catalog: [...], background }
+  //   { type: 'open', path, content, language, readOnly, eol, activate }
+  //   { type: 'activate', path } | { type: 'close', path }
+  //   { type: 'markSaved', path } | { type: 'reveal', line }
+  //   { type: 'theme', background }
   // Messages to C#:
-  //   { type: 'ready' } | { type: 'dirty', dirty } | { type: 'content', content }
+  //   { type: 'ready' } | { type: 'dirty', path, dirty } | { type: 'save' }
+  //   { type: 'cursor', line, column, selected }
+  // C# reads buffers directly through packmanContent(path) / packmanDirty().
   let editor = null;
   let catalog = [];
-  let savedVersionId = 0;
-  let lastDirty = false;
+  let byName = new Map();
+  let activePath = null;
+  const files = new Map(); // path -> { model, savedVersionId, viewState, dirty }
 
   const post = msg => window.chrome.webview.postMessage(msg);
 
   require.config({ paths: { vs: 'vs' } });
   require(['vs/editor/editor.main'], function () {
-    monaco.editor.defineTheme('packman-dark', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [],
-      colors: { 'editor.background': '#0C1322' }
-    });
-
     editor = monaco.editor.create(document.getElementById('editor'), {
       value: '',
       language: 'powershell',
-      theme: 'packman-dark',
+      theme: 'packman-code',
       fontSize: 13,
       fontFamily: "'Cascadia Code', Consolas, 'Courier New', monospace",
       minimap: { enabled: false },
@@ -45,15 +45,86 @@
       renderWhitespace: 'none',
       tabSize: 4
     });
+    applyTheme('#0C1322');
 
-    editor.onDidChangeModelContent(() => {
-      const dirty = editor.getModel().getAlternativeVersionId() !== savedVersionId;
-      if (dirty !== lastDirty) { lastDirty = dirty; post({ type: 'dirty', dirty }); }
-    });
+    const keyS = monaco.KeyCode.KeyS !== undefined ? monaco.KeyCode.KeyS : 49;
+    editor.addCommand(monaco.KeyMod.CtrlCmd | keyS, () => post({ type: 'save' }));
+
+    editor.onDidChangeCursorPosition(reportCursor);
+    editor.onDidChangeCursorSelection(reportCursor);
 
     registerPsadtProviders();
     post({ type: 'ready' });
   });
+
+  function applyTheme(background) {
+    monaco.editor.defineTheme('packman-code', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [],
+      colors: { 'editor.background': background }
+    });
+    monaco.editor.setTheme('packman-code');
+    document.body.style.background = background;
+  }
+
+  function reportCursor() {
+    const pos = editor.getPosition();
+    const sel = editor.getSelection();
+    if (!pos) return;
+    const model = editor.getModel();
+    const selected = model && sel ? model.getValueInRange(sel).length : 0;
+    post({ type: 'cursor', line: pos.lineNumber, column: pos.column, selected });
+  }
+
+  function refreshDirty(path) {
+    const f = files.get(path);
+    if (!f) return;
+    const dirty = f.model.getAlternativeVersionId() !== f.savedVersionId;
+    if (dirty !== f.dirty) { f.dirty = dirty; post({ type: 'dirty', path, dirty }); }
+  }
+
+  function openFile(msg) {
+    let f = files.get(msg.path);
+    if (f) {
+      // Reload of a file we already hold: replace the text in place.
+      f.model.setValue(msg.content);
+    } else {
+      const model = monaco.editor.createModel(msg.content, msg.language, monaco.Uri.file(msg.path));
+      f = { model, savedVersionId: 0, viewState: null, dirty: false };
+      files.set(msg.path, f);
+      model.onDidChangeContent(() => refreshDirty(msg.path));
+    }
+    monaco.editor.setModelLanguage(f.model, msg.language || 'plaintext');
+    f.model.setEOL(msg.eol === 'lf'
+      ? monaco.editor.EndOfLineSequence.LF
+      : monaco.editor.EndOfLineSequence.CRLF);
+    f.savedVersionId = f.model.getAlternativeVersionId();
+    f.dirty = false;
+    f.readOnly = !!msg.readOnly;
+    post({ type: 'dirty', path: msg.path, dirty: false });
+    if (msg.activate !== false) activate(msg.path);
+  }
+
+  function activate(path) {
+    const f = files.get(path);
+    if (!f) return;
+    if (activePath && files.has(activePath) && activePath !== path)
+      files.get(activePath).viewState = editor.saveViewState();
+    activePath = path;
+    editor.setModel(f.model);
+    editor.updateOptions({ readOnly: f.readOnly });
+    if (f.viewState) editor.restoreViewState(f.viewState);
+    editor.focus();
+    reportCursor();
+  }
+
+  // Called from C# via ExecuteScriptAsync.
+  window.packmanContent = path => {
+    const f = files.get(path);
+    return f ? f.model.getValue() : null;
+  };
+  window.packmanDirty = () => [...files.entries()].filter(([, f]) => f.dirty).map(([p]) => p);
 
   // <PLACEHOLDER> tokens from the catalog become snippet tab-stops.
   function toSnippet(call) {
@@ -72,12 +143,81 @@
     return { value: '**' + fn.name + '**  \n_' + fn.category + '_\n\n' + fn.synopsis };
   }
 
+  /// Walks the text before the cursor to see whether we sit in a comment or string,
+  /// where completions would only get in the way.
+  function inCommentOrString(model, position) {
+    const before = model.getValueInRange({
+      startLineNumber: 1, startColumn: 1,
+      endLineNumber: position.lineNumber, endColumn: position.column
+    });
+    const openBlock = before.lastIndexOf('<#');
+    if (openBlock >= 0 && before.lastIndexOf('#>') < openBlock) return true;
+
+    const line = model.getLineContent(position.lineNumber).slice(0, position.column - 1);
+    let quote = null;
+    for (const ch of line) {
+      if (quote) { if (ch === quote) quote = null; }
+      else if (ch === "'" || ch === '"') quote = ch;
+      else if (ch === '#') return true;
+    }
+    return quote !== null;
+  }
+
+  /// The catalog function whose call the cursor sits in, plus the text typed after it.
+  /// Takes the LAST match on the line so piped and nested calls resolve correctly.
+  function callAt(model, position) {
+    const line = model.getLineContent(position.lineNumber).slice(0, position.column - 1);
+    const re = /([A-Za-z][A-Za-z0-9]*-[A-Za-z0-9]+)/g;
+    let m, fn = null, end = -1;
+    while ((m = re.exec(line)) !== null) {
+      const hit = byName.get(m[1].toLowerCase());
+      if (hit) { fn = hit; end = m.index + m[0].length; }
+    }
+    return fn ? { fn, tail: line.slice(end) } : null;
+  }
+
+  /// Index of the parameter currently being typed, for signature help highlighting.
+  function activeParameter(fn, tail) {
+    const typed = [...tail.matchAll(/-([A-Za-z0-9]+)/g)];
+    if (typed.length === 0) return 0;
+    const last = typed[typed.length - 1][1].toLowerCase();
+    const i = fn.params.findIndex(p => p.name.toLowerCase() === last);
+    return i >= 0 ? i : 0;
+  }
+
   function registerPsadtProviders() {
-    // Completion: the catalog is the only suggestion source, so only ADT functions appear.
+    // ADT functions and their parameters come from the catalog; Monaco's own
+    // word-based suggestions still contribute identifiers from the open file.
     monaco.languages.registerCompletionItemProvider('powershell', {
+      triggerCharacters: ['-'],
       provideCompletionItems(model, position) {
+        if (inCommentOrString(model, position)) return { suggestions: [] };
+
         const word = model.getWordUntilPosition(position);
         const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
+        const line = model.getLineContent(position.lineNumber);
+        const typingParameter = word.startColumn > 1 && line[word.startColumn - 2] === '-';
+
+        if (typingParameter) {
+          const call = callAt(model, position);
+          if (!call) return { suggestions: [] };
+          const used = new Set([...call.tail.matchAll(/-([A-Za-z0-9]+)/g)]
+            .slice(0, -1).map(m => m[1].toLowerCase()));
+          return {
+            suggestions: call.fn.params
+              .filter(p => !used.has(p.name.toLowerCase()))
+              .map(p => ({
+                label: '-' + p.name,
+                kind: monaco.languages.CompletionItemKind.Property,
+                detail: (p.mandatory ? 'required ' : '') + (p.isSwitch ? 'switch' : p.type),
+                documentation: p.description,
+                insertText: p.name,
+                sortText: (p.mandatory ? '0' : '1') + p.name,
+                range
+              }))
+          };
+        }
+
         return {
           suggestions: catalog.map(fn => ({
             label: fn.name,
@@ -96,7 +236,7 @@
       provideHover(model, position) {
         const word = model.getWordAtPosition(position);
         if (!word) return null;
-        const fn = catalog.find(f => f.name.toLowerCase() === word.word.toLowerCase());
+        const fn = byName.get(word.word.toLowerCase());
         if (!fn) return null;
         return { contents: [docFor(fn), { value: '`' + signatureLabel(fn) + '`' }] };
       }
@@ -105,19 +245,17 @@
     monaco.languages.registerSignatureHelpProvider('powershell', {
       signatureHelpTriggerCharacters: [' ', '-'],
       provideSignatureHelp(model, position) {
-        const line = model.getLineContent(position.lineNumber).slice(0, position.column - 1);
-        const m = line.match(/([A-Za-z]+-ADT[A-Za-z]+)\b/);
-        const fn = m && catalog.find(f => f.name.toLowerCase() === m[1].toLowerCase());
-        if (!fn) return null;
+        const call = callAt(model, position);
+        if (!call) return null;
         return {
           value: {
             signatures: [{
-              label: signatureLabel(fn),
-              documentation: fn.synopsis,
-              parameters: fn.params.map(p => ({ label: '-' + p.name, documentation: p.description }))
+              label: signatureLabel(call.fn),
+              documentation: call.fn.synopsis,
+              parameters: call.fn.params.map(p => ({ label: '-' + p.name, documentation: p.description }))
             }],
             activeSignature: 0,
-            activeParameter: 0
+            activeParameter: activeParameter(call.fn, call.tail)
           },
           dispose() {}
         };
@@ -131,22 +269,37 @@
     switch (msg.type) {
       case 'init':
         catalog = msg.catalog || [];
+        byName = new Map(catalog.map(f => [f.name.toLowerCase(), f]));
+        if (msg.background) applyTheme(msg.background);
         break;
-      case 'setContent':
-        monaco.editor.setModelLanguage(editor.getModel(), msg.language || 'plaintext');
-        editor.setValue(msg.content);
-        editor.updateOptions({ readOnly: !!msg.readOnly });
-        savedVersionId = editor.getModel().getAlternativeVersionId();
-        lastDirty = false;
-        post({ type: 'dirty', dirty: false });
+      case 'theme':
+        applyTheme(msg.background);
         break;
-      case 'getContent':
-        post({ type: 'content', content: editor.getValue() });
+      case 'open':
+        openFile(msg);
         break;
-      case 'markSaved':
-        savedVersionId = editor.getModel().getAlternativeVersionId();
-        lastDirty = false;
-        post({ type: 'dirty', dirty: false });
+      case 'activate':
+        activate(msg.path);
+        break;
+      case 'close': {
+        const f = files.get(msg.path);
+        if (f) { f.model.dispose(); files.delete(msg.path); }
+        if (activePath === msg.path) activePath = null;
+        break;
+      }
+      case 'markSaved': {
+        const f = files.get(msg.path);
+        if (f) {
+          f.savedVersionId = f.model.getAlternativeVersionId();
+          f.dirty = false;
+          post({ type: 'dirty', path: msg.path, dirty: false });
+        }
+        break;
+      }
+      case 'reveal':
+        editor.revealLineInCenter(msg.line);
+        editor.setPosition({ lineNumber: msg.line, column: 1 });
+        editor.focus();
         break;
     }
   });

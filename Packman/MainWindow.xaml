@@ -16,7 +16,8 @@
         UseLayoutRounding="True"
         FontFamily="{StaticResource UIFontFamily}"
         Background="{DynamicResource BgBrush}"
-        Foreground="{DynamicResource TextBrush}">
+        Foreground="{DynamicResource TextBrush}"
+        Closing="MainWindow_Closing">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -331,7 +332,7 @@
                                   Visibility="{Binding Steps[0].IsCurrent, Converter={StaticResource BoolToVis}}">
                         <views:StepGenerate Margin="30,20,30,24"/>
                     </ScrollViewer>
-                    <views:StepEdit Margin="30,20,30,24"
+                    <views:StepEdit x:Name="EditStep" Margin="30,20,30,24"
                                     Visibility="{Binding Steps[1].IsCurrent, Converter={StaticResource BoolToVis}}"/>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                                   Visibility="{Binding Steps[2].IsCurrent, Converter={StaticResource BoolToVis}}">
