@@ -212,6 +212,28 @@ public sealed class SettingsViewModel : ObservableObject
     public bool NewGroupRequired { get => _newGroupIntent == AssignmentIntent.Required; set { if (value) NewGroupIntent = AssignmentIntent.Required; } }
     public bool NewGroupUninstall { get => _newGroupIntent == AssignmentIntent.Uninstall; set { if (value) NewGroupIntent = AssignmentIntent.Uninstall; } }
 
+    // ── Intune Defaults ────────────────────────────────────────────────
+    private string _defaultInstallCommand = AppSettings.IntuneDefaultsConfig.DefaultInstallCommand;
+    public string DefaultInstallCommand { get => _defaultInstallCommand; set => Set(ref _defaultInstallCommand, value); }
+
+    private string _defaultUninstallCommand = AppSettings.IntuneDefaultsConfig.DefaultUninstallCommand;
+    public string DefaultUninstallCommand { get => _defaultUninstallCommand; set => Set(ref _defaultUninstallCommand, value); }
+
+    private string _defaultPrivacyUrl = "";
+    public string DefaultPrivacyUrl { get => _defaultPrivacyUrl; set => Set(ref _defaultPrivacyUrl, value); }
+
+    private string _defaultInformationUrl = "";
+    public string DefaultInformationUrl { get => _defaultInformationUrl; set => Set(ref _defaultInformationUrl, value); }
+
+    private string _displayNameTemplate = AppSettings.IntuneDefaultsConfig.DefaultDisplayNameTemplate;
+    public string DisplayNameTemplate
+    {
+        get => _displayNameTemplate;
+        set { if (Set(ref _displayNameTemplate, value)) OnPropertyChanged(nameof(DisplayNamePreview)); }
+    }
+
+    public string DisplayNamePreview => GroupAssignmentNamer.Build(DisplayNameTemplate, "Contoso", "Acme Reader", "1.2.3");
+
     private string _newGroupNameInput = "";
     public string NewGroupNameInput { get => _newGroupNameInput; set => Set(ref _newGroupNameInput, value); }
 
@@ -307,6 +329,12 @@ public sealed class SettingsViewModel : ObservableObject
         DefaultMinProcessors = req.MinimumNumberOfProcessors?.ToString() ?? "";
         DefaultMinCpuSpeedMHz = req.MinimumCpuSpeedMHz?.ToString() ?? "";
         LoadReturnCodes(s.IntuneDefaults.ReturnCodes);
+
+        DefaultInstallCommand = s.IntuneDefaults.InstallCommand;
+        DefaultUninstallCommand = s.IntuneDefaults.UninstallCommand;
+        DefaultPrivacyUrl = s.IntuneDefaults.PrivacyUrl;
+        DefaultInformationUrl = s.IntuneDefaults.InformationUrl;
+        DisplayNameTemplate = s.IntuneDefaults.DisplayNameTemplate;
     }
 
     private void LoadReturnCodes(IEnumerable<ReturnCodeInfo> codes)
@@ -437,6 +465,9 @@ public sealed class SettingsViewModel : ObservableObject
         SaveStatus = "";
     }
 
+    private static string Fallback(string text, string fallback) =>
+        string.IsNullOrWhiteSpace(text) ? fallback : text.Trim();
+
     private static int? ParseOptional(string text) =>
         int.TryParse(text, out var value) && value > 0 ? value : null;
 
@@ -476,6 +507,12 @@ public sealed class SettingsViewModel : ObservableObject
         req.MinimumNumberOfProcessors = ParseOptional(DefaultMinProcessors);
         req.MinimumCpuSpeedMHz = ParseOptional(DefaultMinCpuSpeedMHz);
         s.IntuneDefaults.ReturnCodes = ReturnCodes.Select(r => r.ToInfo()).OfType<ReturnCodeInfo>().ToList();
+
+        s.IntuneDefaults.InstallCommand = Fallback(DefaultInstallCommand, AppSettings.IntuneDefaultsConfig.DefaultInstallCommand);
+        s.IntuneDefaults.UninstallCommand = Fallback(DefaultUninstallCommand, AppSettings.IntuneDefaultsConfig.DefaultUninstallCommand);
+        s.IntuneDefaults.PrivacyUrl = DefaultPrivacyUrl.Trim();
+        s.IntuneDefaults.InformationUrl = DefaultInformationUrl.Trim();
+        s.IntuneDefaults.DisplayNameTemplate = Fallback(DisplayNameTemplate, AppSettings.IntuneDefaultsConfig.DefaultDisplayNameTemplate);
 
         _svc.Save();
         SaveStatus = "Settings saved.";

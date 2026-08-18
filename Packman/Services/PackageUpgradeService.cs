@@ -77,7 +77,7 @@ public class PackageUpgradeService
             }
             else
             {
-                foreach (var folder in new[] { "Application", "Icon", "Intune", "NBB_Info", "Project Files" })
+                foreach (var folder in new[] { "Application", "Icon", "Intune" })
                     Directory.CreateDirectory(Path.Combine(newPackagePath, folder));
 
                 await CopyApplicationFolderAsync(existingPackagePath, newPackagePath);
@@ -85,7 +85,6 @@ public class PackageUpgradeService
 
             var newSourceFileName = await CopyNewSourceFilesAsync(newSourcesPath, newPackagePath);
             await CopyOptionalFolderAsync(existingPackagePath, newPackagePath, "Icon");
-            await CopyOptionalFolderAsync(existingPackagePath, newPackagePath, "NBB_Info");
 
             string newMsiProductCode = "";
             if (Path.GetExtension(newSourcesPath).Equals(".msi", StringComparison.OrdinalIgnoreCase))

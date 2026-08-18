@@ -59,7 +59,9 @@ public partial class IntuneUploadService : IDisposable
         string? predecessorAppId = null,
         AppSettings.GroupAssignmentConfig? groupAssignment = null,
         RequirementInfo? requirements = null,
-        List<ReturnCodeInfo>? returnCodes = null)
+        List<ReturnCodeInfo>? returnCodes = null,
+        string? privacyUrl = null,
+        string? informationUrl = null)
     {
         using var uploadLogger = new UploadLogger(appInfo.Name);
 
@@ -107,7 +109,7 @@ public partial class IntuneUploadService : IDisposable
             uploadLogger.Success($"Package metadata extracted - Size: {intuneWinInfo.UnencryptedContentSize:N0} bytes");
 
             progress?.UpdateProgress(35, "Registering application in Intune...");
-            var appId = await CreateWin32LobAppAsync(appInfo, installCommand, uninstallCommand, description, detectionRules, installContext, intuneWinInfo, iconPath, requirements, returnCodes);
+            var appId = await CreateWin32LobAppAsync(appInfo, installCommand, uninstallCommand, description, detectionRules, installContext, intuneWinInfo, iconPath, requirements, returnCodes, privacyUrl, informationUrl);
             uploadLogger.Success($"Application registered with ID: {appId}");
 
             progress?.UpdateProgress(45, "Preparing content storage...");

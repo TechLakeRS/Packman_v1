@@ -55,10 +55,25 @@ public class AppSettings
 
     public class IntuneDefaultsConfig
     {
+        public const string DefaultInstallCommand = "Invoke-AppDeployToolkit.exe Install";
+        public const string DefaultUninstallCommand = "Invoke-AppDeployToolkit.exe Uninstall";
+        public const string DefaultDisplayNameTemplate = "%vendor% %appName% %appVersion%";
+
         // Requirement rules pre-filled on the Create Package upload step.
         public RequirementInfo Requirements { get; set; } = new();
         // Return codes sent with every uploaded Win32 app.
         public List<ReturnCodeInfo> ReturnCodes { get; set; } = ReturnCodeInfo.Defaults();
+
+        // Command lines Intune runs to install and uninstall the package.
+        public string InstallCommand { get; set; } = DefaultInstallCommand;
+        public string UninstallCommand { get; set; } = DefaultUninstallCommand;
+
+        // Company Portal links; sent only when set.
+        public string PrivacyUrl { get; set; } = "";
+        public string InformationUrl { get; set; } = "";
+
+        // Title template for the Intune app; tokens %vendor% %appName% %appVersion%.
+        public string DisplayNameTemplate { get; set; } = DefaultDisplayNameTemplate;
     }
 
     public class ExistingGroupAssignment

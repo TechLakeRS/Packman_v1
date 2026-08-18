@@ -12,11 +12,11 @@ PSADT/
     Invoke-AppDeployToolkit.ps1    <- v4 deploy script (Packman edits the metadata)
     Files/                         <- source installers are copied here
     SupportFiles/
-  Icon/
-  Intune/                          <- the .intunewin is built here at upload time
-  NBB_Info/
-  Project Files/
 ```
+
+Packman creates each package as `{Vendor}_{AppName}/{version}/` holding three
+folders: `Application/` (this template), `Intune/` (the .intunewin is built here
+at upload time) and `Icon/` (the archived app icon).
 
 ## Important
 

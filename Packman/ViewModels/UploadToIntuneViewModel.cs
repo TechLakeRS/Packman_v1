@@ -101,6 +101,10 @@ public sealed class UploadToIntuneViewModel : ObservableObject
 
     public string DisplayTitle => $"{Manufacturer} {AppName}".Trim();
 
+    private string _intuneDisplayName = "";
+    /// <summary>Title the app gets in Intune; seeded from the package metadata and editable before upload.</summary>
+    public string IntuneDisplayName { get => _intuneDisplayName; set => Set(ref _intuneDisplayName, value); }
+
     /// <summary>
     /// Validates a selected folder as a PSADT v4 package (root or its Application folder)
     /// and pulls metadata, install context and an MSI detection rule from it.
@@ -133,6 +137,9 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             AppName = meta.GetValueOrDefault("AppName", "");
             Version = meta.GetValueOrDefault("Version", "");
             InstallContext = InstallContextParser.ExtractFromPackage(root);
+
+            IntuneDisplayName = GroupAssignmentNamer.Build(
+                _settings.Settings.IntuneDefaults.DisplayNameTemplate, Manufacturer, AppName, Version);
 
             PackageRoot = root;
             PackageFolderName = new DirectoryInfo(root).Name;
@@ -358,6 +365,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             Version = string.IsNullOrWhiteSpace(Version) ? "1.0.0" : Version.Trim(),
             SourcesPath = PackageRoot,
             InstallContext = InstallContext,
+            DisplayName = IntuneDisplayName,
         };
 
         NativeCodeSigner? signer = null;
@@ -386,14 +394,16 @@ public sealed class UploadToIntuneViewModel : ObservableObject
                 appInfo,
                 PackageRoot,
                 DetectionRules.ToList(),
-                "Invoke-AppDeployToolkit.exe Install",
-                "Invoke-AppDeployToolkit.exe Uninstall",
-                $"{appInfo.Manufacturer} {appInfo.Name} {appInfo.Version}",
+                settings.IntuneDefaults.InstallCommand,
+                settings.IntuneDefaults.UninstallCommand,
+                appInfo.DisplayName,
                 appInfo.InstallContext,
                 null,
                 progress,
                 requirements: settings.IntuneDefaults.Requirements,
-                returnCodes: settings.IntuneDefaults.ReturnCodes));
+                returnCodes: settings.IntuneDefaults.ReturnCodes,
+                privacyUrl: settings.IntuneDefaults.PrivacyUrl,
+                informationUrl: settings.IntuneDefaults.InformationUrl));
 
             MarkDone(0); MarkDone(1); MarkDone(2);
 

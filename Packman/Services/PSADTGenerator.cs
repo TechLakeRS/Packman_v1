@@ -81,6 +81,10 @@ public class PSADTGenerator
         {
             Directory.CreateDirectory(packagePath);
             CopyDir(template, Path.Combine(packagePath, "Application"));
+            // Intune receives the .intunewin at upload, Icon the archived icon; both are
+            // created here so created and upgraded packages have the same layout.
+            Directory.CreateDirectory(Path.Combine(packagePath, "Intune"));
+            Directory.CreateDirectory(Path.Combine(packagePath, "Icon"));
         }, ct);
     }
 

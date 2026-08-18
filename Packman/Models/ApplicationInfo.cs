@@ -13,6 +13,15 @@ public class ApplicationInfo
     public string MsiProductVersion { get; set; } = "";
     public string MsiUpgradeCode { get; set; } = "";
 
+    private string _displayName = "";
+
+    /// <summary>Title shown in Intune. Defaults to "Vendor Name Version" until overridden.</summary>
+    public string DisplayName
+    {
+        get => string.IsNullOrWhiteSpace(_displayName) ? $"{Manufacturer} {Name} {Version}".Trim() : _displayName.Trim();
+        set => _displayName = value ?? "";
+    }
+
     public bool IsMsiPackage => !string.IsNullOrEmpty(MsiProductCode);
 
     public string PackageType

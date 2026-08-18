@@ -50,11 +50,7 @@
                 </Border>
 
                 <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Detail.DisplayName}" Style="{StaticResource H1}" FontSize="24" VerticalAlignment="Center"/>
-                        <ContentControl Content="{Binding Detail}" ContentTemplate="{StaticResource StatusBadgeTemplate}"
-                                        VerticalAlignment="Center" Margin="12,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock Text="{Binding Detail.DisplayName}" Style="{StaticResource H1}" FontSize="24" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Detail.SubLine}" FontSize="13" Foreground="{DynamicResource MutedBrush}" Margin="0,5,0,0"/>
                 </StackPanel>
 
@@ -65,17 +61,11 @@
                             <TextBlock Text="Update version" Margin="7,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource GhostButton}" Margin="0,0,9,0" Click="EditScript_Click"
+                    <Button Style="{StaticResource GhostButton}" Click="EditScript_Click"
                             IsEnabled="{Binding HasSource}" ToolTip="Open the PSADT script from the source share">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Width="15" Height="15"><Path Data="{StaticResource IconCode}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox>
                             <TextBlock Text="Edit script" Margin="7,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource PrimaryButton}" Click="ViewInIntune_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Width="15" Height="15" Margin="0,0,7,0"><Path Data="{StaticResource IconExternal}" Stroke="White" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox>
-                            <TextBlock Text="View in Intune" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -734,6 +724,12 @@
                             </ContentControl>
                             <ContentControl Content="{Binding Detail.CreatedFormatted}" Tag="Created" Style="{StaticResource DlRow}"/>
                             <ContentControl Content="{Binding Detail.LastModifiedFormatted}" Tag="Published" Style="{StaticResource DlRow}"/>
+                            <Button Style="{StaticResource PrimaryButton}" Click="ViewInIntune_Click" Margin="0,12,0,0" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="15" Height="15" Margin="0,0,7,0"><Path Data="{StaticResource IconExternal}" Stroke="White" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox>
+                                    <TextBlock Text="View in Intune" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </Border>
 

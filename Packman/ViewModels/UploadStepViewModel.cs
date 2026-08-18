@@ -1,3 +1,4 @@
+using Packman.Helpers;
 using Packman.Models;
 using Packman.Services;
 using System.Collections.ObjectModel;
@@ -212,6 +213,10 @@ public class UploadStepViewModel : ObservableObject
     public string ReviewPackageType { get => _reviewPackageType; set => Set(ref _reviewPackageType, value); }
     public string ReviewSize { get => _reviewSize; set => Set(ref _reviewSize, value); }
 
+    private string _intuneDisplayName = "";
+    /// <summary>Title the app gets in Intune; seeded from the package metadata and editable before upload.</summary>
+    public string IntuneDisplayName { get => _intuneDisplayName; set => Set(ref _intuneDisplayName, value); }
+
     /// <summary>
     /// Refreshes the displayed summary from the package produced earlier in the wizard.
     /// </summary>
@@ -229,13 +234,18 @@ public class UploadStepViewModel : ObservableObject
             return;
         }
 
-        if (_defaultsAppliedFor != _create.CurrentPackagePath)
+        var isNewPackage = _defaultsAppliedFor != _create.CurrentPackagePath;
+        if (isNewPackage)
         {
             ApplyIntuneDefaults();
             _defaultsAppliedFor = _create.CurrentPackagePath;
         }
 
         var appInfo = _create.BuildApplicationInfo();
+        if (isNewPackage)
+            IntuneDisplayName = GroupAssignmentNamer.Build(
+                _settingsService.Settings.IntuneDefaults.DisplayNameTemplate,
+                appInfo.Manufacturer, appInfo.Name, appInfo.Version);
         AppSummaryName = $"{appInfo.Manufacturer} {appInfo.Name}".Trim();
         AppSummaryDetail = $"v{appInfo.Version} · {appInfo.InstallContext} context · Win32";
 
@@ -352,6 +362,8 @@ public class UploadStepViewModel : ObservableObject
         }
 
         var appInfo = _create.BuildApplicationInfo();
+        appInfo.DisplayName = IntuneDisplayName;
+
         var detectionRules = BuildSelectedDetectionRules(packagePath, appInfo);
         var requirements = BuildRequirements();
         var returnCodes = ReturnCodes.Select(r => r.ToInfo()).OfType<ReturnCodeInfo>().ToList();
@@ -386,16 +398,18 @@ public class UploadStepViewModel : ObservableObject
                 appInfo,
                 packagePath,
                 detectionRules,
-                "Invoke-AppDeployToolkit.exe Install",
-                "Invoke-AppDeployToolkit.exe Uninstall",
-                $"{appInfo.Manufacturer} {appInfo.Name} {appInfo.Version}",
+                settings.IntuneDefaults.InstallCommand,
+                settings.IntuneDefaults.UninstallCommand,
+                appInfo.DisplayName,
                 appInfo.InstallContext,
                 string.IsNullOrEmpty(_create.ExtractedIconPath) ? null : _create.ExtractedIconPath,
                 progress,
                 string.IsNullOrEmpty(_create.PredecessorAppId) ? null : _create.PredecessorAppId,
                 settings.GroupAssignment,
                 requirements,
-                returnCodes));
+                returnCodes,
+                settings.IntuneDefaults.PrivacyUrl,
+                settings.IntuneDefaults.InformationUrl));
 
             ProgressValue = 100;
             foreach (var s in PublishSteps) s.State = "done";

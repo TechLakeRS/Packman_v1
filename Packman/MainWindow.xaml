@@ -32,7 +32,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -50,11 +49,7 @@
                                FontSize="17" FontWeight="ExtraBold" Foreground="{DynamicResource InkBrush}"/>
                 </StackPanel>
 
-                <Border Grid.Column="1" Style="{StaticResource FreePill}" VerticalAlignment="Center" Margin="14,0,0,0">
-                    <TextBlock Text="FREE" FontSize="10.5" FontWeight="ExtraBold" Foreground="{DynamicResource PrimaryBrush}"/>
-                </Border>
-
-                <Border Grid.Column="2" Width="300" Height="38" CornerRadius="10"
+                <Border Grid.Column="1" Width="300" Height="38" CornerRadius="10"
                         Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                         Margin="16,0,0,0" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0">
@@ -67,7 +62,7 @@
                     </StackPanel>
                 </Border>
 
-                <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Button Style="{StaticResource GhostButton}" Margin="0,0,11,0">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Width="15" Height="15">
@@ -130,17 +125,6 @@
 
             <Border Grid.Column="0" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0">
                 <DockPanel LastChildFill="True" Margin="14,16">
-                    <Border DockPanel.Dock="Bottom" Background="{DynamicResource PrimarySoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="12" Padding="14" Margin="0,16,0,0">
-                        <StackPanel>
-                            <TextBlock Text="Packages this month" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
-                            <TextBlock Text="Free plan includes 25 / month" FontSize="11.5" Foreground="{DynamicResource MutedBrush}" Margin="0,3,0,10" TextWrapping="Wrap"/>
-                            <Border Height="6" CornerRadius="3" Background="{DynamicResource LineBrush}">
-                                <Border Width="100" HorizontalAlignment="Left" CornerRadius="3" Background="{DynamicResource PrimaryBrush}"/>
-                            </Border>
-                            <TextBlock Text="15 of 25 used" FontSize="10.5" Foreground="{DynamicResource Muted2Brush}" Margin="0,6,0,0"/>
-                        </StackPanel>
-                    </Border>
-
                     <StackPanel>
                         <RadioButton x:Name="CreatePackageNavBtn" Style="{StaticResource NavItem}" IsChecked="True" GroupName="Nav"
                                      Checked="CreatePackageNavBtn_Checked">
