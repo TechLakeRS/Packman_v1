@@ -50,11 +50,7 @@
                 </Border>
 
                 <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Detail.DisplayName}" Style="{StaticResource H1}" FontSize="24" VerticalAlignment="Center"/>
-                        <ContentControl Content="{Binding Detail}" ContentTemplate="{StaticResource StatusBadgeTemplate}"
-                                        VerticalAlignment="Center" Margin="12,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock Text="{Binding Detail.DisplayName}" Style="{StaticResource H1}" FontSize="24" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Detail.SubLine}" FontSize="13" Foreground="{DynamicResource MutedBrush}" Margin="0,5,0,0"/>
                 </StackPanel>
 
