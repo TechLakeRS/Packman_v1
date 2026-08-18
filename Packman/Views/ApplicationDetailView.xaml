@@ -437,7 +437,7 @@
                                                             </Button.Style>
                                                             <Viewbox Width="13" Height="13"><Path Data="{StaticResource IconPencil}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox>
                                                         </Button>
-                                                        <Button Grid.Column="3" Style="{StaticResource RowIconButton}" Click="DeleteRule_Click" ToolTip="Delete rule">
+                                                        <Button Grid.Column="3" Click="DeleteRule_Click" ToolTip="Delete rule">
                                                             <Button.Style>
                                                                 <Style TargetType="Button" BasedOn="{StaticResource RowIconButton}">
                                                                     <Style.Triggers>
