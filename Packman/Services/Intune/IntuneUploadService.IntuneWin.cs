@@ -273,7 +273,7 @@ public partial class IntuneUploadService
         var createAppPayload = new Dictionary<string, object>
         {
             ["@odata.type"] = "#microsoft.graph.win32LobApp",
-            ["displayName"] = $"{appInfo.Manufacturer} {appInfo.Name} {appInfo.Version}",
+            ["displayName"] = appInfo.DisplayName,
             ["description"] = description,
             ["publisher"] = appInfo.Manufacturer,
             ["displayVersion"] = appInfo.Version,

@@ -76,6 +76,9 @@
                                     </Border>
 
                                     <StackPanel Margin="2,12,2,0">
+                                        <TextBlock Text="Name in Intune" Style="{StaticResource FieldLabel}"/>
+                                        <TextBox Style="{StaticResource TextField}" Padding="13,11" Margin="0,6,0,10"
+                                                 Text="{Binding IntuneDisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         <ContentControl Style="{StaticResource DlRow}" Tag="Application" Content="{Binding DisplayTitle}"/>
                                         <ContentControl Style="{StaticResource DlRow}" Tag="Version" Content="{Binding Version}"/>
                                         <ContentControl Style="{StaticResource DlRow}" Tag="Install context" Content="{Binding InstallContext}"/>
