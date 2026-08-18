@@ -1,8 +1,8 @@
 namespace Packman.Helpers;
 
 /// <summary>
-/// Builds an Entra group name from a template using %vendor%, %appName% and
-/// %appVersion% tokens (case-insensitive).
+/// Builds a name (Entra group, Intune app title) from a template using %vendor%,
+/// %appName% and %appVersion% tokens (case-insensitive).
 /// </summary>
 public static class GroupAssignmentNamer
 {

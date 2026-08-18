@@ -138,7 +138,8 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             Version = meta.GetValueOrDefault("Version", "");
             InstallContext = InstallContextParser.ExtractFromPackage(root);
 
-            IntuneDisplayName = $"{Manufacturer} {AppName} {Version}".Trim();
+            IntuneDisplayName = GroupAssignmentNamer.Build(
+                _settings.Settings.IntuneDefaults.DisplayNameTemplate, Manufacturer, AppName, Version);
 
             PackageRoot = root;
             PackageFolderName = new DirectoryInfo(root).Name;
@@ -393,14 +394,16 @@ public sealed class UploadToIntuneViewModel : ObservableObject
                 appInfo,
                 PackageRoot,
                 DetectionRules.ToList(),
-                "Invoke-AppDeployToolkit.exe Install",
-                "Invoke-AppDeployToolkit.exe Uninstall",
+                settings.IntuneDefaults.InstallCommand,
+                settings.IntuneDefaults.UninstallCommand,
                 appInfo.DisplayName,
                 appInfo.InstallContext,
                 null,
                 progress,
                 requirements: settings.IntuneDefaults.Requirements,
-                returnCodes: settings.IntuneDefaults.ReturnCodes));
+                returnCodes: settings.IntuneDefaults.ReturnCodes,
+                privacyUrl: settings.IntuneDefaults.PrivacyUrl,
+                informationUrl: settings.IntuneDefaults.InformationUrl));
 
             MarkDone(0); MarkDone(1); MarkDone(2);
 

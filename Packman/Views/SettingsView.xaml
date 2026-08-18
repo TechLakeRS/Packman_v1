@@ -850,9 +850,71 @@
                                 </Border>
                                 <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="Intune Defaults" Style="{StaticResource H2}"/>
-                                    <TextBlock Text="Requirements and return codes applied to every package unless changed on the Create Package page" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="App details, requirements and return codes applied to every package unless changed on the Create Package page" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </StackPanel>
+
+                            <!-- ── App details ────────────────────────────────── -->
+                            <TextBlock Text="App details" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                            <TextBlock Text="Sent with every Win32 app created in Intune" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,12"/>
+
+                            <TextBlock Text="App title template" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0" FontFamily="{StaticResource MonoFontFamily}"
+                                     Text="{Binding DisplayNameTemplate, UpdateSourceTrigger=PropertyChanged}"
+                                     local:PlaceholderText.Text="%vendor% %appName% %appVersion%"/>
+                            <TextBlock FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,8,0,0" TextWrapping="Wrap">
+                                <Run Text="Tokens:"/>
+                                <Run Text=" %vendor% " FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
+                                <Run Text="%appName% " FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
+                                <Run Text="%appVersion%" FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
+                                <Run Text="  ·  Still editable per upload."/>
+                                <LineBreak/>
+                                <Run Text="Example: "/>
+                                <Run Text="{Binding DisplayNamePreview, Mode=OneWay}" Foreground="{DynamicResource PrimaryBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
+                            </TextBlock>
+
+                            <Grid Margin="0,16,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Install command" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0" FontFamily="{StaticResource MonoFontFamily}"
+                                             local:PlaceholderText.Text="Invoke-AppDeployToolkit.exe Install"
+                                             Text="{Binding DefaultInstallCommand, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Uninstall command" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0" FontFamily="{StaticResource MonoFontFamily}"
+                                             local:PlaceholderText.Text="Invoke-AppDeployToolkit.exe Uninstall"
+                                             Text="{Binding DefaultUninstallCommand, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,16,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Privacy URL" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                             local:PlaceholderText.Text="https://contoso.com/privacy"
+                                             Text="{Binding DefaultPrivacyUrl, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Information URL" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                             local:PlaceholderText.Text="https://contoso.com/apps"
+                                             Text="{Binding DefaultInformationUrl, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Divider -->
+                            <Border Height="1" Background="{DynamicResource LineBrush}" Margin="0,18,0,18"/>
 
                             <!-- ── Device requirements ────────────────────────── -->
                             <TextBlock Text="Device requirements" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>

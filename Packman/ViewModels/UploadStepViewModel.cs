@@ -1,3 +1,4 @@
+using Packman.Helpers;
 using Packman.Models;
 using Packman.Services;
 using System.Collections.ObjectModel;
@@ -241,7 +242,10 @@ public class UploadStepViewModel : ObservableObject
         }
 
         var appInfo = _create.BuildApplicationInfo();
-        if (isNewPackage) IntuneDisplayName = appInfo.DisplayName;
+        if (isNewPackage)
+            IntuneDisplayName = GroupAssignmentNamer.Build(
+                _settingsService.Settings.IntuneDefaults.DisplayNameTemplate,
+                appInfo.Manufacturer, appInfo.Name, appInfo.Version);
         AppSummaryName = $"{appInfo.Manufacturer} {appInfo.Name}".Trim();
         AppSummaryDetail = $"v{appInfo.Version} · {appInfo.InstallContext} context · Win32";
 
@@ -394,8 +398,8 @@ public class UploadStepViewModel : ObservableObject
                 appInfo,
                 packagePath,
                 detectionRules,
-                "Invoke-AppDeployToolkit.exe Install",
-                "Invoke-AppDeployToolkit.exe Uninstall",
+                settings.IntuneDefaults.InstallCommand,
+                settings.IntuneDefaults.UninstallCommand,
                 appInfo.DisplayName,
                 appInfo.InstallContext,
                 string.IsNullOrEmpty(_create.ExtractedIconPath) ? null : _create.ExtractedIconPath,
@@ -403,7 +407,9 @@ public class UploadStepViewModel : ObservableObject
                 string.IsNullOrEmpty(_create.PredecessorAppId) ? null : _create.PredecessorAppId,
                 settings.GroupAssignment,
                 requirements,
-                returnCodes));
+                returnCodes,
+                settings.IntuneDefaults.PrivacyUrl,
+                settings.IntuneDefaults.InformationUrl));
 
             ProgressValue = 100;
             foreach (var s in PublishSteps) s.State = "done";

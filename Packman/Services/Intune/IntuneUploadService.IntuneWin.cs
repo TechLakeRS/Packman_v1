@@ -248,7 +248,9 @@ public partial class IntuneUploadService
         IntuneWinInfo intuneWinInfo,
         string? iconPath = null,
         RequirementInfo? requirements = null,
-        List<ReturnCodeInfo>? returnCodes = null)
+        List<ReturnCodeInfo>? returnCodes = null,
+        string? privacyUrl = null,
+        string? informationUrl = null)
     {
         var formattedDetectionRules = new List<Dictionary<string, object>>();
         foreach (var rule in detectionRules)
@@ -296,6 +298,11 @@ public partial class IntuneUploadService
                 .Select(rc => new Dictionary<string, object> { ["returnCode"] = rc.Code, ["type"] = rc.GraphType })
                 .ToArray()
         };
+
+        if (!string.IsNullOrWhiteSpace(privacyUrl))
+            createAppPayload["privacyInformationUrl"] = privacyUrl.Trim();
+        if (!string.IsNullOrWhiteSpace(informationUrl))
+            createAppPayload["informationUrl"] = informationUrl.Trim();
 
         if (requirements?.MinimumFreeDiskSpaceMB is int disk)
             createAppPayload["minimumFreeDiskSpaceInMB"] = disk;
