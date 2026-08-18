@@ -17,6 +17,9 @@ public class IntuneAuthService
         "User.Read",
         "DeviceManagementApps.ReadWrite.All",
         "Group.Read.All",
+        // Advanced screen: resolve PC names and edit group membership.
+        "Device.Read.All",
+        "GroupMember.ReadWrite.All",
     ];
 
     private static readonly string[] AppOnlyScopes = ["https://graph.microsoft.com/.default"];

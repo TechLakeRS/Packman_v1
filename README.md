@@ -59,7 +59,8 @@ Packman/
 - **IntuneWinAppUtil.exe** — Microsoft's Win32 Content Prep Tool, used to build the
   `.intunewin`.
 - **A Microsoft Intune tenant** and an account (or app registration) with the Graph
-  permissions `DeviceManagementApps.ReadWrite.All`, `Group.Read.All`, `User.Read`.
+  permissions `DeviceManagementApps.ReadWrite.All`, `Group.Read.All`, `User.Read`,
+  `Device.Read.All`, `GroupMember.ReadWrite.All`.
 
 ## Build & run
 

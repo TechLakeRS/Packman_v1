@@ -22,8 +22,8 @@ Pick how Packman signs in to Microsoft Graph:
   Tools* client. Optionally set a **Tenant ID** to restrict sign-in to one tenant.
 - **App registration** — enter your **Tenant ID** and **Client ID**, then select the
   authentication **certificate** (from the Windows store, or by thumbprint). The app
-  must have application permissions for `DeviceManagementApps.ReadWrite.All` and
-  `Group.Read.All`.
+  must have application permissions for `DeviceManagementApps.ReadWrite.All`,
+  `Group.Read.All`, `Device.Read.All` and `GroupMember.ReadWrite.All`.
 
 Click **Test Connection** to confirm each required Graph scope is granted. The footer
 status dot turns green and reads *Connected to Microsoft Intune* once signed in.
