@@ -8,11 +8,22 @@ namespace Packman.Helpers;
 /// <summary>Converts a "#rrggbb" string into a SolidColorBrush (per-app tile colour).</summary>
 public sealed class HexToBrushConverter : IValueConverter
 {
+    // The palette is tiny and rows re-run this on every recycle, so hand back one
+    // frozen brush per colour instead of a fresh unfrozen one per row.
+    private static readonly Dictionary<string, SolidColorBrush> Cache = new();
+
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         var hex = value as string;
         if (string.IsNullOrEmpty(hex)) return Brushes.Gray;
-        try { return new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex)); }
+        if (Cache.TryGetValue(hex, out var cached)) return cached;
+        try
+        {
+            var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            brush.Freeze();
+            Cache[hex] = brush;
+            return brush;
+        }
         catch { return Brushes.Gray; }
     }
 
