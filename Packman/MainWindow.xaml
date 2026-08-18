@@ -176,7 +176,8 @@
                                 <TextBlock Text="Remote Test" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </RadioButton>
-                        <RadioButton Style="{StaticResource NavItem}" GroupName="Nav">
+                        <RadioButton x:Name="AdvancedNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
+                                     Checked="AdvancedNavBtn_Checked">
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="17" Height="17">
                                     <Path Data="{StaticResource IconWrench}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -384,6 +385,7 @@
             <views:UploadToIntuneView x:Name="UploadIntunePage" Visibility="Collapsed"/>
             <views:ApplicationsView x:Name="ApplicationsPage" Visibility="Collapsed"/>
             <views:ApplicationDetailView x:Name="AppDetailPage" Visibility="Collapsed"/>
+            <views:AdvancedView x:Name="AdvancedPage" Visibility="Collapsed"/>
             </Grid>
         </Grid>
 

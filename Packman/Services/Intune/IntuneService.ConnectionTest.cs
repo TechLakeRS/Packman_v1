@@ -42,6 +42,7 @@ public partial class IntuneService
         {
             await ProbeAsync("Intune apps · DeviceManagementApps.ReadWrite.All", $"{Base}?$top=1"),
             await ProbeAsync("Entra groups · Group.Read.All", "https://graph.microsoft.com/beta/groups?$top=1&$select=id"),
+            await ProbeAsync("Entra devices · Device.Read.All", "https://graph.microsoft.com/beta/devices?$top=1&$select=id"),
         };
 
         var ok = checks.All(c => c.Ok);

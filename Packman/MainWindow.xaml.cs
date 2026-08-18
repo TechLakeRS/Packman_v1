@@ -20,12 +20,14 @@ public partial class MainWindow : Window
             _ = ApplicationsPage.ViewModel.LoadAsync(force: true);
         };
         AppDetailPage.UpdateRequested += _ => CreatePackageNavBtn.IsChecked = true;
+
+        AdvancedPage.ConnectRequested += () => SettingsNavBtn.IsChecked = true;
     }
 
     /// <summary>Shows exactly one content page and collapses the rest. Null-safe for load-time calls.</summary>
     private void ShowOnly(UIElement? page)
     {
-        foreach (var p in new UIElement?[] { CreatePackagePage, SettingsPage, UploadIntunePage, ApplicationsPage, AppDetailPage })
+        foreach (var p in new UIElement?[] { CreatePackagePage, SettingsPage, UploadIntunePage, ApplicationsPage, AppDetailPage, AdvancedPage })
             if (p != null) p.Visibility = ReferenceEquals(p, page) ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -44,6 +46,12 @@ public partial class MainWindow : Window
     {
         ShowOnly(ApplicationsPage);
         ApplicationsPage.Load();
+    }
+
+    private void AdvancedNavBtn_Checked(object sender, RoutedEventArgs e)
+    {
+        ShowOnly(AdvancedPage);
+        AdvancedPage.Refresh();
     }
 
     private void SettingsNavBtn_Checked(object sender, RoutedEventArgs e) => ShowOnly(SettingsPage);
