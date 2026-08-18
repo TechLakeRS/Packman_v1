@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Windows;
 using Packman.ViewModels;
 
@@ -5,6 +6,8 @@ namespace Packman;
 
 public partial class MainWindow : Window
 {
+    private bool _closeConfirmed;
+
     public MainWindow()
     {
         DataContext = new MainViewModel();
@@ -22,6 +25,18 @@ public partial class MainWindow : Window
         AppDetailPage.UpdateRequested += _ => CreatePackageNavBtn.IsChecked = true;
 
         AdvancedPage.ConnectRequested += () => SettingsNavBtn.IsChecked = true;
+    }
+
+    /// <summary>Gives the script editor a chance to save before the app goes away.</summary>
+    private async void MainWindow_Closing(object sender, CancelEventArgs e)
+    {
+        if (_closeConfirmed || !EditStep.HasUnsavedChanges) return;
+
+        e.Cancel = true;
+        if (!await EditStep.PromptSaveAllAsync()) return;
+
+        _closeConfirmed = true;
+        Close();
     }
 
     /// <summary>Shows exactly one content page and collapses the rest. Null-safe for load-time calls.</summary>
