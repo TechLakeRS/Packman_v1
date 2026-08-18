@@ -219,6 +219,32 @@ public sealed class SettingsViewModel : ObservableObject
 
     public RelayCommand AddGroupCommand { get; }
 
+    // ── Intune Defaults ────────────────────────────────────────────────
+    public IReadOnlyList<string> OperatingSystems { get; } = RequirementInfo.SupportedOperatingSystems;
+
+    private string _defaultOperatingSystem = "Windows 10 1607";
+    public string DefaultOperatingSystem { get => _defaultOperatingSystem; set => Set(ref _defaultOperatingSystem, value); }
+
+    private string _defaultMinFreeDiskSpaceMB = "";
+    public string DefaultMinFreeDiskSpaceMB { get => _defaultMinFreeDiskSpaceMB; set => Set(ref _defaultMinFreeDiskSpaceMB, value); }
+
+    private string _defaultMinMemoryMB = "";
+    public string DefaultMinMemoryMB { get => _defaultMinMemoryMB; set => Set(ref _defaultMinMemoryMB, value); }
+
+    private string _defaultMinProcessors = "";
+    public string DefaultMinProcessors { get => _defaultMinProcessors; set => Set(ref _defaultMinProcessors, value); }
+
+    private string _defaultMinCpuSpeedMHz = "";
+    public string DefaultMinCpuSpeedMHz { get => _defaultMinCpuSpeedMHz; set => Set(ref _defaultMinCpuSpeedMHz, value); }
+
+    private string _newReturnCodeInput = "";
+    public string NewReturnCodeInput { get => _newReturnCodeInput; set => Set(ref _newReturnCodeInput, value); }
+
+    public ObservableCollection<ReturnCodeRow> ReturnCodes { get; } = new();
+
+    public RelayCommand AddReturnCodeCommand { get; }
+    public RelayCommand RestoreDefaultReturnCodesCommand { get; }
+
     // ── Save feedback ──────────────────────────────────────────────────
     private string _saveStatus = "";
     public string SaveStatus { get => _saveStatus; set => Set(ref _saveStatus, value); }
@@ -241,6 +267,8 @@ public sealed class SettingsViewModel : ObservableObject
         SignOutCommand = new RelayCommand(SignOut);
         TestConnectionCommand = new RelayCommand(TestConnection, () => !IsTesting);
         AddGroupCommand = new RelayCommand(AddGroup);
+        AddReturnCodeCommand = new RelayCommand(AddReturnCode);
+        RestoreDefaultReturnCodesCommand = new RelayCommand(() => LoadReturnCodes(ReturnCodeInfo.Defaults()));
         LoadFromSettings();
         LoadCertificatesFromStore();
     }
@@ -271,7 +299,32 @@ public sealed class SettingsViewModel : ObservableObject
         ExistingGroups.Clear();
         foreach (var g in s.GroupAssignment.ExistingGroups)
             ExistingGroups.Add(new GroupAssignmentRow(g.GroupName, g.Intent, RemoveGroup));
+
+        var req = s.IntuneDefaults.Requirements;
+        DefaultOperatingSystem = req.MinimumOperatingSystem;
+        DefaultMinFreeDiskSpaceMB = req.MinimumFreeDiskSpaceMB?.ToString() ?? "";
+        DefaultMinMemoryMB = req.MinimumMemoryMB?.ToString() ?? "";
+        DefaultMinProcessors = req.MinimumNumberOfProcessors?.ToString() ?? "";
+        DefaultMinCpuSpeedMHz = req.MinimumCpuSpeedMHz?.ToString() ?? "";
+        LoadReturnCodes(s.IntuneDefaults.ReturnCodes);
     }
+
+    private void LoadReturnCodes(IEnumerable<ReturnCodeInfo> codes)
+    {
+        ReturnCodes.Clear();
+        foreach (var c in codes)
+            ReturnCodes.Add(new ReturnCodeRow(c.Code, c.Type, RemoveReturnCode));
+    }
+
+    private void AddReturnCode()
+    {
+        if (!int.TryParse(NewReturnCodeInput.Trim(), out var code)) return;
+        if (ReturnCodes.Any(r => r.Code == code.ToString())) return;
+        ReturnCodes.Add(new ReturnCodeRow(code, ReturnCodeType.Success, RemoveReturnCode));
+        NewReturnCodeInput = "";
+    }
+
+    private void RemoveReturnCode(ReturnCodeRow row) => ReturnCodes.Remove(row);
 
     private void AddGroup()
     {
@@ -384,6 +437,9 @@ public sealed class SettingsViewModel : ObservableObject
         SaveStatus = "";
     }
 
+    private static int? ParseOptional(string text) =>
+        int.TryParse(text, out var value) && value > 0 ? value : null;
+
     private void Save()
     {
         var s = _svc.Settings;
@@ -412,6 +468,14 @@ public sealed class SettingsViewModel : ObservableObject
                 Intent = g.Intent
             })
             .ToList();
+
+        var req = s.IntuneDefaults.Requirements;
+        req.MinimumOperatingSystem = DefaultOperatingSystem;
+        req.MinimumFreeDiskSpaceMB = ParseOptional(DefaultMinFreeDiskSpaceMB);
+        req.MinimumMemoryMB = ParseOptional(DefaultMinMemoryMB);
+        req.MinimumNumberOfProcessors = ParseOptional(DefaultMinProcessors);
+        req.MinimumCpuSpeedMHz = ParseOptional(DefaultMinCpuSpeedMHz);
+        s.IntuneDefaults.ReturnCodes = ReturnCodes.Select(r => r.ToInfo()).OfType<ReturnCodeInfo>().ToList();
 
         _svc.Save();
         SaveStatus = "Settings saved.";

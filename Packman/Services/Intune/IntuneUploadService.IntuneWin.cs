@@ -247,7 +247,8 @@ public partial class IntuneUploadService
         string installContext,
         IntuneWinInfo intuneWinInfo,
         string? iconPath = null,
-        RequirementInfo? requirements = null)
+        RequirementInfo? requirements = null,
+        List<ReturnCodeInfo>? returnCodes = null)
     {
         var formattedDetectionRules = new List<Dictionary<string, object>>();
         foreach (var rule in detectionRules)
@@ -291,19 +292,19 @@ public partial class IntuneUploadService
                 ["deviceRestartBehavior"] = "allow"
             },
             ["detectionRules"] = formattedDetectionRules.ToArray(),
-            ["returnCodes"] = new[]
-            {
-                new Dictionary<string, object> { ["returnCode"] = 0, ["type"] = "success" },
-                new Dictionary<string, object> { ["returnCode"] = 3010, ["type"] = "softReboot" },
-                new Dictionary<string, object> { ["returnCode"] = 1641, ["type"] = "hardReboot" },
-                new Dictionary<string, object> { ["returnCode"] = 1618, ["type"] = "retry" }
-            }
+            ["returnCodes"] = (returnCodes is { Count: > 0 } ? returnCodes : ReturnCodeInfo.Defaults())
+                .Select(rc => new Dictionary<string, object> { ["returnCode"] = rc.Code, ["type"] = rc.GraphType })
+                .ToArray()
         };
 
         if (requirements?.MinimumFreeDiskSpaceMB is int disk)
             createAppPayload["minimumFreeDiskSpaceInMB"] = disk;
         if (requirements?.MinimumMemoryMB is int mem)
             createAppPayload["minimumMemoryInMB"] = mem;
+        if (requirements?.MinimumNumberOfProcessors is int cpus)
+            createAppPayload["minimumNumberOfProcessors"] = cpus;
+        if (requirements?.MinimumCpuSpeedMHz is int mhz)
+            createAppPayload["minimumCpuSpeedInMHz"] = mhz;
 
         if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
         {
