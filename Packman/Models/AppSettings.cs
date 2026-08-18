@@ -15,6 +15,7 @@ public class AppSettings
     public CodeSigningConfig CodeSigning { get; set; } = new();
     public NetworkPathsConfig NetworkPaths { get; set; } = new();
     public GroupAssignmentConfig GroupAssignment { get; set; } = new();
+    public IntuneDefaultsConfig IntuneDefaults { get; set; } = new();
 
     public class AuthConfig
     {
@@ -50,6 +51,14 @@ public class AppSettings
 
         // Existing groups that are always assigned to every upload.
         public List<ExistingGroupAssignment> ExistingGroups { get; set; } = new();
+    }
+
+    public class IntuneDefaultsConfig
+    {
+        // Requirement rules pre-filled on the Create Package upload step.
+        public RequirementInfo Requirements { get; set; } = new();
+        // Return codes sent with every uploaded Win32 app.
+        public List<ReturnCodeInfo> ReturnCodes { get; set; } = ReturnCodeInfo.Defaults();
     }
 
     public class ExistingGroupAssignment

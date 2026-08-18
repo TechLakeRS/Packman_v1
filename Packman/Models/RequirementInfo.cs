@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Packman.Models;
 
 /// <summary>
@@ -6,6 +8,13 @@ namespace Packman.Models;
 /// </summary>
 public class RequirementInfo
 {
+    /// <summary>Minimum OS values offered in the UI.</summary>
+    public static readonly string[] SupportedOperatingSystems =
+    {
+        "Windows 10 1607", "Windows 10 1809", "Windows 10 1903", "Windows 10 2004",
+        "Windows 10 21H2", "Windows 10 22H2", "Windows 11 21H2", "Windows 11 22H2"
+    };
+
     public string MinimumOperatingSystem { get; set; } = "Windows 10 1607";
     public int? MinimumFreeDiskSpaceMB { get; set; }
     public int? MinimumMemoryMB { get; set; }
@@ -15,6 +24,7 @@ public class RequirementInfo
     /// <summary>
     /// Maps the friendly OS name to the Graph minimumSupportedOperatingSystem flag.
     /// </summary>
+    [JsonIgnore]
     public string OperatingSystemFlag => MinimumOperatingSystem switch
     {
         "Windows 10 1809" => "v10_1809",

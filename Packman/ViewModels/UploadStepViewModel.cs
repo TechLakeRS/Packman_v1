@@ -32,6 +32,10 @@ public class UploadStepViewModel : ObservableObject
     private string _selectedOperatingSystem = "Windows 10 1607";
     private string _minFreeDiskSpaceMB = "";
     private string _minMemoryMB = "";
+    private string _minProcessors = "";
+    private string _minCpuSpeedMHz = "";
+    private string _newReturnCodeInput = "";
+    private string _defaultsAppliedFor = "";
 
     private string _reviewName = "";
     private string _reviewVendor = "";
@@ -49,6 +53,9 @@ public class UploadStepViewModel : ObservableObject
         _auth = auth;
 
         DoneCommand = new RelayCommand(() => { IsPublishing = false; IsComplete = false; });
+        AddReturnCodeCommand = new RelayCommand(AddReturnCode);
+        RestoreDefaultsCommand = new RelayCommand(ApplyIntuneDefaults);
+        ApplyIntuneDefaults();
 
         PublishSteps = new ObservableCollection<PublishStepViewModel>
         {
@@ -156,16 +163,44 @@ public class UploadStepViewModel : ObservableObject
         set { if (Set(ref _detectionValue, value)) RefreshDetectionSummary(); }
     }
 
-    // ── Requirements (collapsed; defaults used when left unset) ─────────
-    public List<string> OperatingSystems { get; } = new()
-    {
-        "Windows 10 1607", "Windows 10 1809", "Windows 10 1903", "Windows 10 2004",
-        "Windows 10 21H2", "Windows 10 22H2", "Windows 11 21H2", "Windows 11 22H2"
-    };
+    // ── Requirements & return codes (seeded from Settings ▸ Intune Defaults) ──
+    public IReadOnlyList<string> OperatingSystems { get; } = RequirementInfo.SupportedOperatingSystems;
 
     public string SelectedOperatingSystem { get => _selectedOperatingSystem; set => Set(ref _selectedOperatingSystem, value); }
     public string MinFreeDiskSpaceMB { get => _minFreeDiskSpaceMB; set => Set(ref _minFreeDiskSpaceMB, value); }
     public string MinMemoryMB { get => _minMemoryMB; set => Set(ref _minMemoryMB, value); }
+    public string MinProcessors { get => _minProcessors; set => Set(ref _minProcessors, value); }
+    public string MinCpuSpeedMHz { get => _minCpuSpeedMHz; set => Set(ref _minCpuSpeedMHz, value); }
+    public string NewReturnCodeInput { get => _newReturnCodeInput; set => Set(ref _newReturnCodeInput, value); }
+
+    public ObservableCollection<ReturnCodeRow> ReturnCodes { get; } = new();
+
+    public RelayCommand AddReturnCodeCommand { get; }
+    public RelayCommand RestoreDefaultsCommand { get; }
+
+    /// <summary>Re-seeds the requirement fields and return codes from the saved Intune defaults.</summary>
+    private void ApplyIntuneDefaults()
+    {
+        var defaults = _settingsService.Settings.IntuneDefaults;
+        var req = defaults.Requirements;
+        SelectedOperatingSystem = req.MinimumOperatingSystem;
+        MinFreeDiskSpaceMB = req.MinimumFreeDiskSpaceMB?.ToString() ?? "";
+        MinMemoryMB = req.MinimumMemoryMB?.ToString() ?? "";
+        MinProcessors = req.MinimumNumberOfProcessors?.ToString() ?? "";
+        MinCpuSpeedMHz = req.MinimumCpuSpeedMHz?.ToString() ?? "";
+
+        ReturnCodes.Clear();
+        foreach (var c in defaults.ReturnCodes)
+            ReturnCodes.Add(new ReturnCodeRow(c.Code, c.Type, r => ReturnCodes.Remove(r)));
+    }
+
+    private void AddReturnCode()
+    {
+        if (!int.TryParse(NewReturnCodeInput.Trim(), out var code)) return;
+        if (ReturnCodes.Any(r => r.Code == code.ToString())) return;
+        ReturnCodes.Add(new ReturnCodeRow(code, ReturnCodeType.Success, r => ReturnCodes.Remove(r)));
+        NewReturnCodeInput = "";
+    }
 
     // ── Review ─────────────────────────────────────────────────────────
     public string ReviewName { get => _reviewName; set => Set(ref _reviewName, value); }
@@ -192,6 +227,12 @@ public class UploadStepViewModel : ObservableObject
             AppSummaryDetail = "Complete the Generate step first.";
             DetectionSummary = "";
             return;
+        }
+
+        if (_defaultsAppliedFor != _create.CurrentPackagePath)
+        {
+            ApplyIntuneDefaults();
+            _defaultsAppliedFor = _create.CurrentPackagePath;
         }
 
         var appInfo = _create.BuildApplicationInfo();
@@ -262,6 +303,8 @@ public class UploadStepViewModel : ObservableObject
         var req = new RequirementInfo { MinimumOperatingSystem = SelectedOperatingSystem };
         if (int.TryParse(MinFreeDiskSpaceMB, out var disk) && disk > 0) req.MinimumFreeDiskSpaceMB = disk;
         if (int.TryParse(MinMemoryMB, out var mem) && mem > 0) req.MinimumMemoryMB = mem;
+        if (int.TryParse(MinProcessors, out var cpus) && cpus > 0) req.MinimumNumberOfProcessors = cpus;
+        if (int.TryParse(MinCpuSpeedMHz, out var mhz) && mhz > 0) req.MinimumCpuSpeedMHz = mhz;
         return req;
     }
 
@@ -311,6 +354,7 @@ public class UploadStepViewModel : ObservableObject
         var appInfo = _create.BuildApplicationInfo();
         var detectionRules = BuildSelectedDetectionRules(packagePath, appInfo);
         var requirements = BuildRequirements();
+        var returnCodes = ReturnCodes.Select(r => r.ToInfo()).OfType<ReturnCodeInfo>().ToList();
 
         NativeCodeSigner? signer = null;
         if (settings.CodeSigning.Enabled)
@@ -350,7 +394,8 @@ public class UploadStepViewModel : ObservableObject
                 progress,
                 string.IsNullOrEmpty(_create.PredecessorAppId) ? null : _create.PredecessorAppId,
                 settings.GroupAssignment,
-                requirements));
+                requirements,
+                returnCodes));
 
             ProgressValue = 100;
             foreach (var s in PublishSteps) s.State = "done";

@@ -79,7 +79,7 @@
                                TextWrapping="Wrap" Margin="0,10,0,0"/>
                 </StackPanel>
 
-                <!-- Requirements (collapsed; defaults used when unset) -->
+                <!-- Requirements and return codes (collapsed; seeded from Intune defaults) -->
                 <StackPanel Margin="0,16,0,0">
                     <ToggleButton x:Name="RequirementsToggle" Cursor="Hand" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0">
                         <ToggleButton.Template>
@@ -100,44 +100,139 @@
                                             </Path.Style>
                                         </Path>
                                     </Viewbox>
-                                    <TextBlock Text="Requirements" Margin="9,0,0,0" VerticalAlignment="Center"
+                                    <TextBlock Text="Requirements &amp; return codes" Margin="9,0,0,0" VerticalAlignment="Center"
                                                FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
-                                    <TextBlock Text="optional — defaults applied when left blank" Margin="9,0,0,0" VerticalAlignment="Center"
+                                    <TextBlock Text="pre-filled from Settings ▸ Intune Defaults" Margin="9,0,0,0" VerticalAlignment="Center"
                                                FontSize="12" Foreground="{DynamicResource MutedBrush}"/>
                                 </StackPanel>
                             </ControlTemplate>
                         </ToggleButton.Template>
                     </ToggleButton>
 
-                    <Grid Margin="0,12,0,0"
-                          Visibility="{Binding IsChecked, ElementName=RequirementsToggle, Converter={StaticResource BoolToVis}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <StackPanel Margin="0,12,0,0"
+                                Visibility="{Binding IsChecked, ElementName=RequirementsToggle, Converter={StaticResource BoolToVis}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Minimum OS" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox Margin="0,6,0,0" Height="40" VerticalContentAlignment="Center"
-                                      ItemsSource="{Binding Upload.OperatingSystems}"
-                                      SelectedItem="{Binding Upload.SelectedOperatingSystem, Mode=TwoWay}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Free disk (MB)" Style="{StaticResource FieldLabel}"/>
-                            <TextBox Style="{StaticResource TextField}" Width="110" Margin="0,6,0,0" Padding="13,12"
-                                     local:PlaceholderText.Text="any"
-                                     Text="{Binding Upload.MinFreeDiskSpaceMB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="Memory (MB)" Style="{StaticResource FieldLabel}"/>
-                            <TextBox Style="{StaticResource TextField}" Width="110" Margin="0,6,0,0" Padding="13,12"
-                                     local:PlaceholderText.Text="any"
-                                     Text="{Binding Upload.MinMemoryMB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                    </Grid>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Minimum OS" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Margin="0,6,0,0" Height="40" VerticalContentAlignment="Center"
+                                          ItemsSource="{Binding Upload.OperatingSystems}"
+                                          SelectedItem="{Binding Upload.SelectedOperatingSystem, Mode=TwoWay}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Free disk (MB)" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Style="{StaticResource TextField}" Width="110" Margin="0,6,0,0" Padding="13,12"
+                                         local:PlaceholderText.Text="any"
+                                         Text="{Binding Upload.MinFreeDiskSpaceMB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="Memory (MB)" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Style="{StaticResource TextField}" Width="110" Margin="0,6,0,0" Padding="13,12"
+                                         local:PlaceholderText.Text="any"
+                                         Text="{Binding Upload.MinMemoryMB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Processors" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Style="{StaticResource TextField}" Width="110" Margin="0,6,0,0" Padding="13,12"
+                                         local:PlaceholderText.Text="any"
+                                         Text="{Binding Upload.MinProcessors, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="CPU speed (MHz)" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Style="{StaticResource TextField}" Width="110" Margin="0,6,0,0" Padding="13,12"
+                                         local:PlaceholderText.Text="any"
+                                         Text="{Binding Upload.MinCpuSpeedMHz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Return codes -->
+                        <Grid Margin="0,18,0,0">
+                            <TextBlock Text="Return codes" VerticalAlignment="Center"
+                                       FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                            <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    Command="{Binding Upload.RestoreDefaultsCommand}" ToolTip="Reload the values from Settings ▸ Intune Defaults">
+                                <TextBlock Text="Reset to defaults" VerticalAlignment="Center"/>
+                            </Button>
+                        </Grid>
+
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
+                                     local:PlaceholderText.Text="Exit code, e.g. 1707"
+                                     Text="{Binding Upload.NewReturnCodeInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Column="2" Style="{StaticResource GhostButton}" Command="{Binding Upload.AddReturnCodeCommand}">
+                                <TextBlock Text="Add" VerticalAlignment="Center"/>
+                            </Button>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Upload.ReturnCodes}" Margin="0,10,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
+                                            BorderThickness="1" CornerRadius="11" Padding="14,8" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Code}" VerticalAlignment="Center"
+                                                       FontSize="13" FontWeight="SemiBold" FontFamily="{StaticResource MonoFontFamily}"
+                                                       Foreground="{DynamicResource InkBrush}"/>
+                                            <Border Grid.Column="1" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}"
+                                                    BorderThickness="1" CornerRadius="9" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <RadioButton Style="{StaticResource ContextToggle}" IsChecked="{Binding IsSuccess}">
+                                                        <TextBlock Text="Success" VerticalAlignment="Center"/>
+                                                    </RadioButton>
+                                                    <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0" IsChecked="{Binding IsSoftReboot}">
+                                                        <TextBlock Text="Soft reboot" VerticalAlignment="Center"/>
+                                                    </RadioButton>
+                                                    <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0" IsChecked="{Binding IsHardReboot}">
+                                                        <TextBlock Text="Hard reboot" VerticalAlignment="Center"/>
+                                                    </RadioButton>
+                                                    <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0" IsChecked="{Binding IsRetry}">
+                                                        <TextBlock Text="Retry" VerticalAlignment="Center"/>
+                                                    </RadioButton>
+                                                    <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0" IsChecked="{Binding IsFailed}">
+                                                        <TextBlock Text="Failed" VerticalAlignment="Center"/>
+                                                    </RadioButton>
+                                                </StackPanel>
+                                            </Border>
+                                            <Button Grid.Column="2" Style="{StaticResource RowIconButton}" Command="{Binding RemoveCommand}"
+                                                    VerticalAlignment="Center" ToolTip="Remove">
+                                                <Viewbox Width="15" Height="15">
+                                                    <Path Data="{StaticResource IconTrash}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                </Viewbox>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- Sign-in required notice -->

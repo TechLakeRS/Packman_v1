@@ -114,6 +114,14 @@
                         <TextBlock Text="Group Assignment" VerticalAlignment="Center"/>
                     </StackPanel>
                 </RadioButton>
+                <RadioButton x:Name="TabIntuneDefaults" Style="{StaticResource PageTab}" GroupName="SettingsTabs">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
+                            <Path Data="{StaticResource IconLaptop}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Viewbox>
+                        <TextBlock Text="Intune Defaults" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
                 <!-- Planned sections -->
                 <RadioButton Style="{StaticResource PageTab}" GroupName="SettingsTabs" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
@@ -809,6 +817,165 @@
                                                         <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0"
                                                                      IsChecked="{Binding IsUninstall}">
                                                             <TextBlock Text="Uninstall" VerticalAlignment="Center"/>
+                                                        </RadioButton>
+                                                    </StackPanel>
+                                                </Border>
+                                                <!-- Remove -->
+                                                <Button Grid.Column="2" Style="{StaticResource RowIconButton}" Command="{Binding RemoveCommand}"
+                                                        VerticalAlignment="Center" ToolTip="Remove">
+                                                    <Viewbox Width="15" Height="15">
+                                                        <Path Data="{StaticResource IconTrash}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                    </Viewbox>
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Intune Defaults card -->
+                    <Border Style="{StaticResource Card}"
+                            Visibility="{Binding IsChecked, ElementName=TabIntuneDefaults, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+
+                            <!-- Card header -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
+                                    <Viewbox Width="20" Height="20">
+                                        <Path Data="{StaticResource IconLaptop}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Viewbox>
+                                </Border>
+                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Intune Defaults" Style="{StaticResource H2}"/>
+                                    <TextBlock Text="Requirements and return codes applied to every package unless changed on the Create Package page" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- ── Device requirements ────────────────────────── -->
+                            <TextBlock Text="Device requirements" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                            <TextBlock Text="Leave a field blank for no constraint" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,12"/>
+
+                            <TextBlock Text="Minimum operating system" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox Margin="0,7,0,0" Height="42" VerticalContentAlignment="Center"
+                                      ItemsSource="{Binding OperatingSystems}"
+                                      SelectedItem="{Binding DefaultOperatingSystem, Mode=TwoWay}"/>
+
+                            <Grid Margin="0,16,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Minimum free disk space (MB)" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                             local:PlaceholderText.Text="any"
+                                             Text="{Binding DefaultMinFreeDiskSpaceMB, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Minimum memory (MB)" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                             local:PlaceholderText.Text="any"
+                                             Text="{Binding DefaultMinMemoryMB, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,16,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Minimum number of processors" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                             local:PlaceholderText.Text="any"
+                                             Text="{Binding DefaultMinProcessors, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Minimum CPU speed (MHz)" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                             local:PlaceholderText.Text="any"
+                                             Text="{Binding DefaultMinCpuSpeedMHz, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Divider -->
+                            <Border Height="1" Background="{DynamicResource LineBrush}" Margin="0,18,0,18"/>
+
+                            <!-- ── Return codes ───────────────────────────────── -->
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Return codes" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                                    <TextBlock Text="How Intune interprets the installer exit codes" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                        Command="{Binding RestoreDefaultReturnCodesCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="14" Height="14" Margin="0,0,7,0">
+                                            <Path Data="{StaticResource IconRefresh}" Stroke="{DynamicResource TextBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Viewbox>
+                                        <TextBlock Text="Restore standard codes" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <!-- Add return code row -->
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
+                                         Text="{Binding NewReturnCodeInput, UpdateSourceTrigger=PropertyChanged}"
+                                         local:PlaceholderText.Text="Exit code, e.g. 1707"/>
+                                <Button Grid.Column="2" Style="{StaticResource GhostButton}" Command="{Binding AddReturnCodeCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="14" Height="14" Margin="0,0,7,0">
+                                            <Path Data="{StaticResource IconPlus}" Stroke="{DynamicResource TextBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Viewbox>
+                                        <TextBlock Text="Add" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <!-- Return code rows -->
+                            <ItemsControl ItemsSource="{Binding ReturnCodes}" Margin="0,12,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
+                                                BorderThickness="1" CornerRadius="11" Padding="14,10" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding Code}" VerticalAlignment="Center"
+                                                           FontSize="13" FontWeight="SemiBold" FontFamily="{StaticResource MonoFontFamily}"
+                                                           Foreground="{DynamicResource InkBrush}"/>
+                                                <!-- Outcome toggle -->
+                                                <Border Grid.Column="1" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}"
+                                                        BorderThickness="1" CornerRadius="9" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <RadioButton Style="{StaticResource ContextToggle}" IsChecked="{Binding IsSuccess}">
+                                                            <TextBlock Text="Success" VerticalAlignment="Center"/>
+                                                        </RadioButton>
+                                                        <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0" IsChecked="{Binding IsSoftReboot}">
+                                                            <TextBlock Text="Soft reboot" VerticalAlignment="Center"/>
+                                                        </RadioButton>
+                                                        <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0" IsChecked="{Binding IsHardReboot}">
+                                                            <TextBlock Text="Hard reboot" VerticalAlignment="Center"/>
+                                                        </RadioButton>
+                                                        <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0" IsChecked="{Binding IsRetry}">
+                                                            <TextBlock Text="Retry" VerticalAlignment="Center"/>
+                                                        </RadioButton>
+                                                        <RadioButton Style="{StaticResource ContextToggle}" Margin="3,0,0,0" IsChecked="{Binding IsFailed}">
+                                                            <TextBlock Text="Failed" VerticalAlignment="Center"/>
                                                         </RadioButton>
                                                     </StackPanel>
                                                 </Border>

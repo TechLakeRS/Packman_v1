@@ -391,7 +391,9 @@ public sealed class UploadToIntuneViewModel : ObservableObject
                 $"{appInfo.Manufacturer} {appInfo.Name} {appInfo.Version}",
                 appInfo.InstallContext,
                 null,
-                progress));
+                progress,
+                requirements: settings.IntuneDefaults.Requirements,
+                returnCodes: settings.IntuneDefaults.ReturnCodes));
 
             MarkDone(0); MarkDone(1); MarkDone(2);
 
