@@ -258,13 +258,6 @@
         <Setter Property="FontWeight" Value="Bold"/>
     </Style>
 
-    <!-- ═══════════════ Status pills ═══════════════ -->
-    <Style x:Key="FreePill" TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="{DynamicResource PrimaryDimBrush}"/>
-        <Setter Property="CornerRadius" Value="20"/>
-        <Setter Property="Padding" Value="9,3"/>
-    </Style>
-
     <!-- ═══════════════ Sidebar nav item ═══════════════ -->
     <Style x:Key="NavItem" TargetType="{x:Type RadioButton}">
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>

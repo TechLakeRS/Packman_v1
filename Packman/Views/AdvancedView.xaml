@@ -122,9 +122,14 @@
                             </StackPanel>
 
                             <TextBlock Text="Target group" Style="{StaticResource FieldLabel}" Margin="0,0,0,5"/>
-                            <TextBox Style="{StaticResource TextField}" Height="38"
-                                     local:PlaceholderText.Text="Search Entra groups…"
-                                     Text="{Binding BulkGroupSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Grid>
+                                <TextBox Style="{StaticResource TextField}"
+                                         local:PlaceholderText.Text="Search Entra groups…"
+                                         Text="{Binding BulkGroupSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" IsHitTestVisible="False">
+                                    <Path Data="{StaticResource IconSearch}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                            </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                                     CornerRadius="9" Margin="0,8,0,0" MaxHeight="180"
                                     Visibility="{Binding HasBulkGroupResults, Converter={StaticResource BoolToVis}}">
@@ -140,6 +145,37 @@
                                     </ItemsControl>
                                 </ScrollViewer>
                             </Border>
+
+                            <!-- Confirms the typed name resolved to a real group before anything is added -->
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0"
+                                        Visibility="{Binding HasBulkGroupCheck, Converter={StaticResource BoolToVis}}">
+                                <Viewbox Width="14" Height="14" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconCheck}" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                        <Path.Style>
+                                            <Style TargetType="Path">
+                                                <Setter Property="Stroke" Value="{DynamicResource MutedBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsBulkGroupConfirmed}" Value="True">
+                                                        <Setter Property="Stroke" Value="{DynamicResource OkBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Path.Style>
+                                    </Path>
+                                </Viewbox>
+                                <TextBlock Text="{Binding BulkGroupCheck}" Margin="7,0,0,0" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsBulkGroupConfirmed}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource OkBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
 
                             <TextBlock Text="PC names" Style="{StaticResource FieldLabel}" Margin="0,16,0,5"/>
                             <!-- Plain TextBox in a card border: the TextField style is single-line (hidden scrollbars, centred content) -->
@@ -232,9 +268,14 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <TextBox Style="{StaticResource TextField}" Height="38"
-                                     local:PlaceholderText.Text="Search PC names…"
-                                     Text="{Binding DeviceSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Grid>
+                                <TextBox Style="{StaticResource TextField}"
+                                         local:PlaceholderText.Text="Search PC names…"
+                                         Text="{Binding DeviceSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" IsHitTestVisible="False">
+                                    <Path Data="{StaticResource IconSearch}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                            </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                                     CornerRadius="9" Margin="0,8,0,0" MaxHeight="200"
                                     Visibility="{Binding HasDeviceResults, Converter={StaticResource BoolToVis}}">
@@ -306,9 +347,14 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <TextBox Style="{StaticResource TextField}" Height="38"
-                                     local:PlaceholderText.Text="Search Entra groups…"
-                                     Text="{Binding AppGroupSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Grid>
+                                <TextBox Style="{StaticResource TextField}"
+                                         local:PlaceholderText.Text="Search Entra groups…"
+                                         Text="{Binding AppGroupSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" IsHitTestVisible="False">
+                                    <Path Data="{StaticResource IconSearch}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
+                            </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                                     CornerRadius="9" Margin="0,8,0,0" MaxHeight="180"
                                     Visibility="{Binding HasAppGroupResults, Converter={StaticResource BoolToVis}}">

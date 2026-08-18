@@ -48,8 +48,9 @@ public sealed class AdvancedViewModel : ObservableObject
             if (!Set(ref _bulkGroupSearch, value)) return;
             _bulkGroup = null;
             OnPropertyChanged(nameof(CanBulkAdd));
+            RaiseBulkGroupCheck();
             BulkAddCommand.RaiseCanExecuteChanged();
-            _ = SearchGroupsAsync(BulkGroupSlot, value, BulkGroupResults, () => OnPropertyChanged(nameof(HasBulkGroupResults)));
+            _ = SearchGroupsAsync(BulkGroupSlot, value, BulkGroupResults, OnBulkGroupResults);
         }
     }
 
@@ -57,6 +58,15 @@ public sealed class AdvancedViewModel : ObservableObject
     public bool HasBulkGroupResults => BulkGroupResults.Count > 0;
 
     private EntraGroup? _bulkGroup;
+
+    /// <summary>A typed name that matches a group exactly counts as picking it.</summary>
+    private void OnBulkGroupResults()
+    {
+        OnPropertyChanged(nameof(HasBulkGroupResults));
+        var exact = BulkGroupResults.FirstOrDefault(
+            g => g.DisplayName.Equals(_bulkGroupSearch.Trim(), StringComparison.OrdinalIgnoreCase));
+        if (exact != null) SelectBulkGroup(exact);
+    }
 
     public void SelectBulkGroup(EntraGroup group)
     {
@@ -66,7 +76,24 @@ public sealed class AdvancedViewModel : ObservableObject
         BulkGroupResults.Clear();
         OnPropertyChanged(nameof(HasBulkGroupResults));
         OnPropertyChanged(nameof(CanBulkAdd));
+        RaiseBulkGroupCheck();
         BulkAddCommand.RaiseCanExecuteChanged();
+    }
+
+    /// <summary>True once a group was picked from the list, so the name is known to exist.</summary>
+    public bool IsBulkGroupConfirmed => _bulkGroup != null;
+
+    public string BulkGroupCheck => _bulkGroup != null
+        ? $"Group found — {_bulkGroup.DisplayName}"
+        : string.IsNullOrWhiteSpace(_bulkGroupSearch) ? "" : "Pick the group from the results to confirm it exists.";
+
+    public bool HasBulkGroupCheck => !string.IsNullOrEmpty(BulkGroupCheck);
+
+    private void RaiseBulkGroupCheck()
+    {
+        OnPropertyChanged(nameof(IsBulkGroupConfirmed));
+        OnPropertyChanged(nameof(BulkGroupCheck));
+        OnPropertyChanged(nameof(HasBulkGroupCheck));
     }
 
     private string _pcNames = "";
