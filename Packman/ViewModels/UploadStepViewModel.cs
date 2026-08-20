@@ -42,6 +42,8 @@ public class UploadStepViewModel : ObservableObject
     private string _newReturnCodeInput = "";
     private string _defaultsAppliedFor = "";
 
+    private string _selectedDeployMode = DeployModeDefault;
+
     private string _reviewName = "";
     private string _reviewVendor = "";
     private string _reviewVersion = "";
@@ -248,6 +250,54 @@ public class UploadStepViewModel : ObservableObject
         NewReturnCodeInput = "";
     }
 
+    // ── Deploy mode ────────────────────────────────────────────────────
+    /// <summary>PSADT's own default; leaving it selected appends no -DeployMode switch.</summary>
+    public const string DeployModeDefault = "Auto";
+
+    public List<string> DeployModes { get; } = new() { "Auto", "Interactive", "NonInteractive", "Silent" };
+
+    /// <summary>
+    /// PSADT deploy mode baked into the Intune install/uninstall command lines.
+    /// </summary>
+    public string SelectedDeployMode
+    {
+        get => _selectedDeployMode;
+        set
+        {
+            if (!Set(ref _selectedDeployMode, value)) return;
+            OnPropertyChanged(nameof(DeployModeHint));
+            OnPropertyChanged(nameof(InstallCommandPreview));
+            OnPropertyChanged(nameof(UninstallCommandPreview));
+        }
+    }
+
+    public string DeployModeHint => _selectedDeployMode switch
+    {
+        "Interactive" => "Always shows the PSADT dialogs.",
+        "NonInteractive" => "Shows dialogs but never waits for the user.",
+        "Silent" => "No dialogs at all.",
+        _ => "PSADT decides: dialogs when a user is logged on, silent otherwise.",
+    };
+
+    public string InstallCommandPreview => WithDeployMode(_settingsService.Settings.IntuneDefaults.InstallCommand);
+    public string UninstallCommandPreview => WithDeployMode(_settingsService.Settings.IntuneDefaults.UninstallCommand);
+
+    /// <summary>
+    /// Appends the chosen -DeployMode to a command line. Auto is PSADT's own default so
+    /// it is left off, and a command that already sets the switch is used as written.
+    /// </summary>
+    private string WithDeployMode(string command)
+    {
+        command = (command ?? "").Trim();
+        if (_selectedDeployMode == DeployModeDefault) return command;
+        if (command.Contains("-DeployMode", StringComparison.OrdinalIgnoreCase)) return command;
+        return $"{command} -DeployMode {_selectedDeployMode}";
+    }
+
+    // ── Assignment groups ──────────────────────────────────────────────
+    /// <summary>Seeded from Settings ▸ Group Assignment, then editable for this package.</summary>
+    public GroupPickerViewModel GroupPicker { get; } = new();
+
     // ── Review ─────────────────────────────────────────────────────────
     public string ReviewName { get => _reviewName; set => Set(ref _reviewName, value); }
     public string ReviewVendor { get => _reviewVendor; set => Set(ref _reviewVendor, value); }
@@ -283,7 +333,9 @@ public class UploadStepViewModel : ObservableObject
         if (isNewPackage)
         {
             ApplyIntuneDefaults();
+            SelectedDeployMode = DeployModeDefault;
             _defaultsAppliedFor = _create.CurrentPackagePath;
+            _ = GroupPicker.SeedFromSettingsAsync(_settingsService.Settings.GroupAssignment);
         }
 
         var appInfo = _create.BuildApplicationInfo();
@@ -294,6 +346,18 @@ public class UploadStepViewModel : ObservableObject
         AppSummaryName = $"{appInfo.Manufacturer} {appInfo.Name}".Trim();
         AppSummaryDetail = $"v{appInfo.Version} · {appInfo.InstallContext} context · Win32";
 
+        // Seed the editable detection fields from the auto-detected rule. Only for a new
+        // package - re-seeding would discard edits when stepping back from Review.
+        if (isNewPackage)
+        {
+            var autoRule = BuildDetectionRules(_create.CurrentPackagePath, appInfo)[0];
+            _detectionPath = string.IsNullOrEmpty(autoRule.Path) ? "%ProgramFiles%" : autoRule.Path;
+            _detectionName = string.IsNullOrEmpty(autoRule.FileOrFolderName) ? $"{appInfo.Name}.exe" : autoRule.FileOrFolderName;
+            _detectionValue = string.IsNullOrEmpty(autoRule.DetectionValue) ? appInfo.Version : autoRule.DetectionValue;
+            OnPropertyChanged(nameof(DetectionPath));
+            OnPropertyChanged(nameof(DetectionName));
+            OnPropertyChanged(nameof(DetectionValue));
+        }
         // Seed the editable detection fields from the rule read off the package.
         var autoRule = BuildDetectionRules(_create.CurrentPackagePath, appInfo)[0];
         _detectionPath = string.IsNullOrEmpty(autoRule.Path) ? "%ProgramFiles%" : autoRule.Path;
@@ -318,6 +382,19 @@ public class UploadStepViewModel : ObservableObject
         ReviewContext = appInfo.InstallContext;
         ReviewPackageType = appInfo.PackageType;
         ReviewSize = FormatSize(GetSourceSizeBytes(_create.CurrentPackagePath));
+        OnPropertyChanged(nameof(InstallCommandPreview));
+        OnPropertyChanged(nameof(UninstallCommandPreview));
+    }
+
+    /// <summary>Refreshes what the Review step shows without touching the edited fields.</summary>
+    public void RefreshReview()
+    {
+        OnPropertyChanged(nameof(IsSignedIn));
+        OnPropertyChanged(nameof(IsNotSignedIn));
+        OnPropertyChanged(nameof(SignedInUser));
+        OnPropertyChanged(nameof(InstallCommandPreview));
+        OnPropertyChanged(nameof(UninstallCommandPreview));
+        RefreshDetectionSummary();
     }
 
     private void RefreshDetectionSummary()
@@ -426,6 +503,16 @@ public class UploadStepViewModel : ObservableObject
         var appInfo = _create.BuildApplicationInfo();
         appInfo.DisplayName = IntuneDisplayName;
 
+        // The picker owns the named groups now, so only the per-package option is left
+        // to the settings-driven assignment path.
+        var groupAssignment = new AppSettings.GroupAssignmentConfig
+        {
+            CreateGroupPerPackage = settings.GroupAssignment.CreateGroupPerPackage,
+            GroupNameTemplate = settings.GroupAssignment.GroupNameTemplate,
+            NewGroupIntent = settings.GroupAssignment.NewGroupIntent,
+        };
+
+        var assignedGroups = GroupPicker.AssignableGroups;
         var detectionRules = BuildSelectedDetectionRules(packagePath, appInfo);
         var requirements = BuildRequirements();
         var returnCodes = ReturnCodes.Select(r => r.ToInfo()).OfType<ReturnCodeInfo>().ToList();
@@ -460,22 +547,25 @@ public class UploadStepViewModel : ObservableObject
                 appInfo,
                 packagePath,
                 detectionRules,
-                settings.IntuneDefaults.InstallCommand,
-                settings.IntuneDefaults.UninstallCommand,
+                InstallCommandPreview,
+                UninstallCommandPreview,
                 appInfo.DisplayName,
                 appInfo.InstallContext,
                 string.IsNullOrEmpty(_create.ExtractedIconPath) ? null : _create.ExtractedIconPath,
                 progress,
                 string.IsNullOrEmpty(_create.PredecessorAppId) ? null : _create.PredecessorAppId,
-                settings.GroupAssignment,
+                groupAssignment,
                 requirements,
                 returnCodes,
                 settings.IntuneDefaults.PrivacyUrl,
-                settings.IntuneDefaults.InformationUrl));
+                settings.IntuneDefaults.InformationUrl,
+                assignedGroups));
 
             ProgressValue = 100;
             foreach (var s in PublishSteps) s.State = "done";
-            ResultText = $"Published successfully. App ID {appId}";
+            ResultText = assignedGroups.Count > 0
+                ? $"Published and assigned to {assignedGroups.Count} group(s). App ID {appId}"
+                : $"Published successfully. App ID {appId}";
             StatusText = $"Uploaded to Intune · App ID {appId}";
             _succeeded = true;
             IsComplete = true;

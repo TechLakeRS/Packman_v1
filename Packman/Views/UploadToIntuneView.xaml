@@ -209,11 +209,11 @@
                                     CornerRadius="0" Padding="4" HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <RadioButton Style="{StaticResource ContextToggle}" GroupName="Intent" Content="Required"
-                                                 IsChecked="{Binding Intent, Mode=TwoWay, Converter={StaticResource StringMatch}, ConverterParameter=required}"/>
+                                                 IsChecked="{Binding GroupPicker.Intent, Mode=TwoWay, Converter={StaticResource StringMatch}, ConverterParameter=required}"/>
                                     <RadioButton Style="{StaticResource ContextToggle}" GroupName="Intent" Content="Available" Margin="3,0,0,0"
-                                                 IsChecked="{Binding Intent, Mode=TwoWay, Converter={StaticResource StringMatch}, ConverterParameter=available}"/>
+                                                 IsChecked="{Binding GroupPicker.Intent, Mode=TwoWay, Converter={StaticResource StringMatch}, ConverterParameter=available}"/>
                                     <RadioButton Style="{StaticResource ContextToggle}" GroupName="Intent" Content="Uninstall" Margin="3,0,0,0"
-                                                 IsChecked="{Binding Intent, Mode=TwoWay, Converter={StaticResource StringMatch}, ConverterParameter=uninstall}"/>
+                                                 IsChecked="{Binding GroupPicker.Intent, Mode=TwoWay, Converter={StaticResource StringMatch}, ConverterParameter=uninstall}"/>
                                 </StackPanel>
                             </Border>
 
@@ -222,20 +222,20 @@
                             <Grid>
                                 <TextBox x:Name="GroupSearchBox" Style="{StaticResource TextField}" Padding="11,0,92,0"
                                          local:PlaceholderText.Text="Search Entra groups…"
-                                         Text="{Binding GroupQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Text="{Binding GroupPicker.GroupQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          KeyDown="GroupSearch_KeyDown"/>
                                 <Button Style="{StaticResource BrowseButton}" HorizontalAlignment="Right" VerticalAlignment="Stretch"
-                                        Margin="0,6,6,6" Command="{Binding SearchGroupsCommand}">
+                                        Margin="0,6,6,6" Command="{Binding GroupPicker.SearchGroupsCommand}">
                                     <TextBlock Text="Search" VerticalAlignment="Center"/>
                                 </Button>
                             </Grid>
 
-                            <TextBlock Text="{Binding GroupSearchHint}" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,7,0,0" TextWrapping="Wrap">
+                            <TextBlock Text="{Binding GroupPicker.GroupSearchHint}" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,7,0,0" TextWrapping="Wrap">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding GroupSearchHint}" Value="">
+                                            <DataTrigger Binding="{Binding GroupPicker.GroupSearchHint}" Value="">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -244,11 +244,11 @@
                             </TextBlock>
 
                             <!-- Search results -->
-                            <ItemsControl ItemsSource="{Binding GroupResults}" Margin="0,8,0,0">
+                            <ItemsControl ItemsSource="{Binding GroupPicker.GroupResults}" Margin="0,8,0,0">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Button HorizontalContentAlignment="Stretch" Margin="0,0,0,6" Cursor="Hand"
-                                                Command="{Binding DataContext.AddGroupCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                Command="{Binding DataContext.GroupPicker.AddGroupCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                 CommandParameter="{Binding}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
@@ -268,7 +268,7 @@
                             </ItemsControl>
 
                             <!-- Selected chips -->
-                            <ItemsControl ItemsSource="{Binding SelectedGroups}" Margin="0,4,0,0">
+                            <ItemsControl ItemsSource="{Binding GroupPicker.SelectedGroups}" Margin="0,4,0,0">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
@@ -282,7 +282,7 @@
                                                 </Viewbox>
                                                 <TextBlock Text="{Binding GroupName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                                 <Button Margin="9,0,0,0" Cursor="Hand" Background="Transparent" BorderThickness="0" Padding="0"
-                                                        Command="{Binding DataContext.RemoveGroupCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        Command="{Binding DataContext.GroupPicker.RemoveGroupCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}">
                                                     <Viewbox Width="11" Height="11">
                                                         <Path Data="{StaticResource IconX}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -296,7 +296,7 @@
 
                             <TextBlock Margin="0,4,0,0" FontSize="12.5" Foreground="{DynamicResource MutedBrush}">
                                 <Run Text="Assigned as "/>
-                                <Run Text="{Binding IntentLabel, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                                <Run Text="{Binding GroupPicker.IntentLabel, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
                                 <Run Text="."/>
                             </TextBlock>
 

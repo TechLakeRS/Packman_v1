@@ -61,7 +61,8 @@ public partial class IntuneUploadService : IDisposable
         RequirementInfo? requirements = null,
         List<ReturnCodeInfo>? returnCodes = null,
         string? privacyUrl = null,
-        string? informationUrl = null)
+        string? informationUrl = null,
+        IEnumerable<AssignedGroup>? pickedGroups = null)
     {
         using var uploadLogger = new UploadLogger(appInfo.Name);
 
@@ -154,12 +155,14 @@ public partial class IntuneUploadService : IDisposable
             if (!string.IsNullOrEmpty(predecessorAppId))
                 await WriteSupersedenceAsync(appId, predecessorAppId, uploadLogger);
 
-            if (groupAssignment != null &&
-                (groupAssignment.CreateGroupPerPackage || groupAssignment.ExistingGroups.Count > 0))
+            var picked = pickedGroups?.Where(g => !string.IsNullOrWhiteSpace(g.GroupId)).ToList() ?? new List<AssignedGroup>();
+            if (picked.Count > 0 ||
+                (groupAssignment != null &&
+                 (groupAssignment.CreateGroupPerPackage || groupAssignment.ExistingGroups.Count > 0)))
             {
                 progress?.UpdateProgress(98, "Assigning groups...");
                 uploadLogger.Section("GROUP ASSIGNMENT");
-                await AssignGroupsAsync(appId, appInfo, groupAssignment, uploadLogger);
+                await AssignGroupsAsync(appId, appInfo, groupAssignment ?? new AppSettings.GroupAssignmentConfig(), picked, uploadLogger);
             }
 
             return appId;
