@@ -29,11 +29,13 @@
 
         <!-- ═══ CREATE NEW ═══ -->
         <StackPanel x:Name="CreateModeCard">
-            <DockPanel Margin="0,0,0,14">
-                <TextBlock DockPanel.Dock="Left" Text="APPLICATION INFORMATION" Style="{StaticResource SectionLabel}"/>
-                <TextBlock DockPanel.Dock="Right" Text="details used to identify and package this app" Style="{StaticResource Caption}"/>
-                <Border Style="{StaticResource Rule}"/>
-            </DockPanel>
+            <StackPanel Margin="0,0,0,14">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Text="APPLICATION INFORMATION" Style="{StaticResource SectionLabel}"/>
+                    <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+                </DockPanel>
+                <TextBlock Text="details used to identify and package this app" Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
 
             <Border Style="{StaticResource Card}" Padding="22,20,22,22">
                 <StackPanel>
@@ -251,11 +253,13 @@
 
         <!-- ═══ UPGRADE EXISTING ═══ -->
         <StackPanel x:Name="UpgradeModeCard" Visibility="Collapsed">
-            <DockPanel Margin="0,0,0,14">
-                <TextBlock DockPanel.Dock="Left" Text="UPGRADE EXISTING PACKAGE" Style="{StaticResource SectionLabel}"/>
-                <TextBlock DockPanel.Dock="Right" Text="create a new version, reusing the existing install logic" Style="{StaticResource Caption}"/>
-                <Border Style="{StaticResource Rule}"/>
-            </DockPanel>
+            <StackPanel Margin="0,0,0,14">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Text="UPGRADE EXISTING PACKAGE" Style="{StaticResource SectionLabel}"/>
+                    <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+                </DockPanel>
+                <TextBlock Text="create a new version, reusing the existing install logic" Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
 
             <Border Style="{StaticResource Card}" Padding="22,20,22,22">
                 <StackPanel>

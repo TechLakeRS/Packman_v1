@@ -108,20 +108,19 @@
                     <Border Style="{StaticResource Card}"
                             Visibility="{Binding IsChecked, ElementName=TabBulkAdd, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-<DockPanel Margin="0,0,0,14">
-    <TextBlock DockPanel.Dock="Left" Text="BULK ADD PCS TO A GROUP" Style="{StaticResource SectionLabel}"/>
-    <TextBlock DockPanel.Dock="Right" Text="Paste a list of PC names — one per line, or separated by commas — and add them all at once." Style="{StaticResource Caption}"/>
-    <Border Style="{StaticResource Rule}"/>
-</DockPanel>
+<StackPanel Margin="0,0,0,14">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="BULK ADD PCS TO A GROUP" Style="{StaticResource SectionLabel}"/>
+        <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+    </DockPanel>
+    <TextBlock Text="Paste a list of PC names — one per line, or separated by commas — and add them all at once." Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+</StackPanel>
 
                             <TextBlock Text="Target group" Style="{StaticResource FieldLabel}" Margin="0,0,0,5"/>
                             <Grid>
                                 <TextBox Style="{StaticResource TextField}"
                                          local:PlaceholderText.Text="Search Entra groups…"
                                          Text="{Binding BulkGroupSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" IsHitTestVisible="False">
-                                    <Path Data="{StaticResource IconSearch}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
                             </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                                     CornerRadius="0" Margin="0,8,0,0" MaxHeight="180"
@@ -248,19 +247,18 @@
                     <Border Style="{StaticResource Card}"
                             Visibility="{Binding IsChecked, ElementName=TabPcGroups, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-<DockPanel Margin="0,0,0,14">
-    <TextBlock DockPanel.Dock="Left" Text="GROUPS A PC BELONGS TO" Style="{StaticResource SectionLabel}"/>
-    <TextBlock DockPanel.Dock="Right" Text="Type a PC name to see every group it is a direct member of." Style="{StaticResource Caption}"/>
-    <Border Style="{StaticResource Rule}"/>
-</DockPanel>
+<StackPanel Margin="0,0,0,14">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="GROUPS A PC BELONGS TO" Style="{StaticResource SectionLabel}"/>
+        <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+    </DockPanel>
+    <TextBlock Text="Type a PC name to see every group it is a direct member of." Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+</StackPanel>
 
                             <Grid>
                                 <TextBox Style="{StaticResource TextField}"
                                          local:PlaceholderText.Text="Search PC names…"
                                          Text="{Binding DeviceSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" IsHitTestVisible="False">
-                                    <Path Data="{StaticResource IconSearch}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
                             </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                                     CornerRadius="0" Margin="0,8,0,0" MaxHeight="200"
@@ -320,19 +318,18 @@
                     <Border Style="{StaticResource Card}"
                             Visibility="{Binding IsChecked, ElementName=TabGroupApps, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-<DockPanel Margin="0,0,0,14">
-    <TextBlock DockPanel.Dock="Left" Text="APPS ASSIGNED TO A GROUP" Style="{StaticResource SectionLabel}"/>
-    <TextBlock DockPanel.Dock="Right" Text="Type a group name to see every app that targets it. Graph has no reverse lookup, so the app list is scanned." Style="{StaticResource Caption}"/>
-    <Border Style="{StaticResource Rule}"/>
-</DockPanel>
+<StackPanel Margin="0,0,0,14">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="APPS ASSIGNED TO A GROUP" Style="{StaticResource SectionLabel}"/>
+        <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+    </DockPanel>
+    <TextBlock Text="Type a group name to see every app that targets it. Graph has no reverse lookup, so the app list is scanned." Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+</StackPanel>
 
                             <Grid>
                                 <TextBox Style="{StaticResource TextField}"
                                          local:PlaceholderText.Text="Search Entra groups…"
                                          Text="{Binding AppGroupSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" IsHitTestVisible="False">
-                                    <Path Data="{StaticResource IconSearch}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
                             </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                                     CornerRadius="0" Margin="0,8,0,0" MaxHeight="180"
