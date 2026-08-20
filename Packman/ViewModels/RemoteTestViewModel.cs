@@ -27,8 +27,10 @@ public sealed class RemoteTestViewModel : ObservableObject
 {
     private const int MaxRecentComputers = 8;
 
-    private readonly CreatePackageViewModel _create;
-    private readonly UploadStepViewModel _upload;
+    // Both are absent on the standalone Remote Test page, which has no wizard behind it:
+    // nothing pre-fills the package, and there is no publish step to feed.
+    private readonly CreatePackageViewModel? _create;
+    private readonly UploadStepViewModel? _upload;
     private readonly SettingsService _settingsService;
 
     // PSADT is chatty, so lines are buffered and flushed on a timer — appending each
@@ -61,14 +63,14 @@ public sealed class RemoteTestViewModel : ObservableObject
     public RelayCommand ApplyDetectionCommand { get; }
     public RelayCommand ClearLogCommand { get; }
 
-    public RemoteTestViewModel(CreatePackageViewModel create, UploadStepViewModel upload, SettingsService settingsService)
+    public RemoteTestViewModel(SettingsService settingsService,
+        CreatePackageViewModel? create = null, UploadStepViewModel? upload = null)
     {
         _create = create;
         _upload = upload;
         _settingsService = settingsService;
 
-        foreach (var name in _settingsService.Settings.RemoteTest.RecentComputers)
-            RecentComputers.Add(name);
+        RefreshRecentComputers();
         _targetComputer = RecentComputers.FirstOrDefault() ?? "";
 
         _flushTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
@@ -81,6 +83,8 @@ public sealed class RemoteTestViewModel : ObservableObject
         ApplyDetectionCommand = new RelayCommand(ApplyDetection, () => _discoveredRule != null && _isGeneratedPackage);
         ClearLogCommand       = new RelayCommand(() => { Lines.Clear(); lock (_pending) _pending.Clear(); });
 
+        // Nothing to follow on the standalone page; the user picks the package there.
+        if (_create == null) return;
         UseGeneratedPackage();
         _create.PropertyChanged += (_, e) =>
         {
@@ -104,6 +108,7 @@ public sealed class RemoteTestViewModel : ObservableObject
     public bool NeedsPackage => _packagePath.Length == 0;
 
     /// <summary>The publish step belongs to the wizard's own package, so only that one may feed it.</summary>
+    public bool HasPublishStep => _upload != null;
     public bool IsGeneratedPackage => _isGeneratedPackage;
     public bool IsSelectedPackage => HasPackage && !_isGeneratedPackage;
 
@@ -113,7 +118,7 @@ public sealed class RemoteTestViewModel : ObservableObject
     /// <summary>Mirrors the wizard: generating a package pre-fills this page, resetting clears it.</summary>
     private void UseGeneratedPackage()
     {
-        string path = _create.CurrentPackagePath;
+        string path = _create!.CurrentPackagePath;
         if (string.IsNullOrEmpty(path))
         {
             // A package picked by hand stands on its own — only a wizard-supplied one clears.
@@ -124,7 +129,7 @@ public sealed class RemoteTestViewModel : ObservableObject
             return;
         }
 
-        var appInfo = _create.BuildApplicationInfo();
+        var appInfo = _create!.BuildApplicationInfo();
         _packageAppName = appInfo.Name;
         _packageVersion = appInfo.Version;
         _packageSourcePath = appInfo.SourcesPath;
@@ -372,7 +377,7 @@ public sealed class RemoteTestViewModel : ObservableObject
     /// <summary>Pushes the discovered rule into the publish step's detection fields.</summary>
     private void ApplyDetection()
     {
-        if (_discoveredRule == null) return;
+        if (_discoveredRule == null || _upload == null) return;
 
         _upload.SelectedDetectionMethod = _discoveredRule.CheckVersion ? "File version" : "File exists";
         _upload.DetectionPath = _discoveredRule.Path;
@@ -385,6 +390,14 @@ public sealed class RemoteTestViewModel : ObservableObject
     }
 
     // ── Recent computers ───────────────────────────────────────────────
+    /// <summary>Re-reads the saved machines; the wizard's Remote Test writes the same list.</summary>
+    public void RefreshRecentComputers()
+    {
+        RecentComputers.Clear();
+        foreach (var name in _settingsService.Settings.RemoteTest.RecentComputers)
+            RecentComputers.Add(name);
+    }
+
     private void RememberComputer(string name)
     {
         if (!RemoteTestService.IsValidComputerName(name)) return;

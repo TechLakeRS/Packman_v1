@@ -257,8 +257,7 @@
                     <Border Grid.Row="0" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1"
                             Padding="26,18,26,16" Visibility="{Binding IsToolOpen, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-                            <Button Style="{StaticResource Breadcrumb}" Command="{Binding CloseToolCommand}"
-                                    Visibility="{Binding IsToolInWizard, Converter={StaticResource BoolToVis}}">
+                            <Button Style="{StaticResource Breadcrumb}" Command="{Binding CloseToolCommand}">
                                 <TextBlock>
                                     <Run Text="← Create Package /"/><Run Text=" "/><Run Text="{Binding PackageName, Mode=OneWay}"/>
                                 </TextBlock>
@@ -274,8 +273,7 @@
                                                Margin="0,5,0,0" TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                                 <TextBlock Grid.Column="1" Text="optional step" Style="{StaticResource Caption}"
-                                           Margin="16,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                           Visibility="{Binding IsToolInWizard, Converter={StaticResource BoolToVis}}"/>
+                                           Margin="16,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -342,11 +340,10 @@
                         </Grid>
                     </Border>
 
-                    <!-- Tool footer — back to the package and on to upload, so it belongs to
-                         the wizard entry only; from the rail the tool is a page of its own. -->
+                    <!-- Tool footer -->
                     <Border Grid.Row="2" Height="56" Background="{DynamicResource CardBrush}"
                             BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="26,0"
-                            Visibility="{Binding IsToolInWizard, Converter={StaticResource BoolToVis}}">
+                            Visibility="{Binding IsToolOpen, Converter={StaticResource BoolToVis}}">
                         <Grid>
                             <Button Style="{StaticResource BackButton}" Content="← BACK TO PACKAGE"
                                     HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding CloseToolCommand}"/>
@@ -369,6 +366,7 @@
                     </Border>
                 </Grid>
 
+                <views:RemoteTestView x:Name="RemoteTestPage" Visibility="Collapsed"/>
                 <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed"/>
                 <views:UploadToIntuneView x:Name="UploadIntunePage" Visibility="Collapsed"/>
                 <views:ApplicationsView x:Name="ApplicationsPage" Visibility="Collapsed"/>

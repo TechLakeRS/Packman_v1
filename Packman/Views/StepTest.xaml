@@ -114,13 +114,17 @@
                     </DockPanel>
                     <TextBlock Text="{Binding DiscoveredSummary}" FontSize="12.5" TextWrapping="Wrap"
                                FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource InkBrush}"/>
-                    <Button Style="{StaticResource GhostButton}" Content="USE FOR PUBLISH" HorizontalAlignment="Left"
-                            Margin="0,12,0,0" Command="{Binding ApplyDetectionCommand}"
-                            ToolTip="Replace the publish step's detection rule with this one."/>
-                    <TextBlock Text="The publish step holds the wizard's own package, so a package picked from the share cannot feed it."
-                               Margin="0,8,0,0" FontSize="11" LineHeight="17" TextWrapping="Wrap"
-                               Foreground="{DynamicResource Muted2Brush}"
-                               Visibility="{Binding IsSelectedPackage, Converter={StaticResource BoolToVis}}"/>
+
+                    <!-- Only the wizard has a publish step to hand the rule to. -->
+                    <StackPanel Visibility="{Binding HasPublishStep, Converter={StaticResource BoolToVis}}">
+                        <Button Style="{StaticResource GhostButton}" Content="USE FOR PUBLISH" HorizontalAlignment="Left"
+                                Margin="0,12,0,0" Command="{Binding ApplyDetectionCommand}"
+                                ToolTip="Replace the publish step's detection rule with this one."/>
+                        <TextBlock Text="The publish step holds the wizard's own package, so a package picked from the share cannot feed it."
+                                   Margin="0,8,0,0" FontSize="11" LineHeight="17" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource Muted2Brush}"
+                                   Visibility="{Binding IsSelectedPackage, Converter={StaticResource BoolToVis}}"/>
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </StackPanel>
