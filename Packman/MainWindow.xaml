@@ -1,4 +1,4 @@
-<Window x:Class="Packman.MainWindow"
+﻿<Window x:Class="Packman.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -44,7 +44,7 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <Border Width="250" Height="28" CornerRadius="2"
+                    <Border Width="250" Height="28" CornerRadius="0"
                             Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
                             <Ellipse Width="9" Height="9" Stroke="{DynamicResource MarkBrush}" StrokeThickness="1.5"/>
@@ -90,51 +90,33 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Left rail: numbered sections, build info pinned to the bottom. -->
+            <!-- Left rail: destinations, build info pinned to the bottom. -->
             <Border Grid.Column="0" Background="{DynamicResource RailBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0">
                 <DockPanel LastChildFill="False" Margin="0,12">
                     <StackPanel DockPanel.Dock="Top">
                         <RadioButton x:Name="CreatePackageNavBtn" Style="{StaticResource NavItem}" IsChecked="True" GroupName="Nav"
                                      Checked="CreatePackageNavBtn_Checked">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="01" Style="{StaticResource NavNumber}"/>
-                                <TextBlock Text="Create Package" Margin="11,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Create Package" VerticalAlignment="Center"/>
                         </RadioButton>
                         <RadioButton x:Name="UploadIntuneNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
                                      Checked="UploadIntuneNavBtn_Checked">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="02" Style="{StaticResource NavNumber}"/>
-                                <TextBlock Text="Upload to Intune" Margin="11,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Upload to Intune" VerticalAlignment="Center"/>
                         </RadioButton>
                         <RadioButton x:Name="ApplicationsNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
                                      Checked="ApplicationsNavBtn_Checked">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="03" Style="{StaticResource NavNumber}"/>
-                                <TextBlock Text="Applications" Margin="11,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Applications" VerticalAlignment="Center"/>
                         </RadioButton>
                         <RadioButton x:Name="RemoteTestNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
                                      Checked="RemoteTestNavBtn_Checked">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="04" Style="{StaticResource NavNumber}"/>
-                                <TextBlock Text="Remote Test" Margin="11,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Remote Test" VerticalAlignment="Center"/>
                         </RadioButton>
                         <RadioButton x:Name="AdvancedNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
                                      Checked="AdvancedNavBtn_Checked">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="05" Style="{StaticResource NavNumber}"/>
-                                <TextBlock Text="Advanced" Margin="11,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Advanced" VerticalAlignment="Center"/>
                         </RadioButton>
                         <RadioButton x:Name="SettingsNavBtn" Style="{StaticResource NavItem}" GroupName="Nav"
                                      Checked="SettingsNavBtn_Checked">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="06" Style="{StaticResource NavNumber}"/>
-                                <TextBlock Text="Settings" Margin="11,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Settings" VerticalAlignment="Center"/>
                         </RadioButton>
                     </StackPanel>
 
