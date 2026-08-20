@@ -19,6 +19,9 @@ rules, group assignment, code signing and supersedence included.
 - **Build** the `.intunewin` with Microsoft's `IntuneWinAppUtil.exe`.
 - **Code-sign** package files in-process via Authenticode (optional, certificate
   from the Windows store by thumbprint).
+- **Remote-test** the package on a test machine over WinRM — runs PSADT there as
+  `NT AUTHORITY\SYSTEM` (as Intune does) or as the logged-on user, then discovers the
+  detection rule from what actually got installed.
 - **Upload** to Intune as a Win32 app, with auto-generated detection rules.
 - **Assign** to Entra (Azure AD) security groups — existing groups or a new
   per-package group created on upload.
@@ -34,6 +37,8 @@ rules, group assignment, code signing and supersedence included.
   app registration with a certificate.
 - **Intune integration** over the Microsoft Graph **beta** endpoint
   (`deviceAppManagement/mobileApps`).
+- **Remote testing** over PowerShell remoting (`System.Management.Automation`), with the
+  install itself run from a scheduled task so it executes under the right identity.
 - **Settings** persist to `appsettings.json` next to the executable.
 
 ```

@@ -90,7 +90,34 @@ Save in your editor, then return to Packman. You can **Skip** this step.
 
 ### Step 3 — Remote Test (optional)
 
-A placeholder for validating the package before upload. **Skip** if you don't use it.
+Stages the generated package on a test machine and runs it there, so you see the real
+install before anything reaches Intune. **Skip** if you don't use it.
+
+1. Enter the **Computer Name** of the test machine and click **CHECK** to confirm it
+   responds. Machines you've used before are kept in the dropdown.
+2. Pick the **Run Context**:
+   - **SYSTEM** (default) — runs as `NT AUTHORITY\SYSTEM`, the same identity the Intune
+     Management Extension uses. This is the one that matches production: SYSTEM has a
+     different `%TEMP%` and HKCU than your admin account, and reaches network shares as
+     the *machine* account, so a package that works under your own login can still fail
+     here.
+   - **USER** — runs in the logged-on user's interactive session, so their profile and
+     HKCU apply and PSADT's dialogs are visible. Requires somebody to be logged on.
+3. Click **RUN INSTALL**. Packman copies the package to `C:\Temp\Packman\...` on the
+   target over the admin share, registers a one-shot scheduled task under the chosen
+   identity, and streams the PSADT output into the console as it runs. **RUN UNINSTALL**
+   does the same with `-DeploymentType Uninstall`.
+4. After a successful install, Packman searches the target for the executable that was
+   installed and proposes a **detection rule** built from its real path and version.
+   Click **USE FOR PUBLISH** to carry that rule into Step 4 instead of the one guessed
+   from the package. **DISCOVER DETECTION RULE** re-runs that search on its own.
+
+Exit codes `0`, `3010` and `1641` count as success (the latter two mean *reboot
+required*).
+
+> **Requirements:** the test machine needs WinRM enabled (`Enable-PSRemoting`) and
+> reachable through the firewall, and your account needs administrative rights on it
+> (the package copy goes over the `C$` admin share).
 
 ### Step 4 — Upload
 
@@ -159,6 +186,10 @@ and category filters). Open a row to see its detail. Requires being signed in.
 | *PSADT template not found.* | The template path must contain `Invoke-AppDeployToolkit.ps1`. |
 | *No `.intunewin` file found after conversion.* | The template needs the full PSADT v4 **runtime** (`Invoke-AppDeployToolkit.exe` + `PSAppDeployToolkit` module), not just the script. See `Packman/PSADT/README.md`. |
 | *Sign in to Intune on the Settings page first.* | Sign in (and **Test Connection**) before uploading. |
+| Remote test: *WinRM connection failed* | Run `Enable-PSRemoting -Force` on the test machine and allow WinRM through its firewall. |
+| Remote test: *&lt;host&gt; is not reachable* | The target didn't answer a ping — check the name and that the machine is powered on. |
+| Remote test: *No user is logged on…* | A **USER** context run needs somebody signed in to the target. Use **SYSTEM**, or log on first. |
+| Remote test: *No matching application files found* | Detection discovery couldn't find the installed executable — set the detection rule by hand on the publish step. |
 | *Package version … already exists.* | Use a new version, or delete the existing version folder. |
 
 Each upload also writes a detailed log file (see the path printed at the start of the

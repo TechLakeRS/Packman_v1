@@ -16,6 +16,7 @@ public class AppSettings
     public NetworkPathsConfig NetworkPaths { get; set; } = new();
     public GroupAssignmentConfig GroupAssignment { get; set; } = new();
     public IntuneDefaultsConfig IntuneDefaults { get; set; } = new();
+    public RemoteTestConfig RemoteTest { get; set; } = new();
 
     public class AuthConfig
     {
@@ -74,6 +75,15 @@ public class AppSettings
 
         // Title template for the Intune app; tokens %vendor% %appName% %appVersion%.
         public string DisplayNameTemplate { get; set; } = DefaultDisplayNameTemplate;
+    }
+
+    public class RemoteTestConfig
+    {
+        // Test machines used before, most recent first; shown in the Remote Test picker.
+        public List<string> RecentComputers { get; set; } = new();
+        // Delete the staged package from the target after the run. Off by default so a
+        // re-run only copies what changed.
+        public bool CleanupAfterRun { get; set; } = false;
     }
 
     public class ExistingGroupAssignment

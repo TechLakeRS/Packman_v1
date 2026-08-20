@@ -295,7 +295,7 @@
                                         Visibility="{Binding IsEditToolOpen, Converter={StaticResource BoolToVis}}"/>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                                       Visibility="{Binding IsTestToolOpen, Converter={StaticResource BoolToVis}}">
-                            <views:StepTest Margin="26,18,26,22"/>
+                            <views:StepTest Margin="26,18,26,22" DataContext="{Binding RemoteTest}"/>
                         </ScrollViewer>
                     </Grid>
 
@@ -345,6 +345,9 @@
                                 <Button Style="{StaticResource GhostButton}" Content="{Binding ToolActionLabel}"
                                         Click="ToolAction_Click" Margin="0,0,12,0"
                                         Visibility="{Binding IsEditToolOpen, Converter={StaticResource BoolToVis}}"/>
+                                <Button Style="{StaticResource GhostButton}" Content="{Binding ToolActionLabel}"
+                                        Command="{Binding RemoteTest.InstallCommand}" Margin="0,0,12,0"
+                                        Visibility="{Binding IsTestToolOpen, Converter={StaticResource BoolToVis}}"/>
                                 <Button Style="{StaticResource PrimaryButton}" Command="{Binding ContinueToPublishCommand}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="CONTINUE TO PUBLISH" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
