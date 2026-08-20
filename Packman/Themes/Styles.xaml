@@ -4,9 +4,9 @@
 
     <!-- ═══════════════ Type ═══════════════ -->
     <!-- All three ship in Fonts/ as static weights; see Fonts/README.md. -->
-    <FontFamily x:Key="UIFontFamily">pack://application:,,,/Fonts/#Instrument Sans</FontFamily>
-    <FontFamily x:Key="MonoFontFamily">pack://application:,,,/Fonts/#JetBrains Mono</FontFamily>
-    <FontFamily x:Key="LabelFontFamily">pack://application:,,,/Fonts/#Martian Mono</FontFamily>
+    <FontFamily x:Key="UIFontFamily">pack://application:,,,/Fonts/#Instrument Sans, Segoe UI Variable Display, Segoe UI</FontFamily>
+    <FontFamily x:Key="MonoFontFamily">pack://application:,,,/Fonts/#JetBrains Mono, Cascadia Mono, Consolas</FontFamily>
+    <FontFamily x:Key="LabelFontFamily">pack://application:,,,/Fonts/#Martian Mono, Cascadia Mono, Consolas</FontFamily>
 
     <!-- ═══════════════ Card ═══════════════ -->
     <!-- Panels are flat: a 1px edge does the separating, never a shadow. -->

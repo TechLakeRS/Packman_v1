@@ -110,15 +110,12 @@
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="rb" BorderThickness="2,0,0,1" Padding="12,0,14,0"
-                                                BorderBrush="{DynamicResource Line2Brush}">
-                                            <Border.Background>
-                                                <SolidColorBrush Color="Transparent"/>
-                                            </Border.Background>
+                                                Background="Transparent" BorderBrush="{DynamicResource Line2Brush}">
                                             <ContentPresenter VerticalAlignment="Center"/>
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <!-- Zebra striping via alternation, hover lights the left edge. -->
-                                            <DataTrigger Binding="{Binding (ItemsControl.AlternationIndex), RelativeSource={RelativeSource TemplatedParent}}" Value="1">
+                                            <DataTrigger Binding="{Binding (ItemsControl.AlternationIndex), RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="1">
                                                 <Setter TargetName="rb" Property="Background" Value="{DynamicResource Card2Brush}"/>
                                             </DataTrigger>
                                             <Trigger Property="IsMouseOver" Value="True">
