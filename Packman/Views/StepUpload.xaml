@@ -54,7 +54,8 @@
                           ItemsSource="{Binding Upload.DetectionMethods}"
                           SelectedItem="{Binding Upload.SelectedDetectionMethod, Mode=TwoWay}"/>
 
-                <Grid Margin="0,12,0,0" Visibility="{Binding Upload.IsCustomDetection, Converter={StaticResource BoolToVis}}">
+                <!-- File exists / File version -->
+                <Grid Margin="0,12,0,0" Visibility="{Binding Upload.IsFileDetection, Converter={StaticResource BoolToVis}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="12"/>
@@ -64,21 +65,67 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Path / Key / Product code" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Text="Folder path" Style="{StaticResource FieldLabel}"/>
                         <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                                 local:PlaceholderText.Text="%ProgramFiles%\Contoso"
                                  Text="{Binding Upload.DetectionPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="File / Value name" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Text="File or folder name" Style="{StaticResource FieldLabel}"/>
                         <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                                 local:PlaceholderText.Text="app.exe"
                                  Text="{Binding Upload.DetectionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="4">
-                        <TextBlock Text="Version / Value" Style="{StaticResource FieldLabel}"/>
+                    <StackPanel Grid.Column="4" Visibility="{Binding Upload.IsFileVersionDetection, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="Minimum version" Style="{StaticResource FieldLabel}"/>
                         <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                                 local:PlaceholderText.Text="1.2.3"
                                  Text="{Binding Upload.DetectionValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Grid>
+
+                <!-- Registry key exists -->
+                <Grid Margin="0,12,0,0" Visibility="{Binding Upload.IsRegistryDetection, Converter={StaticResource BoolToVis}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Hive" Style="{StaticResource FieldLabel}"/>
+                        <ComboBox Margin="0,6,0,0" Height="34" VerticalContentAlignment="Center"
+                                  ItemsSource="{Binding Upload.RegistryHives}"
+                                  SelectedItem="{Binding Upload.SelectedRegistryHive, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Key path" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                                 local:PlaceholderText.Text="SOFTWARE\Contoso\App"
+                                 Text="{Binding Upload.RegistryKeyPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="Value name (optional)" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                                 local:PlaceholderText.Text="blank checks the key itself"
+                                 Text="{Binding Upload.RegistryValueName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- MSI product code -->
+                <StackPanel Margin="0,12,0,0" Visibility="{Binding Upload.IsMsiDetection, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="MSI product code" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                             local:PlaceholderText.Text="{}{00000000-0000-0000-0000-000000000000}"
+                             Text="{Binding Upload.DetectionProductCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Margin="0,6,0,0" TextWrapping="Wrap"
+                               FontFamily="{StaticResource MonoFontFamily}" FontSize="10.5" LineHeight="16"
+                               Foreground="{DynamicResource WarnBrush}"
+                               Visibility="{Binding Upload.HasNoMsiProductCode, Converter={StaticResource BoolToVis}}"
+                               Text="No MSI found in the package — enter the product code manually."/>
+                </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                     <Border BorderBrush="{DynamicResource PrimaryLineBrush}" BorderThickness="1" Padding="7,4" VerticalAlignment="Top">
@@ -217,13 +264,18 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="56"/>
+                                            <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding Code}" VerticalAlignment="Center"
                                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
                                                    Foreground="{DynamicResource TextBrush}"/>
-                                        <Border Grid.Column="1" Style="{StaticResource SegmentGroup}" VerticalAlignment="Center">
+                                        <TextBox Grid.Column="1" Style="{StaticResource TextField}" Height="28" FontSize="11.5"
+                                                 Margin="0,0,10,0" VerticalAlignment="Center"
+                                                 local:PlaceholderText.Text="Description"
+                                                 Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <Border Grid.Column="2" Style="{StaticResource SegmentGroup}" VerticalAlignment="Center">
                                             <StackPanel Orientation="Horizontal">
                                                 <RadioButton Style="{StaticResource ContextToggle}" Padding="9,6" Content="SUCCESS" IsChecked="{Binding IsSuccess}"/>
                                                 <RadioButton Style="{StaticResource ContextToggle}" Padding="9,6" Content="SOFT REBOOT" IsChecked="{Binding IsSoftReboot}"/>
@@ -232,7 +284,7 @@
                                                 <RadioButton Style="{StaticResource ContextToggle}" Padding="9,6" Content="FAILED" IsChecked="{Binding IsFailed}"/>
                                             </StackPanel>
                                         </Border>
-                                        <Button Grid.Column="2" Style="{StaticResource RowIconButton}" Command="{Binding RemoveCommand}"
+                                        <Button Grid.Column="3" Style="{StaticResource RowIconButton}" Command="{Binding RemoveCommand}"
                                                 VerticalAlignment="Center" ToolTip="Remove" Content="✕" FontSize="11"/>
                                     </Grid>
                                 </Border>

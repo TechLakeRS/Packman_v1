@@ -136,31 +136,47 @@
                                 <!-- Add-rule editor -->
                                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12" Margin="0,6,0,0">
                                     <StackPanel>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="120"/>
-                                                <ColumnDefinition Width="10"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <ComboBox Grid.Column="0" ItemsSource="{Binding RuleTypes}" SelectedItem="{Binding NewRuleType, Mode=TwoWay}" Height="40" VerticalContentAlignment="Center"/>
-                                            <TextBox Grid.Column="2" Style="{StaticResource TextField}" Padding="11,0"
-                                                     local:PlaceholderText.Text="Path / key / product code"
+                                        <ComboBox ItemsSource="{Binding DetectionMethods}" SelectedItem="{Binding NewRuleMethod, Mode=TwoWay}"
+                                                  Height="40" VerticalContentAlignment="Center"/>
+
+                                        <!-- File exists / File version -->
+                                        <StackPanel Visibility="{Binding IsFileMethod, Converter={StaticResource BoolToVis}}">
+                                            <TextBox Style="{StaticResource TextField}" Padding="11,0" Margin="0,8,0,0"
+                                                     local:PlaceholderText.Text="Folder path, e.g. %ProgramFiles%\Contoso"
                                                      Text="{Binding NewRulePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                        </Grid>
+                                            <TextBox Style="{StaticResource TextField}" Padding="11,0" Margin="0,8,0,0"
+                                                     local:PlaceholderText.Text="File or folder name"
+                                                     Text="{Binding NewRuleName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0"
+                                                        Visibility="{Binding IsFileVersionMethod, Converter={StaticResource BoolToVis}}">
+                                                <ComboBox ItemsSource="{Binding Operators}" SelectedItem="{Binding NewRuleOperator, Mode=TwoWay}"
+                                                          Width="180" Height="36" VerticalContentAlignment="Center"/>
+                                                <TextBox Style="{StaticResource TextField}" Padding="11,0" Width="140" Margin="8,0,0,0"
+                                                         local:PlaceholderText.Text="Version"
+                                                         Text="{Binding NewRuleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                            </StackPanel>
+                                        </StackPanel>
 
-                                        <TextBox Style="{StaticResource TextField}" Padding="11,0" Margin="0,8,0,0"
-                                                 local:PlaceholderText.Text="File or value name (optional)"
-                                                 Text="{Binding NewRuleName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <!-- Registry key exists -->
+                                        <StackPanel Visibility="{Binding IsRegistryMethod, Converter={StaticResource BoolToVis}}">
+                                            <ComboBox ItemsSource="{Binding RegistryHives}" SelectedItem="{Binding NewRuleHive, Mode=TwoWay}"
+                                                      Height="40" Margin="0,8,0,0" VerticalContentAlignment="Center"/>
+                                            <TextBox Style="{StaticResource TextField}" Padding="11,0" Margin="0,8,0,0"
+                                                     local:PlaceholderText.Text="Key path, e.g. SOFTWARE\Contoso\App"
+                                                     Text="{Binding NewRuleKeyPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                            <TextBox Style="{StaticResource TextField}" Padding="11,0" Margin="0,8,0,0"
+                                                     local:PlaceholderText.Text="Value name (blank checks the key itself)"
+                                                     Text="{Binding NewRuleValueName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
 
-                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                            <CheckBox Content="Check version" IsChecked="{Binding NewRuleCheckVersion, Mode=TwoWay}" VerticalAlignment="Center"
-                                                      Foreground="{DynamicResource TextBrush}" FontSize="12.5"/>
-                                            <ComboBox ItemsSource="{Binding Operators}" SelectedItem="{Binding NewRuleOperator, Mode=TwoWay}" Width="160" Height="36" Margin="12,0,0,0" VerticalContentAlignment="Center"
-                                                      IsEnabled="{Binding NewRuleCheckVersion}"/>
-                                            <TextBox Style="{StaticResource TextField}" Padding="11,0" Width="120" Margin="8,0,0,0"
-                                                     local:PlaceholderText.Text="Value"
-                                                     IsEnabled="{Binding NewRuleCheckVersion}"
-                                                     Text="{Binding NewRuleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <!-- MSI product code -->
+                                        <StackPanel Visibility="{Binding IsMsiMethod, Converter={StaticResource BoolToVis}}">
+                                            <TextBox Style="{StaticResource TextField}" Padding="11,0" Margin="0,8,0,0"
+                                                     local:PlaceholderText.Text="{}{00000000-0000-0000-0000-000000000000}"
+                                                     Text="{Binding NewRuleProductCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                            <TextBlock Text="No MSI found in the package — enter the product code manually."
+                                                       FontSize="11.5" Foreground="{DynamicResource WarnBrush}" Margin="0,6,0,0" TextWrapping="Wrap"
+                                                       Visibility="{Binding HasNoMsiProductCode, Converter={StaticResource BoolToVis}}"/>
                                         </StackPanel>
 
                                         <Button Style="{StaticResource CardActionButton}" HorizontalAlignment="Left" Margin="0,12,0,0"

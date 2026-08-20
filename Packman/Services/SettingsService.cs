@@ -17,15 +17,32 @@ public class SettingsService
         try
         {
             var json = File.ReadAllText(_path);
-            return JsonSerializer.Deserialize<AppSettings>(json, new JsonSerializerOptions
+            var settings = JsonSerializer.Deserialize<AppSettings>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
                 ReadCommentHandling = JsonCommentHandling.Skip,
                 AllowTrailingCommas = true,
                 Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
             }) ?? new AppSettings();
+            Migrate(settings);
+            return settings;
         }
         catch { return new AppSettings(); }
+    }
+
+    /// <summary>
+    /// Moves a per-package group that was configured with the Uninstall intent onto the
+    /// dedicated uninstall group, which is where that intent lives now.
+    /// </summary>
+    private static void Migrate(AppSettings settings)
+    {
+        var groups = settings.GroupAssignment;
+        if (!groups.CreateGroupPerPackage || groups.NewGroupIntent != AssignmentIntent.Uninstall) return;
+
+        groups.CreateUninstallGroupPerPackage = true;
+        groups.UninstallGroupNameTemplate = groups.GroupNameTemplate;
+        groups.CreateGroupPerPackage = false;
+        groups.NewGroupIntent = AssignmentIntent.Required;
     }
 
     public void Save()

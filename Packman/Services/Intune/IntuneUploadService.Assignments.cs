@@ -73,18 +73,25 @@ public partial class IntuneUploadService
         }
 
         if (config.CreateGroupPerPackage)
+            await AssignPerPackageGroupAsync(appId, appInfo, config.GroupNameTemplate, config.NewGroupIntent, log);
+
+        if (config.CreateUninstallGroupPerPackage)
+            await AssignPerPackageGroupAsync(appId, appInfo, config.UninstallGroupNameTemplate, AssignmentIntent.Uninstall, log);
+    }
+
+    /// <summary>Resolves (or creates) the per-package group named by the template and assigns it with the given intent.</summary>
+    private async Task AssignPerPackageGroupAsync(string appId, ApplicationInfo appInfo, string template, AssignmentIntent intent, UploadLogger log)
+    {
+        var name = GroupAssignmentNamer.Build(template, appInfo.Manufacturer, appInfo.Name, appInfo.Version);
+        if (string.IsNullOrWhiteSpace(name))
         {
-            var name = GroupAssignmentNamer.Build(config.GroupNameTemplate, appInfo.Manufacturer, appInfo.Name, appInfo.Version);
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                log.Warning("Per-package group name resolved to empty - skipped");
-                return;
-            }
-            // Reuse a group with this name if one already exists, otherwise create it.
-            var groupId = await ResolveGroupIdAsync(name, log) ?? await CreateSecurityGroupAsync(name, log);
-            if (groupId != null)
-                await CreateGroupAssignmentAsync(appId, groupId, config.NewGroupIntent, name, log);
+            log.Warning($"Per-package group name for the {intent} assignment resolved to empty - skipped");
+            return;
         }
+        // Reuse a group with this name if one already exists, otherwise create it.
+        var groupId = await ResolveGroupIdAsync(name, log) ?? await CreateSecurityGroupAsync(name, log);
+        if (groupId != null)
+            await CreateGroupAssignmentAsync(appId, groupId, intent, name, log);
     }
 
     private async Task<string?> ResolveGroupIdAsync(string displayName, UploadLogger log)

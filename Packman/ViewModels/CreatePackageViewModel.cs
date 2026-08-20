@@ -14,7 +14,6 @@ public class CreatePackageViewModel : ObservableObject
     private string _version = "";
     private bool _userInstall = false;
     private string _architecture = "x64";
-    private string _author = "";
     private string _detectedPackageType = "";
     private MsiInfoService.MsiInfo? _currentMsiInfo;
     private string _currentPackagePath = "";
@@ -58,13 +57,6 @@ public class CreatePackageViewModel : ObservableObject
     {
         get => _architecture;
         set => Set(ref _architecture, value);
-    }
-
-    /// <summary>Optional override for the PSADT script author. Empty falls back to the current user.</summary>
-    public string Author
-    {
-        get => _author;
-        set => Set(ref _author, value);
     }
 
     public string DetectedPackageType
@@ -154,8 +146,7 @@ public class CreatePackageViewModel : ObservableObject
             Version = string.IsNullOrWhiteSpace(Version) ? "1.0.0" : Version.Trim(),
             SourcesPath = SourcesPath.Trim(),
             InstallContext = installContext,
-            Architecture = string.IsNullOrWhiteSpace(Architecture) ? "x64" : Architecture.Trim(),
-            Author = Author.Trim()
+            Architecture = string.IsNullOrWhiteSpace(Architecture) ? "x64" : Architecture.Trim()
         };
 
         if (CurrentMsiInfo?.IsValid == true)
@@ -230,7 +221,6 @@ public class CreatePackageViewModel : ObservableObject
         ExtractedIconPath = "";
         UserInstall = false;
         Architecture = "x64";
-        Author = "";
         DetectedPackageType = "";
         CurrentMsiInfo = null;
         CurrentPackagePath = "";
