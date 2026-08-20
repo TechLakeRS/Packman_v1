@@ -363,7 +363,7 @@
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                                         <Rectangle Width="6" Height="6" VerticalAlignment="Center" Margin="0,0,9,0">
                                                             <Rectangle.Style>
-                                                                <Style TargetType="Ellipse">
+                                                                <Style TargetType="Rectangle">
                                                                     <Setter Property="Fill" Value="{DynamicResource BadBrush}"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding Ok}" Value="True">

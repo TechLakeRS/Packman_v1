@@ -159,7 +159,7 @@
                                                 <StackPanel Orientation="Horizontal">
                                                     <Rectangle Width="6" Height="6" VerticalAlignment="Center">
                                                         <Rectangle.Style>
-                                                            <Style TargetType="Ellipse">
+                                                            <Style TargetType="Rectangle">
                                                                 <Setter Property="Fill" Value="{DynamicResource Muted2Brush}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding StatusKind}" Value="ok">
