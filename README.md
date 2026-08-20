@@ -28,7 +28,7 @@ rules, group assignment, code signing and supersedence included.
 
 ## Architecture
 
-- **.NET 9 / WPF** desktop application (`net9.0-windows`), MVVM, no DI container.
+- **.NET 10 / WPF** desktop application (`net10.0-windows`), MVVM, no DI container.
 - **Authentication** via MSAL (`Microsoft.Identity.Client`): interactive sign-in
   (using the public "Microsoft Graph Command Line Tools" client by default) or an
   app registration with a certificate.
@@ -51,7 +51,7 @@ Packman/
 ## Requirements
 
 - **Windows** (the app uses WPF and the Windows certificate store / broker).
-- **.NET 9 SDK** to build, or the .NET 9 Desktop Runtime to run a published build.
+- **.NET 10 SDK** to build, or the .NET 10 Desktop Runtime to run a published build.
 - **PSADT v4 template + runtime** — a folder containing
   `Invoke-AppDeployToolkit.ps1` plus the `Invoke-AppDeployToolkit.exe` runtime and
   `PSAppDeployToolkit` module. A starter template ships in `Packman/PSADT/`
