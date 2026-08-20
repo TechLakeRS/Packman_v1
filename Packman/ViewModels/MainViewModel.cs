@@ -21,6 +21,7 @@ public sealed class MainViewModel : ObservableObject
     public CreatePackageViewModel CreatePackage { get; } = new();
     public UpgradePackageViewModel Upgrade { get; } = new();
     public UploadStepViewModel Upload { get; }
+    public RemoteTestViewModel RemoteTest { get; }
 
     private const int GenerateStep = 0;
     private const int UploadStep = 1;
@@ -105,7 +106,7 @@ public sealed class MainViewModel : ObservableObject
     public string ToolActionLabel => _activeTool switch
     {
         PackageTool.EditScript => "OPEN IN VS CODE",
-        PackageTool.RemoteTest => "RUN AGAIN",
+        PackageTool.RemoteTest => "RUN INSTALL",
         _ => "",
     };
 
@@ -159,6 +160,7 @@ public sealed class MainViewModel : ObservableObject
     public MainViewModel()
     {
         Upload = new UploadStepViewModel(CreatePackage, _settingsService, _auth);
+        RemoteTest = new RemoteTestViewModel(CreatePackage, Upload, _settingsService);
 
         Steps = new ObservableCollection<StepViewModel>
         {

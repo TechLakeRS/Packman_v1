@@ -13,70 +13,137 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Target Device -->
-        <Border Grid.Column="0" Style="{StaticResource Card}" VerticalAlignment="Top">
-            <StackPanel>
-<DockPanel Margin="0,0,0,14">
-    <TextBlock DockPanel.Dock="Left" Text="TEST ACTIONS" Style="{StaticResource SectionLabel}"/>
-    <TextBlock DockPanel.Dock="Right" Text="What to run on the target" Style="{StaticResource Caption}"/>
-    <Border Style="{StaticResource Rule}"/>
-</DockPanel>
+        <!-- Target device + actions -->
+        <StackPanel Grid.Column="0">
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,14">
+                        <TextBlock DockPanel.Dock="Left" Text="TARGET DEVICE" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding StatusText}" Style="{StaticResource Caption}"/>
+                        <Border Style="{StaticResource Rule}"/>
+                    </DockPanel>
 
-                <!-- Check 1 (on) -->
-                <Border BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" CornerRadius="0" Padding="13,11" Cursor="Hand">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="19" Height="19" CornerRadius="0" Background="{DynamicResource PrimaryBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="2">
-                            <Viewbox Width="13" Height="13">
-                                <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
-                        </Border>
-                        <TextBlock Text="Run install" Margin="11,0,0,0" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
+                    <TextBlock Text="Computer Name" Style="{StaticResource FieldLabel}"/>
+                    <Grid Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="0" IsEditable="True" FontSize="13"
+                                  ItemsSource="{Binding RecentComputers}"
+                                  Text="{Binding TargetComputer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEnabled="{Binding IsIdle}"
+                                  ToolTip="Name of the machine to test on. WinRM must be enabled (Enable-PSRemoting)."/>
+                        <Button Grid.Column="1" Style="{StaticResource GhostButton}" Content="CHECK" Margin="8,0,0,0"
+                                Command="{Binding CheckOnlineCommand}"/>
+                    </Grid>
 
-                <!-- Check 2 (on) -->
-                <Border BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" CornerRadius="0" Padding="13,11" Margin="0,8,0,0" Cursor="Hand">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="19" Height="19" CornerRadius="0" Background="{DynamicResource PrimaryBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="2">
-                            <Viewbox Width="13" Height="13">
-                                <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
-                        </Border>
-                        <TextBlock Text="Verify detection rule" Margin="11,0,0,0" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
+                    <TextBlock Text="Run Context" Style="{StaticResource FieldLabel}" Margin="0,16,0,0"/>
+                    <Border Style="{StaticResource SegmentGroup}" Margin="0,6,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Style="{StaticResource ContextToggle}" GroupName="RunCtx" Content="SYSTEM"
+                                         IsChecked="{Binding IsSystemContext, Mode=TwoWay}" IsEnabled="{Binding IsIdle}"/>
+                            <RadioButton Style="{StaticResource ContextToggle}" GroupName="RunCtx" Content="USER"
+                                         IsChecked="{Binding RunAsUser, Mode=TwoWay}" IsEnabled="{Binding IsIdle}"/>
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Text="{Binding ContextHelpText}" Margin="0,9,0,0" FontSize="12" LineHeight="18"
+                               TextWrapping="Wrap" Foreground="{DynamicResource Muted2Brush}"/>
+                </StackPanel>
+            </Border>
 
-                <!-- Check 3 (off) -->
-                <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="13,11" Margin="0,8,0,0" Cursor="Hand">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="19" Height="19" CornerRadius="0" BorderBrush="{DynamicResource Muted2Brush}" BorderThickness="2"/>
-                        <TextBlock Text="Run uninstall" Margin="11,0,0,0" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
+            <Border Style="{StaticResource Card}" Margin="0,18,0,0">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,14">
+                        <TextBlock DockPanel.Dock="Left" Text="TEST ACTIONS" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock DockPanel.Dock="Right" Text="What to run on the target" Style="{StaticResource Caption}"/>
+                        <Border Style="{StaticResource Rule}"/>
+                    </DockPanel>
 
-                <!-- Console -->
-                <Border Background="{DynamicResource CodeBgBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="14,12" Margin="0,14,0,0">
-                    <StackPanel>
-                        <TextBlock FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" LineHeight="22" LineStackingStrategy="BlockLineHeight">
-                            <Run Foreground="{DynamicResource CodeCommentBrush}" Text="09:41:02 "/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text="queued on "/>
-                            <Run Foreground="{DynamicResource CodeTxtBrush}" Text="VM-WIN11-TEST"/>
+                    <Button Style="{StaticResource PrimaryButton}" Content="RUN INSTALL" HorizontalAlignment="Stretch"
+                            Command="{Binding InstallCommand}"/>
+                    <Button Style="{StaticResource GhostButton}" Content="RUN UNINSTALL" HorizontalAlignment="Stretch"
+                            Margin="0,8,0,0" Command="{Binding UninstallCommand}"/>
+                    <Button Style="{StaticResource GhostButton}" Content="DISCOVER DETECTION RULE" HorizontalAlignment="Stretch"
+                            Margin="0,8,0,0" Command="{Binding DetectCommand}"
+                            ToolTip="Search the target for the installed executable and build a detection rule from it."/>
+
+                    <StackPanel Margin="0,14,0,0" Visibility="{Binding IsCopying, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Style="{StaticResource Caption}">
+                            <Run Text="copying package —"/><Run Text=" "/><Run Text="{Binding CopyPercent, Mode=OneWay}"/><Run Text="%"/>
                         </TextBlock>
-                        <TextBlock FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" LineHeight="22" LineStackingStrategy="BlockLineHeight">
-                            <Run Foreground="{DynamicResource CodeCommentBrush}" Text="09:41:04 "/>
-                            <Run Foreground="{DynamicResource CodeBarTxtBrush}" Text="copying .intunewin payload…"/>
-                        </TextBlock>
-                        <TextBlock FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" LineHeight="22" LineStackingStrategy="BlockLineHeight">
-                            <Run Foreground="#4A7A5E" Text="09:41:18 "/>
-                            <Run Foreground="{DynamicResource CodeStringBrush}" Text="install exit code 0 — success"/>
-                        </TextBlock>
-                        <TextBlock FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" LineHeight="22" LineStackingStrategy="BlockLineHeight">
-                            <Run Foreground="#4A7A5E" Text="09:41:19 "/>
-                            <Run Foreground="{DynamicResource CodeStringBrush}" Text="detection rule matched ✓"/>
-                        </TextBlock>
+                        <ProgressBar Height="4" Margin="0,6,0,0" Minimum="0" Maximum="100"
+                                     Value="{Binding CopyPercent, Mode=OneWay}"/>
                     </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Detection rule discovered on the target -->
+            <Border Style="{StaticResource Card}" Margin="0,18,0,0"
+                    Visibility="{Binding HasDiscoveredRule, Converter={StaticResource BoolToVis}}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,14">
+                        <TextBlock DockPanel.Dock="Left" Text="DETECTION RULE" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock DockPanel.Dock="Right" Text="found on the target" Style="{StaticResource Caption}"/>
+                        <Border Style="{StaticResource Rule}"/>
+                    </DockPanel>
+                    <TextBlock Text="{Binding DiscoveredSummary}" FontSize="12.5" TextWrapping="Wrap"
+                               FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource InkBrush}"/>
+                    <Button Style="{StaticResource GhostButton}" Content="USE FOR PUBLISH" HorizontalAlignment="Left"
+                            Margin="0,12,0,0" Command="{Binding ApplyDetectionCommand}"
+                            ToolTip="Replace the publish step's detection rule with this one."/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Console -->
+        <Border Grid.Column="2" Style="{StaticResource Card}">
+            <DockPanel>
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,14">
+                    <TextBlock DockPanel.Dock="Left" Text="OUTPUT" Style="{StaticResource SectionLabel}"/>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource BarButton}" Content="CLEAR"
+                            Command="{Binding ClearLogCommand}"/>
+                    <Border Style="{StaticResource Rule}"/>
+                </DockPanel>
+
+                <Border Background="{DynamicResource CodeBgBrush}" BorderBrush="{DynamicResource LineBrush}"
+                        BorderThickness="1" CornerRadius="0" Padding="14,12" MinHeight="380" MaxHeight="600">
+                    <ScrollViewer x:Name="ConsoleScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding Lines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" LineHeight="20"
+                                               LineStackingStrategy="BlockLineHeight" TextWrapping="Wrap">
+                                        <Run Foreground="{DynamicResource CodeCommentBrush}" Text="{Binding Time, Mode=OneWay}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{Binding Text, Mode=OneWay}">
+                                            <Run.Style>
+                                                <Style TargetType="Run">
+                                                    <Setter Property="Foreground" Value="{DynamicResource CodeTxtBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Kind}" Value="Good">
+                                                            <Setter Property="Foreground" Value="{DynamicResource OkBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Kind}" Value="Warn">
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarnBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Kind}" Value="Bad">
+                                                            <Setter Property="Foreground" Value="{DynamicResource BadBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Kind}" Value="Dim">
+                                                            <Setter Property="Foreground" Value="{DynamicResource CodeCommentBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Run.Style>
+                                        </Run>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Border>
-            </StackPanel>
+            </DockPanel>
         </Border>
     </Grid>
 </UserControl>

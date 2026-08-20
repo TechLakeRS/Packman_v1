@@ -299,7 +299,7 @@
                                         Visibility="{Binding IsEditToolOpen, Converter={StaticResource BoolToVis}}"/>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                                       Visibility="{Binding IsTestToolOpen, Converter={StaticResource BoolToVis}}">
-                            <views:StepTest Margin="26,18,26,22"/>
+                            <views:StepTest Margin="26,18,26,22" DataContext="{Binding RemoteTest}"/>
                         </ScrollViewer>
                     </Grid>
 
