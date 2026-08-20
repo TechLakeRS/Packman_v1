@@ -24,3 +24,6 @@ obj/
 ## OS
 .DS_Store
 Thumbs.db
+
+# design canvas build output
+design/packman-redesign.html

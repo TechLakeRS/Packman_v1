@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Martian+Mono:wght@500;600;700&display=swap">
+  <style>
+    body { margin: 0; background: #07080B; }
+    a { color: #E0A050; text-decoration: none; }
+    a:hover { color: #C98A3C; }
+    @keyframes pk-beam2 { to { stroke-dashoffset: -320; } }
+    .pk-beam2 { stroke-dasharray: 5 11; animation: pk-beam2 4s linear infinite; }
+  </style>
+</helmet>
+
+<div style="width: 1320px; height: 860px; display: flex; flex-direction: column; background: #07080B; color: #E7EBF2; font-family: 'Instrument Sans', 'Segoe UI Variable Display', 'Segoe UI', sans-serif; overflow: hidden;">
+
+  <!-- TOP BAR -->
+  <div style="height: 46px; flex-shrink: 0; background: #0F1219; border-bottom: 1px solid #1E2431; padding: 0 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 9px;">
+      <div style="width: 16px; height: 16px; border: 1.5px solid #E0A050; display: flex; align-items: center; justify-content: center;">
+        <div style="width: 5px; height: 5px; background: #66D37A;"></div>
+      </div>
+      <div style="font-family: 'Martian Mono', monospace; font-size: 11.5px; font-weight: 700; color: #F2F4F8;">PACKMAN</div>
+      <div style="width: 1px; height: 18px; background: #232936; margin: 0 7px;"></div>
+      <div style="font-size: 12px; font-weight: 500; color: #919AAD;">Create Package</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="width: 250px; height: 28px; background: #0A0C11; border: 1px solid #1E2431; border-radius: 2px; display: flex; align-items: center; gap: 8px; padding: 0 10px;">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="4" cy="4" r="3.2" stroke="#3F4655" stroke-width="1.4"/><path d="M6.4 6.4 L9 9" stroke="#3F4655" stroke-width="1.4"/></svg>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #757E91;">search applications, packages…</div>
+      </div>
+      <div style="font-size: 11px; font-weight: 700; color: #919AAD; padding: 4px;">DOCS</div>
+      <div style="width: 1px; height: 18px; background: #232936;"></div>
+      <div style="display: flex; align-items: center; gap: 9px;">
+        <div style="width: 26px; height: 26px; background: linear-gradient(140deg, #232936, #161A23); border: 1px solid #232936; display: flex; align-items: center; justify-content: center; font-family: 'Martian Mono', monospace; font-size: 10px; color: #B9C0CE;">AS</div>
+        <div style="display: flex; flex-direction: column; gap: 3px;">
+          <div style="font-size: 11.5px; font-weight: 600; color: #F2F4F8; line-height: 1;">admin.sarker</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #7A8396; line-height: 1;">contoso.com</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0;">
+
+    <!-- RAIL -->
+    <div style="width: 196px; flex-shrink: 0; background: #0A0C11; border-right: 1px solid #1E2431; display: flex; flex-direction: column; padding: 12px 0;">
+      <div style="display: flex; flex-direction: column;">
+        <div style="border-left: 2px solid transparent; padding: 9px 14px; display: flex; align-items: center; gap: 11px; font-size: 12.5px; font-weight: 500; color: #919AAD;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #757E91;">00</span>Mission Control</div>
+        <div style="border-left: 2px solid #E0A050; background: rgba(224,160,80,0.08); padding: 9px 14px; display: flex; align-items: center; gap: 11px; font-size: 12.5px; font-weight: 600; color: #F2F4F8;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #757E91;">01</span>Create Package</div>
+        <div style="border-left: 2px solid transparent; padding: 9px 14px; display: flex; align-items: center; gap: 11px; font-size: 12.5px; font-weight: 500; color: #919AAD;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #757E91;">02</span>Upload to Intune</div>
+        <div style="border-left: 2px solid transparent; padding: 9px 14px; display: flex; align-items: center; gap: 11px; font-size: 12.5px; font-weight: 500; color: #919AAD;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #757E91;">03</span>Applications</div>
+        <div style="border-left: 2px solid transparent; padding: 9px 14px; display: flex; align-items: center; gap: 11px; font-size: 12.5px; font-weight: 500; color: #919AAD;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #757E91;">04</span>Remote Test</div>
+        <div style="border-left: 2px solid transparent; padding: 9px 14px; display: flex; align-items: center; gap: 11px; font-size: 12.5px; font-weight: 500; color: #919AAD;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #757E91;">05</span>Advanced</div>
+        <div style="border-left: 2px solid transparent; padding: 9px 14px; display: flex; align-items: center; gap: 11px; font-size: 12.5px; font-weight: 500; color: #919AAD;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #757E91;">06</span>Settings</div>
+      </div>
+      <div style="margin-top: auto; padding: 0 16px; display: flex; flex-direction: column; gap: 5px;">
+        <div style="height: 1px; background: #1A1F29; margin-bottom: 2px;"></div>
+        <div style="font-family: 'Martian Mono', monospace; font-size: 10px; font-weight: 600; color: #757E91;">PSADT v4 · GRAPH BETA</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #757E91;">net9.0-windows</div>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0;">
+
+      <!-- HEADER + BEAM STEPPER -->
+      <div style="border-bottom: 1px solid #1E2431; padding: 20px 26px 0; flex-shrink: 0;">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between;">
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div style="font-size: 19px; font-weight: 700; color: #F2F4F8;">Create Package</div>
+            <div style="font-size: 12.5px; color: #919AAD;">Build a new application package for Intune deployment</div>
+          </div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #757E91;">\\fs01\Sources\Mozilla_Firefox_124.0.1</div>
+        </div>
+
+        <div style="position: relative; margin-top: 20px; padding-bottom: 18px;">
+          <svg viewBox="0 0 1000 8" preserveAspectRatio="none" style="position: absolute; left: 10%; top: 5px; width: 80%; height: 8px; overflow: visible;">
+            <line x1="0" y1="4" x2="1000" y2="4" stroke="#1E2431" stroke-width="1.4"/>
+            <line x1="0" y1="4" x2="500" y2="4" stroke="rgba(224,160,80,0.35)" stroke-width="1.4"/>
+            <line class="pk-beam2" x1="0" y1="4" x2="500" y2="4" stroke="#E0A050" stroke-width="1.6"/>
+          </svg>
+          <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 9px;">
+              <div style="width: 18px; height: 18px; border: 1px solid #E0A050; background: #E0A050; display: flex; align-items: center; justify-content: center;">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#0B0D12" stroke-width="2"><path d="m2 6 3 3 5-6"/></svg>
+              </div>
+              <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #B9C0CE;">GENERATE</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 9px;">
+              <div style="width: 18px; height: 18px; border: 1px solid #E0A050; background: #E0A050; display: flex; align-items: center; justify-content: center;">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#0B0D12" stroke-width="2"><path d="m2 6 3 3 5-6"/></svg>
+              </div>
+              <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #B9C0CE;">EDIT</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 9px;">
+              <div style="width: 18px; height: 18px; border: 1px solid #E0A050; background: rgba(224,160,80,0.14); display: flex; align-items: center; justify-content: center;">
+                <div style="width: 6px; height: 6px; background: #E0A050;"></div>
+              </div>
+              <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 700; color: #F2F4F8;">TEST</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 9px;">
+              <div style="width: 18px; height: 18px; border: 1px solid #232936; background: #0C0F15;"></div>
+              <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #757E91;">REVIEW</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 9px;">
+              <div style="width: 18px; height: 18px; border: 1px solid #232936; background: #0C0F15;"></div>
+              <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #757E91;">UPLOAD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORM BODY -->
+      <div style="flex-grow: 1; min-height: 0; padding: 22px 26px; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px;">
+
+        <div style="background: #0F1219; border: 1px solid #1E2431; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; min-height: 0;">
+          <div style="display: flex; align-items: center;">
+            <div style="font-family: 'Martian Mono', monospace; font-size: 10px; font-weight: 600; color: #A0A9BC;">APPLICATION INFORMATION</div>
+            <div style="flex-grow: 1; height: 1px; background: #1E2431; margin: 0 12px; min-width: 24px;"></div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #757E91;">read from installer</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px;">
+            <div style="display: flex; flex-direction: column; gap: 7px;">
+              <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #828B9E;">MANUFACTURER</div>
+              <div style="height: 34px; background: #0A0C11; border: 1px solid #232936; display: flex; align-items: center; padding: 0 11px; font-size: 12.5px; color: #E7EBF2;">Mozilla</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 7px;">
+              <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #828B9E;">APPLICATION NAME</div>
+              <div style="height: 34px; background: #0A0C11; border: 1px solid #E0A050; display: flex; align-items: center; padding: 0 11px; font-size: 12.5px; color: #F2F4F8;">Firefox<span style="width: 1px; height: 15px; background: #E0A050; margin-left: 1px;"></span></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 7px;">
+              <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #828B9E;">VERSION</div>
+              <div style="height: 34px; background: #0A0C11; border: 1px solid #232936; display: flex; align-items: center; padding: 0 11px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #E7EBF2;">124.0.1</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 7px;">
+              <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #828B9E;">ARCHITECTURE</div>
+              <div style="height: 34px; background: #161A23; border: 1px solid #2B3243; display: flex; align-items: center; justify-content: space-between; padding: 0 11px; font-size: 12.5px; color: #E7EBF2;">x64
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#7A8396" stroke-width="1.5"><path d="m2 4 4 4 4-4"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #828B9E;">SOURCES PATH</div>
+            <div style="height: 34px; background: #0A0C11; border: 1px solid #232936; display: flex; align-items: center; justify-content: space-between; padding: 0 4px 0 11px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #B9C0CE;">\\fs01\Sources
+              <div style="background: #161A23; border: 1px solid #2B3243; padding: 6px 12px; font-family: 'Instrument Sans', sans-serif; font-size: 11px; font-weight: 700; color: #B9C0CE;">BROWSE</div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <div style="font-family: 'Martian Mono', monospace; font-size: 9.5px; font-weight: 600; color: #828B9E;">INSTALL CONTEXT</div>
+            <div style="display: flex; gap: 0; border: 1px solid #2B3243; width: fit-content;">
+              <div style="background: rgba(224,160,80,0.14); border-right: 1px solid #2B3243; padding: 8px 18px; font-size: 11.5px; font-weight: 600; color: #E0A050;">System</div>
+              <div style="background: #161A23; padding: 8px 18px; font-size: 11.5px; font-weight: 500; color: #919AAD;">User</div>
+            </div>
+          </div>
+
+          <div style="margin-top: auto; display: flex; align-items: center; gap: 10px; border-top: 1px solid #1E2431; padding-top: 16px;">
+            <div style="background: #E0A050; color: #0B0D12; padding: 11px 16px; font-size: 11px; font-weight: 700;">GENERATE PACKAGE</div>
+            <div style="background: #161A23; border: 1px solid #2B3243; color: #B9C0CE; padding: 10px 14px; font-size: 11px; font-weight: 700;">ALREADY HAVE A PACKAGE?</div>
+          </div>
+        </div>
+
+        <!-- LIVE PANEL -->
+        <div style="display: flex; flex-direction: column; gap: 16px; min-height: 0;">
+          <div style="background: #0F1219; border: 1px solid #1E2431; padding: 18px 20px; display: flex; flex-direction: column; gap: 13px;">
+            <div style="display: flex; align-items: center;">
+              <div style="font-family: 'Martian Mono', monospace; font-size: 10px; font-weight: 600; color: #A0A9BC;">DETECTED</div>
+              <div style="flex-grow: 1; height: 1px; background: #1E2431; margin: 0 12px; min-width: 24px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 9px; font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+              <div style="display: flex; justify-content: space-between; gap: 12px;"><span style="color: #7A8396;">product code</span><span style="color: #E7EBF2;">{EC8030F7-C20A…}</span></div>
+              <div style="display: flex; justify-content: space-between; gap: 12px;"><span style="color: #7A8396;">installer</span><span style="color: #E7EBF2;">EXE · 58.4 MB</span></div>
+              <div style="display: flex; justify-content: space-between; gap: 12px;"><span style="color: #7A8396;">silent args</span><span style="color: #E7EBF2;">/S</span></div>
+              <div style="display: flex; justify-content: space-between; gap: 12px;"><span style="color: #7A8396;">icon</span><span style="color: #66D37A;">extracted</span></div>
+            </div>
+          </div>
+
+          <div style="background: #07080B; border: 1px solid #1E2431; padding: 16px 18px; display: flex; flex-direction: column; gap: 11px; flex-grow: 1; min-height: 0;">
+            <div style="display: flex; align-items: center;">
+              <div style="font-family: 'Martian Mono', monospace; font-size: 10px; font-weight: 600; color: #A0A9BC;">Invoke-AppDeployToolkit.ps1</div>
+              <div style="flex-grow: 1; height: 1px; background: #1E2431; margin: 0 12px; min-width: 24px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.55;">
+              <div><span style="color: #7A8396;">## Pre-Installation</span></div>
+              <div><span style="color: #E0A050;">Show-ADTInstallationWelcome</span> <span style="color: #B9C0CE;">-CloseProcesses</span> <span style="color: #66D37A;">'firefox'</span></div>
+              <div><span style="color: #E0A050;">Show-ADTInstallationProgress</span></div>
+              <div style="height: 4px;"></div>
+              <div><span style="color: #7A8396;">## Installation</span></div>
+              <div><span style="color: #E0A050;">Start-ADTProcess</span> <span style="color: #B9C0CE;">-FilePath</span> <span style="color: #66D37A;">'Firefox Setup.exe'</span></div>
+              <div style="padding-left: 16px;"><span style="color: #B9C0CE;">-ArgumentList</span> <span style="color: #66D37A;">'/S'</span></div>
+              <div style="height: 4px;"></div>
+              <div><span style="color: #7A8396;">## Post-Installation</span></div>
+              <div><span style="color: #E0A050;">Remove-ADTFile</span> <span style="color: #B9C0CE;">-Path</span> <span style="color: #66D37A;">"$envCommonDesktop\Firefox.lnk"</span></div>
+            </div>
+            <div style="margin-top: auto; display: flex; gap: 9px;">
+              <div style="background: #161A23; border: 1px solid #2B3243; color: #B9C0CE; padding: 9px 13px; font-family: 'Instrument Sans', sans-serif; font-size: 11px; font-weight: 700;">VS CODE</div>
+              <div style="background: #161A23; border: 1px solid #2B3243; color: #B9C0CE; padding: 9px 13px; font-family: 'Instrument Sans', sans-serif; font-size: 11px; font-weight: 700;">ISE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 26px; flex-shrink: 0; background: #0B0D12; border-top: 1px solid #1E2431; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #757E91;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span style="color: #66D37A;">● graph connected</span>
+      <span>step 3 of 5 — test</span>
+    </div>
+    <div>PACKMAN 1.4.0</div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
