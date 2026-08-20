@@ -44,11 +44,15 @@ public class AppSettings
 
     public class GroupAssignmentConfig
     {
-        // Create a brand-new security group for each uploaded package.
+        // Create a brand-new install security group for each uploaded package.
         public bool CreateGroupPerPackage { get; set; } = false;
-        // Name template for the per-package group; tokens %vendor% %appName% %appVersion%.
-        public string GroupNameTemplate { get; set; } = "%vendor%_%appName%_%appVersion%";
+        // Name template for the per-package install group; tokens %vendor% %appName% %appVersion%.
+        public string GroupNameTemplate { get; set; } = "%vendor%_%appName%_%appVersion%_Install";
         public AssignmentIntent NewGroupIntent { get; set; } = AssignmentIntent.Required;
+
+        // Create a matching uninstall security group for each uploaded package.
+        public bool CreateUninstallGroupPerPackage { get; set; } = false;
+        public string UninstallGroupNameTemplate { get; set; } = "%vendor%_%appName%_%appVersion%_Uninstall";
 
         // Existing groups that are always assigned to every upload.
         public List<ExistingGroupAssignment> ExistingGroups { get; set; } = new();

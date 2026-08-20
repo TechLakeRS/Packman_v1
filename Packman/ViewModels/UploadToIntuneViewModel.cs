@@ -16,15 +16,11 @@ public sealed class UploadToIntuneViewModel : ObservableObject
 {
     private readonly SettingsService _settings = AppServices.Settings;
     private readonly IntuneAuthService _auth = AppServices.Auth;
-    private readonly IntuneService _apps = AppServices.Apps;
 
     public UploadToIntuneViewModel()
     {
         AddRuleCommand = new RelayCommand(AddDetectionRule, () => CanAddRule);
         RemoveRuleCommand = new RelayCommand<DetectionRule>(r => { if (r != null) DetectionRules.Remove(r); });
-        SearchGroupsCommand = new RelayCommand(async () => await SearchGroupsAsync(), () => !IsSearchingGroups);
-        AddGroupCommand = new RelayCommand<EntraGroup>(AddGroup);
-        RemoveGroupCommand = new RelayCommand<AssignedGroup>(g => { if (g != null) SelectedGroups.Remove(g); });
         UploadCommand = new RelayCommand(async () => await UploadAsync(), () => UploadEnabled);
         DoneCommand = new RelayCommand(ResetAfterPublish);
 
@@ -170,6 +166,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     private void BuildDetectionRules(string root)
     {
         DetectionRules.Clear();
+        _msiProductCode = "";
         try
         {
             var filesFolder = Path.Combine(root, "Application", "Files");
@@ -181,6 +178,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
                     var msi = MsiInfoService.ExtractMsiInfo(msiFiles[0]);
                     if (msi.IsValid)
                     {
+                        _msiProductCode = msi.ProductCode;
                         DetectionRules.Add(new DetectionRule
                         {
                             Type = DetectionRuleType.File,
@@ -197,14 +195,44 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             }
         }
         catch { /* leave list empty; user can add a rule manually */ }
+
+        NewRuleProductCode = _msiProductCode;
+        OnPropertyChanged(nameof(HasNoMsiProductCode));
     }
 
-    public ObservableCollection<string> RuleTypes { get; } = new() { "File", "Registry", "MSI" };
+    /// <summary>Product code of the MSI staged in the selected package, used to pre-fill MSI detection.</summary>
+    private string _msiProductCode = "";
+
+    public List<string> DetectionMethods { get; } = DetectionMethod.All;
+    public IReadOnlyList<string> RegistryHives { get; } = RegistryHiveNames.All;
     public ObservableCollection<string> Operators { get; } =
         new() { "greaterThanOrEqual", "equal", "greaterThan", "lessThan", "lessThanOrEqual" };
 
-    private string _newRuleType = "File";
-    public string NewRuleType { get => _newRuleType; set { if (Set(ref _newRuleType, value)) AddRuleCommand.RaiseCanExecuteChanged(); } }
+    private string _newRuleMethod = DetectionMethod.FileExists;
+    public string NewRuleMethod
+    {
+        get => _newRuleMethod;
+        set
+        {
+            if (!Set(ref _newRuleMethod, value)) return;
+            if (IsMsiMethod && string.IsNullOrWhiteSpace(_newRuleProductCode))
+                NewRuleProductCode = _msiProductCode;
+            OnPropertyChanged(nameof(IsFileMethod));
+            OnPropertyChanged(nameof(IsFileVersionMethod));
+            OnPropertyChanged(nameof(IsRegistryMethod));
+            OnPropertyChanged(nameof(IsMsiMethod));
+            OnPropertyChanged(nameof(HasNoMsiProductCode));
+            AddRuleCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public bool IsFileMethod => _newRuleMethod is DetectionMethod.FileExists or DetectionMethod.FileVersion;
+    public bool IsFileVersionMethod => _newRuleMethod == DetectionMethod.FileVersion;
+    public bool IsRegistryMethod => _newRuleMethod == DetectionMethod.RegistryKey;
+    public bool IsMsiMethod => _newRuleMethod == DetectionMethod.MsiProductCode;
+
+    /// <summary>True when MSI detection is selected but no product code could be read from the package.</summary>
+    public bool HasNoMsiProductCode => IsMsiMethod && string.IsNullOrWhiteSpace(_msiProductCode);
 
     private string _newRulePath = "";
     public string NewRulePath { get => _newRulePath; set { if (Set(ref _newRulePath, value)) AddRuleCommand.RaiseCanExecuteChanged(); } }
@@ -212,111 +240,82 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     private string _newRuleName = "";
     public string NewRuleName { get => _newRuleName; set => Set(ref _newRuleName, value); }
 
-    private bool _newRuleCheckVersion;
-    public bool NewRuleCheckVersion { get => _newRuleCheckVersion; set => Set(ref _newRuleCheckVersion, value); }
-
     private string _newRuleOperator = "greaterThanOrEqual";
     public string NewRuleOperator { get => _newRuleOperator; set => Set(ref _newRuleOperator, value); }
 
     private string _newRuleValue = "";
     public string NewRuleValue { get => _newRuleValue; set => Set(ref _newRuleValue, value); }
 
-    public bool CanAddRule => !string.IsNullOrWhiteSpace(NewRulePath);
+    private string _newRuleHive = RegistryHiveNames.LocalMachine;
+    public string NewRuleHive { get => _newRuleHive; set => Set(ref _newRuleHive, value); }
+
+    private string _newRuleKeyPath = "";
+    public string NewRuleKeyPath { get => _newRuleKeyPath; set { if (Set(ref _newRuleKeyPath, value)) AddRuleCommand.RaiseCanExecuteChanged(); } }
+
+    private string _newRuleValueName = "";
+    public string NewRuleValueName { get => _newRuleValueName; set => Set(ref _newRuleValueName, value); }
+
+    private string _newRuleProductCode = "";
+    public string NewRuleProductCode
+    {
+        get => _newRuleProductCode;
+        set { if (Set(ref _newRuleProductCode, value)) AddRuleCommand.RaiseCanExecuteChanged(); }
+    }
+
+    public bool CanAddRule => _newRuleMethod switch
+    {
+        DetectionMethod.RegistryKey => !string.IsNullOrWhiteSpace(NewRuleKeyPath),
+        DetectionMethod.MsiProductCode => !string.IsNullOrWhiteSpace(NewRuleProductCode),
+        _ => !string.IsNullOrWhiteSpace(NewRulePath),
+    };
 
     private void AddDetectionRule()
     {
-        var type = NewRuleType switch
+        switch (_newRuleMethod)
         {
-            "Registry" => DetectionRuleType.Registry,
-            "MSI" => DetectionRuleType.MSI,
-            _ => DetectionRuleType.File,
-        };
+            case DetectionMethod.RegistryKey:
+                DetectionRules.Add(new DetectionRule
+                {
+                    Type = DetectionRuleType.Registry,
+                    Path = RegistryHiveNames.Combine(NewRuleHive, NewRuleKeyPath),
+                    FileOrFolderName = NewRuleValueName.Trim(),
+                    DetectionType = "exists",
+                });
+                NewRuleKeyPath = "";
+                NewRuleValueName = "";
+                break;
 
-        DetectionRules.Add(new DetectionRule
-        {
-            Type = type,
-            Path = NewRulePath.Trim(),
-            FileOrFolderName = NewRuleName.Trim(),
-            CheckVersion = NewRuleCheckVersion,
-            DetectionType = NewRuleCheckVersion ? "version" : "exists",
-            Operator = NewRuleCheckVersion ? NewRuleOperator : "",
-            DetectionValue = NewRuleCheckVersion ? NewRuleValue.Trim() : "",
-            Check32BitOn64System = true,
-        });
+            case DetectionMethod.MsiProductCode:
+                DetectionRules.Add(new DetectionRule
+                {
+                    Type = DetectionRuleType.MSI,
+                    Path = NewRuleProductCode.Trim(),
+                });
+                break;
 
-        NewRulePath = "";
-        NewRuleName = "";
-        NewRuleValue = "";
-        NewRuleCheckVersion = false;
+            default:
+                var checkVersion = _newRuleMethod == DetectionMethod.FileVersion;
+                DetectionRules.Add(new DetectionRule
+                {
+                    Type = DetectionRuleType.File,
+                    Path = NewRulePath.Trim(),
+                    FileOrFolderName = NewRuleName.Trim(),
+                    CheckVersion = checkVersion,
+                    DetectionType = checkVersion ? "version" : "exists",
+                    Operator = checkVersion ? NewRuleOperator : "",
+                    DetectionValue = checkVersion ? NewRuleValue.Trim() : "",
+                    Check32BitOn64System = true,
+                });
+                NewRulePath = "";
+                NewRuleName = "";
+                NewRuleValue = "";
+                break;
+        }
     }
 
     // ── Assignment groups ───────────────────────────────
-    public ObservableCollection<EntraGroup> GroupResults { get; } = new();
-    public ObservableCollection<AssignedGroup> SelectedGroups { get; } = new();
-
-    private string _groupQuery = "";
-    public string GroupQuery { get => _groupQuery; set => Set(ref _groupQuery, value); }
-
-    private bool _isSearchingGroups;
-    public bool IsSearchingGroups
-    {
-        get => _isSearchingGroups;
-        private set { if (Set(ref _isSearchingGroups, value)) SearchGroupsCommand.RaiseCanExecuteChanged(); }
-    }
-
-    private string _groupSearchHint = "";
-    public string GroupSearchHint { get => _groupSearchHint; private set => Set(ref _groupSearchHint, value); }
-
-    private string _intent = "required"; // required | available | uninstall
-    public string Intent { get => _intent; set { if (Set(ref _intent, value)) OnPropertyChanged(nameof(IntentLabel)); } }
-    public string IntentLabel => char.ToUpper(Intent[0]) + Intent[1..];
-
-    private async Task SearchGroupsAsync()
-    {
-        GroupResults.Clear();
-        GroupSearchHint = "";
-        if (string.IsNullOrWhiteSpace(GroupQuery))
-            return;
-
-        if (!_auth.IsSignedIn)
-        {
-            GroupSearchHint = "Sign in to Intune on the Settings page first.";
-            return;
-        }
-
-        IsSearchingGroups = true;
-        try
-        {
-            var found = await _apps.SearchGroupsAsync(GroupQuery);
-            foreach (var g in found)
-                GroupResults.Add(g);
-            GroupSearchHint = found.Count == 0 ? "No groups match that name." : "";
-        }
-        catch (Exception ex)
-        {
-            GroupSearchHint = $"Search failed: {ex.Message}";
-        }
-        finally
-        {
-            IsSearchingGroups = false;
-        }
-    }
-
-    private void AddGroup(EntraGroup? group)
-    {
-        if (group == null || string.IsNullOrEmpty(group.Id)) return;
-        if (SelectedGroups.Any(g => g.GroupId == group.Id)) return;
-
-        SelectedGroups.Add(new AssignedGroup
-        {
-            GroupId = group.Id,
-            GroupName = group.DisplayName,
-            AssignmentType = Intent,
-        });
-
-        GroupResults.Clear();
-        GroupQuery = "";
-    }
+    /// <summary>Shared Entra group picker; each selected group carries its own intent.</summary>
+    public GroupPickerViewModel GroupPicker { get; } = new();
 
     // ── Publishing ──────────────────────────────────────
     public ObservableCollection<PublishStepViewModel> PublishSteps { get; }
@@ -408,12 +407,13 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             MarkDone(0); MarkDone(1); MarkDone(2);
 
             PublishSteps[3].State = "working";
-            if (SelectedGroups.Count > 0)
-                await uploadService.AssignAppToGroupsAsync(appId, SelectedGroups.Select(g => g.GroupId), Intent);
+            var groups = GroupPicker.AssignableGroups;
+            if (groups.Count > 0)
+                await uploadService.AssignAppToGroupsAsync(appId, groups);
             PublishSteps[3].State = "done";
 
-            ResultText = SelectedGroups.Count > 0
-                ? $"Published and assigned to {SelectedGroups.Count} group(s). App ID {appId}"
+            ResultText = groups.Count > 0
+                ? $"Published and assigned to {groups.Count} group(s). App ID {appId}"
                 : $"Published successfully. App ID {appId}";
             _succeeded = true;
             IsComplete = true;
@@ -469,7 +469,10 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             PackageFolderName = "";
             AppName = Manufacturer = Version = SizeText = "";
             DetectionRules.Clear();
-            SelectedGroups.Clear();
+            GroupPicker.SelectedGroups.Clear();
+            _msiProductCode = "";
+            NewRuleProductCode = "";
+            GroupPicker.SelectedGroups.Clear();
             OnPropertyChanged(nameof(DisplayTitle));
         }
         UploadCommand.RaiseCanExecuteChanged();
@@ -478,9 +481,6 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     // ── Commands ────────────────────────────────────────
     public RelayCommand AddRuleCommand { get; }
     public RelayCommand<DetectionRule> RemoveRuleCommand { get; }
-    public RelayCommand SearchGroupsCommand { get; }
-    public RelayCommand<EntraGroup> AddGroupCommand { get; }
-    public RelayCommand<AssignedGroup> RemoveGroupCommand { get; }
     public RelayCommand UploadCommand { get; }
     public RelayCommand DoneCommand { get; }
 

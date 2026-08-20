@@ -25,10 +25,14 @@ public class UploadStepViewModel : ObservableObject
     private int _progressValue;
     private bool _isUploading;
 
-    private string _selectedDetectionMethod = "Auto (from package)";
+    private string _selectedDetectionMethod = DetectionMethod.FileExists;
     private string _detectionPath = "";
     private string _detectionName = "";
     private string _detectionValue = "";
+    private string _selectedRegistryHive = RegistryHiveNames.LocalMachine;
+    private string _registryKeyPath = "";
+    private string _registryValueName = "";
+    private string _detectionProductCode = "";
 
     private string _selectedOperatingSystem = "Windows 10 1607";
     private string _minFreeDiskSpaceMB = "";
@@ -37,6 +41,8 @@ public class UploadStepViewModel : ObservableObject
     private string _minCpuSpeedMHz = "";
     private string _newReturnCodeInput = "";
     private string _defaultsAppliedFor = "";
+
+    private string _selectedDeployMode = DeployModeDefault;
 
     private string _reviewName = "";
     private string _reviewVendor = "";
@@ -126,25 +132,37 @@ public class UploadStepViewModel : ObservableObject
     }
 
     // ── Detection method ───────────────────────────────────────────────
-    public List<string> DetectionMethods { get; } = new()
-    {
-        "Auto (from package)", "File exists", "File version", "Registry key exists", "MSI product code"
-    };
+    public List<string> DetectionMethods { get; } = DetectionMethod.All;
+    public IReadOnlyList<string> RegistryHives { get; } = RegistryHiveNames.All;
 
     public string SelectedDetectionMethod
     {
         get => _selectedDetectionMethod;
         set
         {
-            if (Set(ref _selectedDetectionMethod, value))
+            if (!Set(ref _selectedDetectionMethod, value)) return;
+            if (IsMsiDetection && string.IsNullOrWhiteSpace(_detectionProductCode))
             {
-                OnPropertyChanged(nameof(IsCustomDetection));
-                RefreshDetectionSummary();
+                // Pull the product code straight off the MSI staged in the package.
+                _detectionProductCode = FindMsiProductCode();
+                OnPropertyChanged(nameof(DetectionProductCode));
             }
+            OnPropertyChanged(nameof(IsFileDetection));
+            OnPropertyChanged(nameof(IsFileVersionDetection));
+            OnPropertyChanged(nameof(IsRegistryDetection));
+            OnPropertyChanged(nameof(IsMsiDetection));
+            OnPropertyChanged(nameof(HasNoMsiProductCode));
+            RefreshDetectionSummary();
         }
     }
 
-    public bool IsCustomDetection => _selectedDetectionMethod != "Auto (from package)";
+    public bool IsFileDetection => _selectedDetectionMethod is DetectionMethod.FileExists or DetectionMethod.FileVersion;
+    public bool IsFileVersionDetection => _selectedDetectionMethod == DetectionMethod.FileVersion;
+    public bool IsRegistryDetection => _selectedDetectionMethod == DetectionMethod.RegistryKey;
+    public bool IsMsiDetection => _selectedDetectionMethod == DetectionMethod.MsiProductCode;
+
+    /// <summary>True when MSI detection is selected but no product code could be read from the package.</summary>
+    public bool HasNoMsiProductCode => IsMsiDetection && string.IsNullOrWhiteSpace(_detectionProductCode);
 
     public string DetectionPath
     {
@@ -162,6 +180,35 @@ public class UploadStepViewModel : ObservableObject
     {
         get => _detectionValue;
         set { if (Set(ref _detectionValue, value)) RefreshDetectionSummary(); }
+    }
+
+    public string SelectedRegistryHive
+    {
+        get => _selectedRegistryHive;
+        set { if (Set(ref _selectedRegistryHive, value)) RefreshDetectionSummary(); }
+    }
+
+    public string RegistryKeyPath
+    {
+        get => _registryKeyPath;
+        set { if (Set(ref _registryKeyPath, value)) RefreshDetectionSummary(); }
+    }
+
+    public string RegistryValueName
+    {
+        get => _registryValueName;
+        set { if (Set(ref _registryValueName, value)) RefreshDetectionSummary(); }
+    }
+
+    public string DetectionProductCode
+    {
+        get => _detectionProductCode;
+        set
+        {
+            if (!Set(ref _detectionProductCode, value)) return;
+            OnPropertyChanged(nameof(HasNoMsiProductCode));
+            RefreshDetectionSummary();
+        }
     }
 
     // ── Requirements & return codes (seeded from Settings ▸ Intune Defaults) ──
@@ -192,16 +239,64 @@ public class UploadStepViewModel : ObservableObject
 
         ReturnCodes.Clear();
         foreach (var c in defaults.ReturnCodes)
-            ReturnCodes.Add(new ReturnCodeRow(c.Code, c.Type, r => ReturnCodes.Remove(r)));
+            ReturnCodes.Add(new ReturnCodeRow(c.Code, c.Type, c.Description, r => ReturnCodes.Remove(r)));
     }
 
     private void AddReturnCode()
     {
         if (!int.TryParse(NewReturnCodeInput.Trim(), out var code)) return;
         if (ReturnCodes.Any(r => r.Code == code.ToString())) return;
-        ReturnCodes.Add(new ReturnCodeRow(code, ReturnCodeType.Success, r => ReturnCodes.Remove(r)));
+        ReturnCodes.Add(new ReturnCodeRow(code, ReturnCodeType.Success, "", r => ReturnCodes.Remove(r)));
         NewReturnCodeInput = "";
     }
+
+    // ── Deploy mode ────────────────────────────────────────────────────
+    /// <summary>PSADT's own default; leaving it selected appends no -DeployMode switch.</summary>
+    public const string DeployModeDefault = "Auto";
+
+    public List<string> DeployModes { get; } = new() { "Auto", "Interactive", "NonInteractive", "Silent" };
+
+    /// <summary>
+    /// PSADT deploy mode baked into the Intune install/uninstall command lines.
+    /// </summary>
+    public string SelectedDeployMode
+    {
+        get => _selectedDeployMode;
+        set
+        {
+            if (!Set(ref _selectedDeployMode, value)) return;
+            OnPropertyChanged(nameof(DeployModeHint));
+            OnPropertyChanged(nameof(InstallCommandPreview));
+            OnPropertyChanged(nameof(UninstallCommandPreview));
+        }
+    }
+
+    public string DeployModeHint => _selectedDeployMode switch
+    {
+        "Interactive" => "Always shows the PSADT dialogs.",
+        "NonInteractive" => "Shows dialogs but never waits for the user.",
+        "Silent" => "No dialogs at all.",
+        _ => "PSADT decides: dialogs when a user is logged on, silent otherwise.",
+    };
+
+    public string InstallCommandPreview => WithDeployMode(_settingsService.Settings.IntuneDefaults.InstallCommand);
+    public string UninstallCommandPreview => WithDeployMode(_settingsService.Settings.IntuneDefaults.UninstallCommand);
+
+    /// <summary>
+    /// Appends the chosen -DeployMode to a command line. Auto is PSADT's own default so
+    /// it is left off, and a command that already sets the switch is used as written.
+    /// </summary>
+    private string WithDeployMode(string command)
+    {
+        command = (command ?? "").Trim();
+        if (_selectedDeployMode == DeployModeDefault) return command;
+        if (command.Contains("-DeployMode", StringComparison.OrdinalIgnoreCase)) return command;
+        return $"{command} -DeployMode {_selectedDeployMode}";
+    }
+
+    // ── Assignment groups ──────────────────────────────────────────────
+    /// <summary>Seeded from Settings ▸ Group Assignment, then editable for this package.</summary>
+    public GroupPickerViewModel GroupPicker { get; } = new();
 
     // ── Review ─────────────────────────────────────────────────────────
     public string ReviewName { get => _reviewName; set => Set(ref _reviewName, value); }
@@ -238,7 +333,9 @@ public class UploadStepViewModel : ObservableObject
         if (isNewPackage)
         {
             ApplyIntuneDefaults();
+            SelectedDeployMode = DeployModeDefault;
             _defaultsAppliedFor = _create.CurrentPackagePath;
+            _ = GroupPicker.SeedFromSettingsAsync(_settingsService.Settings.GroupAssignment);
         }
 
         var appInfo = _create.BuildApplicationInfo();
@@ -249,14 +346,19 @@ public class UploadStepViewModel : ObservableObject
         AppSummaryName = $"{appInfo.Manufacturer} {appInfo.Name}".Trim();
         AppSummaryDetail = $"v{appInfo.Version} · {appInfo.InstallContext} context · Win32";
 
-        // Seed the editable detection fields from the auto-detected rule.
-        var autoRule = BuildDetectionRules(_create.CurrentPackagePath, appInfo)[0];
-        _detectionPath = string.IsNullOrEmpty(autoRule.Path) ? "%ProgramFiles%" : autoRule.Path;
-        _detectionName = string.IsNullOrEmpty(autoRule.FileOrFolderName) ? $"{appInfo.Name}.exe" : autoRule.FileOrFolderName;
-        _detectionValue = string.IsNullOrEmpty(autoRule.DetectionValue) ? appInfo.Version : autoRule.DetectionValue;
-        OnPropertyChanged(nameof(DetectionPath));
-        OnPropertyChanged(nameof(DetectionName));
-        OnPropertyChanged(nameof(DetectionValue));
+        // Seed the editable detection fields from the auto-detected rule. Only for a new
+        // package - re-seeding would discard edits when stepping back from Review.
+        if (isNewPackage)
+        {
+            var autoRule = BuildDetectionRules(_create.CurrentPackagePath, appInfo)[0];
+            _detectionPath = string.IsNullOrEmpty(autoRule.Path) ? "%ProgramFiles%" : autoRule.Path;
+            _detectionName = string.IsNullOrEmpty(autoRule.FileOrFolderName) ? $"{appInfo.Name}.exe" : autoRule.FileOrFolderName;
+            _detectionValue = string.IsNullOrEmpty(autoRule.DetectionValue) ? appInfo.Version : autoRule.DetectionValue;
+            OnPropertyChanged(nameof(DetectionPath));
+            OnPropertyChanged(nameof(DetectionName));
+            OnPropertyChanged(nameof(DetectionValue));
+        }
+      
         RefreshDetectionSummary();
 
         // Review panel.
@@ -268,6 +370,19 @@ public class UploadStepViewModel : ObservableObject
         ReviewContext = appInfo.InstallContext;
         ReviewPackageType = appInfo.PackageType;
         ReviewSize = FormatSize(GetSourceSizeBytes(_create.CurrentPackagePath));
+        OnPropertyChanged(nameof(InstallCommandPreview));
+        OnPropertyChanged(nameof(UninstallCommandPreview));
+    }
+
+    /// <summary>Refreshes what the Review step shows without touching the edited fields.</summary>
+    public void RefreshReview()
+    {
+        OnPropertyChanged(nameof(IsSignedIn));
+        OnPropertyChanged(nameof(IsNotSignedIn));
+        OnPropertyChanged(nameof(SignedInUser));
+        OnPropertyChanged(nameof(InstallCommandPreview));
+        OnPropertyChanged(nameof(UninstallCommandPreview));
+        RefreshDetectionSummary();
     }
 
     private void RefreshDetectionSummary()
@@ -278,34 +393,46 @@ public class UploadStepViewModel : ObservableObject
     }
 
     private List<DetectionRule> BuildSelectedDetectionRules(string packagePath, ApplicationInfo appInfo)
-    {
-        if (!IsCustomDetection)
-            return BuildDetectionRules(packagePath, appInfo);
-
-        return SelectedDetectionMethod switch
+        => SelectedDetectionMethod switch
         {
-            "File exists" => new List<DetectionRule>
+            DetectionMethod.FileExists => new List<DetectionRule>
             {
                 new() { Type = DetectionRuleType.File, Path = DetectionPath, FileOrFolderName = DetectionName,
                         DetectionType = "exists", Check32BitOn64System = true }
             },
-            "File version" => new List<DetectionRule>
+            DetectionMethod.FileVersion => new List<DetectionRule>
             {
                 new() { Type = DetectionRuleType.File, Path = DetectionPath, FileOrFolderName = DetectionName,
                         DetectionType = "version", CheckVersion = true, Operator = "greaterThanOrEqual",
                         DetectionValue = DetectionValue, Check32BitOn64System = true }
             },
-            "Registry key exists" => new List<DetectionRule>
+            DetectionMethod.RegistryKey => new List<DetectionRule>
             {
-                new() { Type = DetectionRuleType.Registry, Path = DetectionPath, FileOrFolderName = DetectionName,
-                        DetectionType = "exists" }
+                new() { Type = DetectionRuleType.Registry,
+                        Path = RegistryHiveNames.Combine(SelectedRegistryHive, RegistryKeyPath),
+                        FileOrFolderName = RegistryValueName, DetectionType = "exists" }
             },
-            "MSI product code" => new List<DetectionRule>
+            DetectionMethod.MsiProductCode => new List<DetectionRule>
             {
-                new() { Type = DetectionRuleType.MSI, Path = DetectionPath }
+                new() { Type = DetectionRuleType.MSI, Path = DetectionProductCode }
             },
             _ => BuildDetectionRules(packagePath, appInfo)
         };
+
+    /// <summary>Reads the product code from the first MSI staged in the generated package, if there is one.</summary>
+    private string FindMsiProductCode()
+    {
+        if (_create.CurrentMsiInfo?.IsValid == true)
+            return _create.CurrentMsiInfo.ProductCode;
+
+        try
+        {
+            var filesFolder = Path.Combine(_create.CurrentPackagePath, "Application", "Files");
+            if (!Directory.Exists(filesFolder)) return "";
+            var msi = Directory.GetFiles(filesFolder, "*.msi", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            return msi == null ? "" : MsiInfoService.ExtractMsiInfo(msi).ProductCode;
+        }
+        catch { return ""; }
     }
 
     private RequirementInfo BuildRequirements()
@@ -364,6 +491,16 @@ public class UploadStepViewModel : ObservableObject
         var appInfo = _create.BuildApplicationInfo();
         appInfo.DisplayName = IntuneDisplayName;
 
+        // The picker owns the named groups now, so only the per-package option is left
+        // to the settings-driven assignment path.
+        var groupAssignment = new AppSettings.GroupAssignmentConfig
+        {
+            CreateGroupPerPackage = settings.GroupAssignment.CreateGroupPerPackage,
+            GroupNameTemplate = settings.GroupAssignment.GroupNameTemplate,
+            NewGroupIntent = settings.GroupAssignment.NewGroupIntent,
+        };
+
+        var assignedGroups = GroupPicker.AssignableGroups;
         var detectionRules = BuildSelectedDetectionRules(packagePath, appInfo);
         var requirements = BuildRequirements();
         var returnCodes = ReturnCodes.Select(r => r.ToInfo()).OfType<ReturnCodeInfo>().ToList();
@@ -398,22 +535,25 @@ public class UploadStepViewModel : ObservableObject
                 appInfo,
                 packagePath,
                 detectionRules,
-                settings.IntuneDefaults.InstallCommand,
-                settings.IntuneDefaults.UninstallCommand,
+                InstallCommandPreview,
+                UninstallCommandPreview,
                 appInfo.DisplayName,
                 appInfo.InstallContext,
                 string.IsNullOrEmpty(_create.ExtractedIconPath) ? null : _create.ExtractedIconPath,
                 progress,
                 string.IsNullOrEmpty(_create.PredecessorAppId) ? null : _create.PredecessorAppId,
-                settings.GroupAssignment,
+                groupAssignment,
                 requirements,
                 returnCodes,
                 settings.IntuneDefaults.PrivacyUrl,
-                settings.IntuneDefaults.InformationUrl));
+                settings.IntuneDefaults.InformationUrl,
+                assignedGroups));
 
             ProgressValue = 100;
             foreach (var s in PublishSteps) s.State = "done";
-            ResultText = $"Published successfully. App ID {appId}";
+            ResultText = assignedGroups.Count > 0
+                ? $"Published and assigned to {assignedGroups.Count} group(s). App ID {appId}"
+                : $"Published successfully. App ID {appId}";
             StatusText = $"Uploaded to Intune · App ID {appId}";
             _succeeded = true;
             IsComplete = true;

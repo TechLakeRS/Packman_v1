@@ -8,6 +8,10 @@ public sealed class ReturnCodeRow : ObservableObject
     private string _code;
     public string Code { get => _code; set => Set(ref _code, value); }
 
+    private string _description;
+    /// <summary>Free-text note kept alongside the code; not sent to Intune.</summary>
+    public string Description { get => _description; set => Set(ref _description, value); }
+
     private ReturnCodeType _type;
     public ReturnCodeType Type
     {
@@ -33,13 +37,16 @@ public sealed class ReturnCodeRow : ObservableObject
 
     public RelayCommand RemoveCommand { get; }
 
-    public ReturnCodeRow(int code, ReturnCodeType type, Action<ReturnCodeRow> remove)
+    public ReturnCodeRow(int code, ReturnCodeType type, string description, Action<ReturnCodeRow> remove)
     {
         _code = code.ToString();
         _type = type;
+        _description = description;
         RemoveCommand = new RelayCommand(() => remove(this));
     }
 
     public ReturnCodeInfo? ToInfo() =>
-        int.TryParse(Code, out var value) ? new ReturnCodeInfo { Code = value, Type = Type } : null;
+        int.TryParse(Code, out var value)
+            ? new ReturnCodeInfo { Code = value, Type = Type, Description = Description.Trim() }
+            : null;
 }

@@ -13,6 +13,9 @@ public class ReturnCodeInfo
     public int Code { get; set; }
     public ReturnCodeType Type { get; set; } = ReturnCodeType.Success;
 
+    /// <summary>Free-text note shown next to the code in Packman. Graph has no field for it, so it is never uploaded.</summary>
+    public string Description { get; set; } = "";
+
     /// <summary>The value Graph expects for win32LobAppReturnCode.type.</summary>
     [JsonIgnore]
     public string GraphType => Type switch
@@ -27,9 +30,9 @@ public class ReturnCodeInfo
     /// <summary>The codes Intune applies when nothing else is configured.</summary>
     public static List<ReturnCodeInfo> Defaults() => new()
     {
-        new() { Code = 0,    Type = ReturnCodeType.Success },
-        new() { Code = 3010, Type = ReturnCodeType.SoftReboot },
-        new() { Code = 1641, Type = ReturnCodeType.HardReboot },
-        new() { Code = 1618, Type = ReturnCodeType.Retry }
+        new() { Code = 0,    Type = ReturnCodeType.Success,    Description = "Completed successfully" },
+        new() { Code = 3010, Type = ReturnCodeType.SoftReboot, Description = "Restart required to finish" },
+        new() { Code = 1641, Type = ReturnCodeType.HardReboot, Description = "Installer initiated a restart" },
+        new() { Code = 1618, Type = ReturnCodeType.Retry,      Description = "Another installation is in progress" }
     };
 }

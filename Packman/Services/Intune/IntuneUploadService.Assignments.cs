@@ -9,23 +9,23 @@ namespace Packman.Services;
 public partial class IntuneUploadService
 {
     /// <summary>
-    /// Assigns the uploaded Win32 app to the given Entra groups with the chosen intent
+    /// Assigns the uploaded Win32 app to the given Entra groups, each with its own intent
     /// ("required", "available" or "uninstall"). No-op when the group list is empty.
     /// Used by the standalone Upload to Intune page, where groups are already resolved
     /// to ids by the assignment picker.
     /// </summary>
-    public async Task AssignAppToGroupsAsync(string appId, IEnumerable<string> groupIds, string intent)
+    public async Task AssignAppToGroupsAsync(string appId, IEnumerable<AssignedGroup> groups)
     {
-        var assignments = groupIds
-            .Where(id => !string.IsNullOrWhiteSpace(id))
-            .Select(id => (object)new Dictionary<string, object>
+        var assignments = groups
+            .Where(g => !string.IsNullOrWhiteSpace(g.GroupId))
+            .Select(g => (object)new Dictionary<string, object>
             {
                 ["@odata.type"] = "#microsoft.graph.mobileAppAssignment",
-                ["intent"] = intent,
+                ["intent"] = string.IsNullOrWhiteSpace(g.AssignmentType) ? "required" : g.AssignmentType,
                 ["target"] = new Dictionary<string, object>
                 {
                     ["@odata.type"] = "#microsoft.graph.groupAssignmentTarget",
-                    ["groupId"] = id,
+                    ["groupId"] = g.GroupId,
                 },
             })
             .ToList();
@@ -47,12 +47,19 @@ public partial class IntuneUploadService
     private const string GraphBeta = "https://graph.microsoft.com/beta";
 
     /// <summary>
-    /// Assigns the published app to the groups configured on the Settings page:
-    /// any existing groups plus, optionally, a freshly created per-package group.
-    /// Failures are logged as warnings and never fail the upload.
+    /// Assigns the published app to the groups picked for this upload plus the ones
+    /// configured on the Settings page: any existing groups and, optionally, a freshly
+    /// created per-package group. Failures are logged as warnings and never fail the upload.
     /// </summary>
-    private async Task AssignGroupsAsync(string appId, ApplicationInfo appInfo, AppSettings.GroupAssignmentConfig config, UploadLogger log)
+    private async Task AssignGroupsAsync(string appId, ApplicationInfo appInfo, AppSettings.GroupAssignmentConfig config,
+                                         IEnumerable<AssignedGroup>? pickedGroups, UploadLogger log)
     {
+        foreach (var picked in pickedGroups ?? Enumerable.Empty<AssignedGroup>())
+        {
+            if (string.IsNullOrWhiteSpace(picked.GroupId)) continue;
+            await CreateGroupAssignmentAsync(appId, picked.GroupId, ParseIntent(picked.AssignmentType), picked.GroupName, log);
+        }
+
         foreach (var existing in config.ExistingGroups)
         {
             if (string.IsNullOrWhiteSpace(existing.GroupName)) continue;
@@ -66,18 +73,25 @@ public partial class IntuneUploadService
         }
 
         if (config.CreateGroupPerPackage)
+            await AssignPerPackageGroupAsync(appId, appInfo, config.GroupNameTemplate, config.NewGroupIntent, log);
+
+        if (config.CreateUninstallGroupPerPackage)
+            await AssignPerPackageGroupAsync(appId, appInfo, config.UninstallGroupNameTemplate, AssignmentIntent.Uninstall, log);
+    }
+
+    /// <summary>Resolves (or creates) the per-package group named by the template and assigns it with the given intent.</summary>
+    private async Task AssignPerPackageGroupAsync(string appId, ApplicationInfo appInfo, string template, AssignmentIntent intent, UploadLogger log)
+    {
+        var name = GroupAssignmentNamer.Build(template, appInfo.Manufacturer, appInfo.Name, appInfo.Version);
+        if (string.IsNullOrWhiteSpace(name))
         {
-            var name = GroupAssignmentNamer.Build(config.GroupNameTemplate, appInfo.Manufacturer, appInfo.Name, appInfo.Version);
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                log.Warning("Per-package group name resolved to empty - skipped");
-                return;
-            }
-            // Reuse a group with this name if one already exists, otherwise create it.
-            var groupId = await ResolveGroupIdAsync(name, log) ?? await CreateSecurityGroupAsync(name, log);
-            if (groupId != null)
-                await CreateGroupAssignmentAsync(appId, groupId, config.NewGroupIntent, name, log);
+            log.Warning($"Per-package group name for the {intent} assignment resolved to empty - skipped");
+            return;
         }
+        // Reuse a group with this name if one already exists, otherwise create it.
+        var groupId = await ResolveGroupIdAsync(name, log) ?? await CreateSecurityGroupAsync(name, log);
+        if (groupId != null)
+            await CreateGroupAssignmentAsync(appId, groupId, intent, name, log);
     }
 
     private async Task<string?> ResolveGroupIdAsync(string displayName, UploadLogger log)
@@ -167,6 +181,13 @@ public partial class IntuneUploadService
             log.Warning($"Could not assign '{groupName}': {ex.Message}");
         }
     }
+
+    private static AssignmentIntent ParseIntent(string intent) => intent?.ToLowerInvariant() switch
+    {
+        "uninstall" => AssignmentIntent.Uninstall,
+        "available" => AssignmentIntent.Available,
+        _ => AssignmentIntent.Required,
+    };
 
     private static string SanitizeMailNickname(string displayName)
     {

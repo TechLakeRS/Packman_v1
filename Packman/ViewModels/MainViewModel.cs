@@ -24,7 +24,8 @@ public sealed class MainViewModel : ObservableObject
     public RemoteTestViewModel RemoteTest { get; }
 
     private const int GenerateStep = 0;
-    private const int PublishStep = 1;
+    private const int UploadStep = 1;
+    private const int ReviewStep = 2;
 
     private bool _isUpgradeMode;
     public bool IsUpgradeMode
@@ -39,7 +40,7 @@ public sealed class MainViewModel : ObservableObject
     public RelayCommand OpenEditToolCommand { get; }
     public RelayCommand OpenTestToolCommand { get; }
     public RelayCommand CloseToolCommand { get; }
-    public RelayCommand ContinueToPublishCommand { get; }
+    public RelayCommand ContinueToUploadCommand { get; }
     public RelayCommand OpenPackageFolderCommand { get; }
 
     private int _currentStepIndex;
@@ -55,7 +56,8 @@ public sealed class MainViewModel : ObservableObject
                 Steps[i].IsCurrent = i == value;
                 Steps[i].IsDone = i < value;
             }
-            if (value == PublishStep) Upload.RefreshFromPackage();
+            if (value == UploadStep) Upload.RefreshFromPackage();
+            if (value == ReviewStep) Upload.RefreshReview();
             OnPropertyChanged(nameof(PrimaryLabel));
             OnPropertyChanged(nameof(IsLastStep));
             OnPropertyChanged(nameof(StepPosition));
@@ -129,9 +131,10 @@ public sealed class MainViewModel : ObservableObject
         {
             if (CurrentStepIndex == GenerateStep)
             {
-                if (HasPackage) return "CONTINUE TO PUBLISH";
+                if (HasPackage) return "CONTINUE TO UPLOAD";
                 return IsUpgradeMode ? "UPGRADE PACKAGE" : "GENERATE PACKAGE";
             }
+            if (CurrentStepIndex == UploadStep) return "CONTINUE TO REVIEW";
             if (Upload.IsFailed) return "RETRY UPLOAD";
             if (Upload.IsSucceeded) return "DONE";
             return "BUILD & UPLOAD";
@@ -162,7 +165,8 @@ public sealed class MainViewModel : ObservableObject
         Steps = new ObservableCollection<StepViewModel>
         {
             new(GenerateStep, "Generate"),
-            new(PublishStep,  "Publish"),
+            new(UploadStep,   "Upload"),
+            new(ReviewStep,   "Review"),
         };
 
         BackCommand     = new RelayCommand(() => CurrentStepIndex--, () => CurrentStepIndex > 0);
@@ -174,10 +178,10 @@ public sealed class MainViewModel : ObservableObject
         CloseToolCommand         = new RelayCommand(() => ActiveTool = PackageTool.None);
         OpenPackageFolderCommand = new RelayCommand(OpenPackageFolder, () => HasPackage);
 
-        ContinueToPublishCommand = new RelayCommand(() =>
+        ContinueToUploadCommand = new RelayCommand(() =>
         {
             ActiveTool = PackageTool.None;
-            CurrentStepIndex = PublishStep;
+            CurrentStepIndex = UploadStep;
         });
 
         Steps[GenerateStep].IsCurrent = true;
@@ -235,7 +239,7 @@ public sealed class MainViewModel : ObservableObject
             // Once a package exists the button advances rather than regenerating.
             if (HasPackage)
             {
-                CurrentStepIndex = PublishStep;
+                CurrentStepIndex = UploadStep;
                 return;
             }
 
@@ -243,6 +247,12 @@ public sealed class MainViewModel : ObservableObject
                 await RunUpgradeAsync();
             else
                 await RunCreateAsync();
+            return;
+        }
+
+        if (CurrentStepIndex == UploadStep)
+        {
+            CurrentStepIndex = ReviewStep;
             return;
         }
 
