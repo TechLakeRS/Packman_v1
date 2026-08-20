@@ -39,6 +39,8 @@
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="LineHeight" Value="19"/>
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
     </Style>
 
     <!-- Uppercase letterspaced section label — the recurring rule-and-caption header. -->
@@ -67,6 +69,8 @@
     <!-- Hairline used between a label and its trailing caption. -->
     <Style x:Key="Rule" TargetType="{x:Type Border}">
         <Setter Property="Height" Value="1"/>
+        <!-- Keeps a gap even when the trailing caption eats the row. -->
+        <Setter Property="MinWidth" Value="24"/>
         <Setter Property="Background" Value="{DynamicResource LineBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="12,0"/>
@@ -75,12 +79,12 @@
     <!-- ═══════════════ Buttons ═══════════════ -->
     <!-- Button text is uppercase Martian Mono throughout this design. -->
     <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
-        <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}"/>
+        <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryFgBrush}"/>
         <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontSize" Value="10.5"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Padding" Value="16,11"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -106,13 +110,13 @@
 
     <!-- Ghost (outlined) -->
     <Style x:Key="GhostButton" TargetType="{x:Type Button}">
-        <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}"/>
+        <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Text2Brush}"/>
         <Setter Property="Background" Value="{DynamicResource ControlBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Edge2Brush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="FontSize" Value="10.5"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -138,12 +142,12 @@
 
     <!-- Top-bar text action (DOCS / ALERTS) -->
     <Style x:Key="BarButton" TargetType="{x:Type Button}">
-        <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}"/>
+        <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontSize" Value="10.5"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Padding" Value="4,6"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -194,12 +198,12 @@
 
     <!-- Skip (ghost text) -->
     <Style x:Key="SkipButton" TargetType="{x:Type Button}">
-        <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}"/>
+        <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="FontSize" Value="10.5"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="11"/>
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -271,7 +275,7 @@
         <Setter Property="SelectionBrush" Value="{DynamicResource PrimaryDimBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="12.5"/>
-        <Setter Property="Height" Value="34"/>
+        <Setter Property="Height" Value="36"/>
         <Setter Property="Padding" Value="11,0"/>
         <Setter Property="TextAlignment" Value="Left"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -314,8 +318,9 @@
     <Style x:Key="FieldLabel" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="11.5"/>
         <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Margin" Value="0,0,0,7"/>
     </Style>
 
     <!-- ═══════════════ Sidebar nav item ═══════════════ -->
@@ -363,11 +368,11 @@
     <!-- ═══════════════ Segmented toggles ═══════════════ -->
     <!-- Checked segment is a solid accent block with dark text. -->
     <Style x:Key="ModeToggle" TargetType="{x:Type RadioButton}">
-        <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}"/>
+        <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
-        <Setter Property="FontSize" Value="10"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Padding" Value="14,9"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -474,7 +479,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Padding" Value="11,0"/>
-        <Setter Property="Height" Value="32"/>
+        <Setter Property="Height" Value="36"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -629,7 +634,7 @@
         <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource DimBrush}"/>
-        <Setter Property="FontSize" Value="10.5"/>
+        <Setter Property="FontSize" Value="11"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="Template">

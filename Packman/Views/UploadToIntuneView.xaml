@@ -30,15 +30,17 @@
                         <!-- Select Package card -->
                         <Border Style="{StaticResource Card}" VerticalAlignment="Top">
                             <StackPanel>
-<DockPanel Margin="0,0,0,14">
-    <TextBlock DockPanel.Dock="Left" Text="SELECT PACKAGE" Style="{StaticResource SectionLabel}"/>
-    <TextBlock DockPanel.Dock="Right" Text="Choose the folder that contains the Invoke-AppDeployToolkit package" Style="{StaticResource Caption}"/>
-    <Border Style="{StaticResource Rule}"/>
-</DockPanel>
+<StackPanel Margin="0,0,0,14">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="SELECT PACKAGE" Style="{StaticResource SectionLabel}"/>
+        <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+    </DockPanel>
+    <TextBlock Text="Choose the folder that contains the Invoke-AppDeployToolkit package" Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+</StackPanel>
 
                                 <!-- Folder picker row -->
                                 <Grid>
-                                    <TextBox Style="{StaticResource TextField}" Padding="13,12,110,12" IsReadOnly="True"
+                                    <TextBox Style="{StaticResource TextField}" Padding="11,0,86,0" IsReadOnly="True"
                                              local:PlaceholderText.Text="Select the package folder (contains the Application folder)"
                                              Text="{Binding PackageRoot, Mode=OneWay}"/>
                                     <Button Style="{StaticResource BrowseButton}" HorizontalAlignment="Right" VerticalAlignment="Stretch"
@@ -71,7 +73,7 @@
 
                                     <StackPanel Margin="2,12,2,0">
                                         <TextBlock Text="Name in Intune" Style="{StaticResource FieldLabel}"/>
-                                        <TextBox Style="{StaticResource TextField}" Padding="13,11" Margin="0,6,0,10"
+                                        <TextBox Style="{StaticResource TextField}" Padding="11,0" Margin="0,6,0,10"
                                                  Text="{Binding IntuneDisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         <ContentControl Style="{StaticResource DlRow}" Tag="Application" Content="{Binding DisplayTitle}"/>
                                         <ContentControl Style="{StaticResource DlRow}" Tag="Version" Content="{Binding Version}"/>
@@ -141,12 +143,12 @@
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <ComboBox Grid.Column="0" ItemsSource="{Binding RuleTypes}" SelectedItem="{Binding NewRuleType, Mode=TwoWay}" Height="40" VerticalContentAlignment="Center"/>
-                                            <TextBox Grid.Column="2" Style="{StaticResource TextField}" Padding="13,11"
+                                            <TextBox Grid.Column="2" Style="{StaticResource TextField}" Padding="11,0"
                                                      local:PlaceholderText.Text="Path / key / product code"
                                                      Text="{Binding NewRulePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         </Grid>
 
-                                        <TextBox Style="{StaticResource TextField}" Padding="13,11" Margin="0,8,0,0"
+                                        <TextBox Style="{StaticResource TextField}" Padding="11,0" Margin="0,8,0,0"
                                                  local:PlaceholderText.Text="File or value name (optional)"
                                                  Text="{Binding NewRuleName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
@@ -155,7 +157,7 @@
                                                       Foreground="{DynamicResource TextBrush}" FontSize="12.5"/>
                                             <ComboBox ItemsSource="{Binding Operators}" SelectedItem="{Binding NewRuleOperator, Mode=TwoWay}" Width="160" Height="36" Margin="12,0,0,0" VerticalContentAlignment="Center"
                                                       IsEnabled="{Binding NewRuleCheckVersion}"/>
-                                            <TextBox Style="{StaticResource TextField}" Padding="11,8" Width="120" Margin="8,0,0,0"
+                                            <TextBox Style="{StaticResource TextField}" Padding="11,0" Width="120" Margin="8,0,0,0"
                                                      local:PlaceholderText.Text="Value"
                                                      IsEnabled="{Binding NewRuleCheckVersion}"
                                                      Text="{Binding NewRuleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -202,7 +204,7 @@
                             <!-- Group search -->
                             <TextBlock Text="Assignment groups" Style="{StaticResource FieldLabel}" Margin="0,16,0,7"/>
                             <Grid>
-                                <TextBox x:Name="GroupSearchBox" Style="{StaticResource TextField}" Padding="13,11,92,11"
+                                <TextBox x:Name="GroupSearchBox" Style="{StaticResource TextField}" Padding="11,0,92,0"
                                          local:PlaceholderText.Text="Search Entra groups…"
                                          Text="{Binding GroupQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          KeyDown="GroupSearch_KeyDown"/>

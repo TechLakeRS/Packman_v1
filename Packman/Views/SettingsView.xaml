@@ -132,11 +132,13 @@
                         <StackPanel>
 
                             <!-- Card header -->
-<DockPanel Margin="0,0,0,14">
-    <TextBlock DockPanel.Dock="Left" Text="AUTHENTICATION" Style="{StaticResource SectionLabel}"/>
-    <TextBlock DockPanel.Dock="Right" Text="How EPS connects to Microsoft Intune &amp; Entra ID" Style="{StaticResource Caption}"/>
-    <Border Style="{StaticResource Rule}"/>
-</DockPanel>
+<StackPanel Margin="0,0,0,14">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="AUTHENTICATION" Style="{StaticResource SectionLabel}"/>
+        <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+    </DockPanel>
+    <TextBlock Text="How EPS connects to Microsoft Intune &amp; Entra ID" Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+</StackPanel>
 
                             <!-- Auth mode tab bar (Interactive | App Registration) -->
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
@@ -173,9 +175,6 @@
                                     <TextBox Style="{StaticResource TextField}"
                                              Text="{Binding TenantId, UpdateSourceTrigger=PropertyChanged}"
                                              local:PlaceholderText.Text="contoso.onmicrosoft.com or tenant GUID"/>
-                                    <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                        <Path Data="{StaticResource IconBuilding}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
                                 </Grid>
 
                                 <!-- Browser sign-in row -->
@@ -251,9 +250,6 @@
                                             <TextBox Style="{StaticResource TextField}"
                                                      Text="{Binding TenantId, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="00000000-0000-0000-0000-000000000000"/>
-                                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                                <Path Data="{StaticResource IconBuilding}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                            </Viewbox>
                                         </Grid>
                                     </StackPanel>
 
@@ -267,9 +263,6 @@
                                             <TextBox Style="{StaticResource TextField}"
                                                      Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="Application (Client) ID"/>
-                                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                                <Path Data="{StaticResource IconApp}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                            </Viewbox>
                                         </Grid>
                                     </StackPanel>
                                 </Grid>
@@ -321,9 +314,6 @@
                                     <TextBox Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
                                              Text="{Binding AuthThumbprint, UpdateSourceTrigger=PropertyChanged}"
                                              local:PlaceholderText.Text="40-char SHA-1 thumbprint"/>
-                                    <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                        <Path Data="{StaticResource IconCode}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
                                 </Grid>
 
                                 <TextBlock FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,10,0,0" TextWrapping="Wrap">
@@ -507,9 +497,6 @@
                                             <TextBox Style="{StaticResource TextField}"
                                                      Text="{Binding CodeSignCertName, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="Friendly name"/>
-                                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                                <Path Data="{StaticResource IconTag}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="{DynamicResource Muted2Brush}" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                            </Viewbox>
                                         </Grid>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Grid.Row="0">
@@ -518,9 +505,6 @@
                                             <TextBox Style="{StaticResource TextField}"
                                                      Text="{Binding CodeSignCertSubject, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="CN=Company, O=..."/>
-                                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                                <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                            </Viewbox>
                                         </Grid>
                                     </StackPanel>
 
@@ -531,9 +515,6 @@
                                             <TextBox Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
                                                      Text="{Binding CodeSignThumbprint, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="SHA-1 thumbprint"/>
-                                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                                <Path Data="{StaticResource IconCode}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                            </Viewbox>
                                         </Grid>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Grid.Row="2">
@@ -542,9 +523,6 @@
                                             <TextBox Style="{StaticResource TextField}"
                                                      Text="{Binding CodeSignTimestampServer, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="http://timestamp.digicert.com"/>
-                                            <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                                <Path Data="{StaticResource IconBell}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                            </Viewbox>
                                         </Grid>
                                     </StackPanel>
                                 </Grid>
@@ -557,9 +535,6 @@
                                         <TextBox Style="{StaticResource TextField}"
                                                  Text="{Binding CodeSignTimestampServer, UpdateSourceTrigger=PropertyChanged}"
                                                  local:PlaceholderText.Text="http://timestamp.digicert.com"/>
-                                        <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                            <Path Data="{StaticResource IconBell}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                        </Viewbox>
                                     </Grid>
                                 </StackPanel>
 
@@ -573,11 +548,13 @@
                         <StackPanel>
 
                             <!-- Card header -->
-<DockPanel Margin="0,0,0,14">
-    <TextBlock DockPanel.Dock="Left" Text="NETWORK PATHS" Style="{StaticResource SectionLabel}"/>
-    <TextBlock DockPanel.Dock="Right" Text="File share locations for package output and PSADT template" Style="{StaticResource Caption}"/>
-    <Border Style="{StaticResource Rule}"/>
-</DockPanel>
+<StackPanel Margin="0,0,0,14">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="NETWORK PATHS" Style="{StaticResource SectionLabel}"/>
+        <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+    </DockPanel>
+    <TextBlock Text="File share locations for package output and PSADT template" Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+</StackPanel>
 
                             <!-- Intune Applications output path -->
                             <TextBlock Text="Intune Applications Path" Style="{StaticResource FieldLabel}"/>
@@ -585,9 +562,6 @@
                                 <TextBox Style="{StaticResource TextField}"
                                          Text="{Binding IntuneApplicationsPath, UpdateSourceTrigger=PropertyChanged}"
                                          local:PlaceholderText.Text="\\server\share\IntuneApps"/>
-                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                    <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
                             </Grid>
 
                             <!-- PSADT Template path -->
@@ -596,9 +570,6 @@
                                 <TextBox Style="{StaticResource TextField}"
                                          Text="{Binding PSADTTemplatePath, UpdateSourceTrigger=PropertyChanged}"
                                          local:PlaceholderText.Text="\\server\share\PSADTTemplate"/>
-                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                    <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
                             </Grid>
 
                             <!-- IntuneWinAppUtil path -->
@@ -607,9 +578,6 @@
                                 <TextBox Style="{StaticResource TextField}"
                                          Text="{Binding IntuneWinAppUtilPath, UpdateSourceTrigger=PropertyChanged}"
                                          local:PlaceholderText.Text="\\server\share\Tools\IntuneWinAppUtil.exe"/>
-                                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                    <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
                             </Grid>
 
                         </StackPanel>
@@ -621,11 +589,13 @@
                         <StackPanel>
 
                             <!-- Card header -->
-<DockPanel Margin="0,0,0,14">
-    <TextBlock DockPanel.Dock="Left" Text="GROUP ASSIGNMENT" Style="{StaticResource SectionLabel}"/>
-    <TextBlock DockPanel.Dock="Right" Text="Assign uploaded packages to Entra ID groups automatically" Style="{StaticResource Caption}"/>
-    <Border Style="{StaticResource Rule}"/>
-</DockPanel>
+<StackPanel Margin="0,0,0,14">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="GROUP ASSIGNMENT" Style="{StaticResource SectionLabel}"/>
+        <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+    </DockPanel>
+    <TextBlock Text="Assign uploaded packages to Entra ID groups automatically" Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+</StackPanel>
 
                             <!-- ── Per-package group ──────────────────────────── -->
                             <Grid Margin="0,0,0,14">
@@ -660,9 +630,6 @@
                                     <TextBox Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
                                              Text="{Binding GroupNameTemplate, UpdateSourceTrigger=PropertyChanged}"
                                              local:PlaceholderText.Text="%vendor%_%appName%_%appVersion%"/>
-                                    <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                        <Path Data="{StaticResource IconTag}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="{DynamicResource Muted2Brush}" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
                                 </Grid>
                                 <TextBlock FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,8,0,0" TextWrapping="Wrap">
                                     <Run Text="Tokens:"/>
@@ -715,9 +682,6 @@
                                     <TextBox Style="{StaticResource TextField}"
                                              Text="{Binding NewGroupNameInput, UpdateSourceTrigger=PropertyChanged}"
                                              local:PlaceholderText.Text="Entra ID group display name"/>
-                                    <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False">
-                                        <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
                                 </Grid>
                                 <Button Grid.Column="2" Style="{StaticResource GhostButton}" Command="{Binding AddGroupCommand}">
                                     <StackPanel Orientation="Horizontal">
@@ -783,11 +747,13 @@
                         <StackPanel>
 
                             <!-- Card header -->
-<DockPanel Margin="0,0,0,14">
-    <TextBlock DockPanel.Dock="Left" Text="INTUNE DEFAULTS" Style="{StaticResource SectionLabel}"/>
-    <TextBlock DockPanel.Dock="Right" Text="App details, requirements and return codes applied to every package unless changed on the Create Package page" Style="{StaticResource Caption}"/>
-    <Border Style="{StaticResource Rule}"/>
-</DockPanel>
+<StackPanel Margin="0,0,0,14">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="INTUNE DEFAULTS" Style="{StaticResource SectionLabel}"/>
+        <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+    </DockPanel>
+    <TextBlock Text="App details, requirements and return codes applied to every package unless changed on the Create Package page" Style="{StaticResource SubText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+</StackPanel>
 
                             <!-- ── App details ────────────────────────────────── -->
                             <TextBlock Text="App details" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>

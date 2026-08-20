@@ -137,12 +137,9 @@
 
                         <!-- Search across the package: file names and file contents -->
                         <Grid Grid.Row="1" Margin="0,4,0,6">
-                            <TextBox x:Name="SearchBox" Style="{StaticResource TextField}" Height="34" FontSize="12" Padding="30,6,10,6"
+                            <TextBox x:Name="SearchBox" Style="{StaticResource TextField}" Height="34" FontSize="12" Padding="11,0,10,0"
                                      local:PlaceholderText.Text="Search names and contents…"
                                      TextChanged="SearchBox_TextChanged"/>
-                            <Viewbox Width="13" Height="13" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,0,0" IsHitTestVisible="False">
-                                <Path Data="{StaticResource IconSearch}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
                         </Grid>
 
                         <TreeView x:Name="FileTree" Grid.Row="2" BorderThickness="0" Background="Transparent"

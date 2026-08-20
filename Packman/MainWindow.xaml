@@ -322,7 +322,7 @@
                                         </Style>
                                     </Button.Style>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding PrimaryLabel}" FontSize="10.5" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding PrimaryLabel}" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
                                         <TextBlock Text="↵" Margin="9,0,0,0" Opacity="0.55" VerticalAlignment="Center"
                                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="10"
                                                    Visibility="{Binding ShowPrimaryKeyHint, Converter={StaticResource BoolToVis}}"/>
@@ -347,7 +347,7 @@
                                         Visibility="{Binding IsEditToolOpen, Converter={StaticResource BoolToVis}}"/>
                                 <Button Style="{StaticResource PrimaryButton}" Command="{Binding ContinueToPublishCommand}">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="CONTINUE TO PUBLISH" FontSize="10.5" VerticalAlignment="Center"/>
+                                        <TextBlock Text="CONTINUE TO PUBLISH" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
                                         <TextBlock Text="↵" Margin="9,0,0,0" Opacity="0.55" VerticalAlignment="Center"
                                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="10"/>
                                     </StackPanel>
