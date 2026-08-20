@@ -51,7 +51,12 @@ public partial class MainWindow : Window
     /// <summary>Switches to the Upload to Intune page (used by the wizard's cross-link).</summary>
     public void NavigateToUploadIntune() => UploadIntuneNavBtn.IsChecked = true;
 
-    private void CreatePackageNavBtn_Checked(object sender, RoutedEventArgs e) => ShowOnly(CreatePackagePage, "Create Package");
+    /// <summary>Both share the same page, so returning to the wizard has to close an open tool.</summary>
+    private void CreatePackageNavBtn_Checked(object sender, RoutedEventArgs e)
+    {
+        ShowOnly(CreatePackagePage, "Create Package");
+        (DataContext as MainViewModel)?.OpenTool(PackageTool.None);
+    }
 
     private void UploadIntuneNavBtn_Checked(object sender, RoutedEventArgs e)
     {
@@ -79,10 +84,13 @@ public partial class MainWindow : Window
         if (DataContext is MainViewModel { IsEditToolOpen: true }) EditStep.OpenInExternalEditor();
     }
 
-    /// <summary>Remote Test is an optional tool of the package wizard, so the rail entry opens it there.</summary>
+    /// <summary>
+    /// Remote Test shares the wizard's page, but from the rail it stands alone: no package
+    /// comes with it, so the user picks one on the page itself.
+    /// </summary>
     private void RemoteTestNavBtn_Checked(object sender, RoutedEventArgs e)
     {
-        ShowOnly(CreatePackagePage, "Create Package / Remote Test");
-        (DataContext as MainViewModel)?.OpenTestToolCommand.Execute(null);
+        ShowOnly(CreatePackagePage, "Remote Test");
+        (DataContext as MainViewModel)?.OpenTool(PackageTool.RemoteTest, standalone: true);
     }
 }
