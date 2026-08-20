@@ -34,7 +34,7 @@ public partial class UploadToIntuneView : UserControl
 
     private void GroupSearch_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter && ViewModel.SearchGroupsCommand.CanExecute(null))
-            ViewModel.SearchGroupsCommand.Execute(null);
+        if (e.Key == Key.Enter && ViewModel.GroupPicker.SearchGroupsCommand.CanExecute(null))
+            ViewModel.GroupPicker.SearchGroupsCommand.Execute(null);
     }
 }

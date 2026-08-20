@@ -51,17 +51,18 @@ Set defaults applied to every upload from the **Create Package** wizard:
 - **Create a group per package** — auto-create a new Entra security group named from a
   template (tokens `%vendor%`, `%appName%`, `%appVersion%`) with a chosen intent
   (Required / Available / Uninstall). A live preview shows how the name resolves.
-- **Existing groups** — add named groups that are always assigned, each with its own
-  intent.
+- **Existing groups** — add named groups, each with its own intent. These pre-fill the
+  assignment picker on the wizard's Upload step, where they can be edited per package.
 
 Click **Save** when done.
 
 ---
 
-## 2. Create a package (the 4-step wizard)
+## 2. Create a package (the wizard)
 
-Click **Create Package**. The wizard runs through four steps; the two middle steps are
-optional.
+Click **Create Package**. The wizard runs through three steps — Generate, Upload and
+Review — with Edit Script and Remote Test available as optional side trips from
+Generate.
 
 ### Step 1 — Generate
 
@@ -81,21 +82,49 @@ install/uninstall commands, and any configured functions.
 > A version that already exists won't be overwritten — bump the version or remove the
 > old folder.
 
-### Step 2 — Edit Script (optional)
+### Edit Script (optional)
 
 Click **Continue** to open the generated `Invoke-AppDeployToolkit.ps1` in **VS Code**
 (or **PowerShell ISE**, or the default handler) to fine-tune install logic — for
 example, replacing the `<silent flags>` / `<uninstall flags>` placeholders for an EXE.
 Save in your editor, then return to Packman. You can **Skip** this step.
 
-### Step 3 — Remote Test (optional)
+### Remote Test (optional)
 
 A placeholder for validating the package before upload. **Skip** if you don't use it.
 
-### Step 4 — Upload
+### Step 2 — Upload
 
-1. Review the summary (app name, version, install context, detection rule).
-2. Make sure you're signed in (Settings page) and the **IntuneWinAppUtil** path is set.
+Nothing is sent to Intune from this step; it's where you decide how the app lands.
+
+1. **Name in Intune** — pre-filled from the display-name template in Settings.
+2. **Detection method** — *Auto (from package)* or a File / Registry / MSI rule you fill in.
+3. **PSADT deploy mode** — how `Invoke-AppDeployToolkit.exe` runs on the device:
+
+   | Mode | Behaviour |
+   |---|---|
+   | **Auto** (default) | PSADT decides: dialogs when a user is logged on, silent otherwise. |
+   | **Interactive** | Always shows the PSADT dialogs. |
+   | **NonInteractive** | Shows dialogs but never waits for the user. |
+   | **Silent** | No dialogs at all. |
+
+   Anything other than *Auto* appends `-DeployMode <mode>` to the Intune install and
+   uninstall command lines; the resulting command is previewed under the picker. A
+   command that already sets `-DeployMode` in Settings is left as written.
+4. *(Optional)* **Requirements & return codes** — pre-filled from Settings ▸ Intune Defaults.
+5. **Assignment** (right-hand column) — pre-filled with the groups from
+   Settings ▸ Group Assignment. Pick an assignment type (Required / Available /
+   Uninstall), search Entra for a group and click it to add. Each chip keeps its own
+   type, so one package can mix them. Remove any you don't want for this package.
+   A default group that no longer exists in Entra is shown but skipped on upload.
+
+### Step 3 — Review
+
+Everything you chose, read-only, in one place: package metadata, deploy mode, the
+install/uninstall command lines, detection rule, minimum OS and the assignment chips.
+
+1. Check the summary and make sure you're signed in (Settings page).
+2. Make sure the **IntuneWinAppUtil** path is set.
 3. Click **Build & Upload**.
 
 Packman then, with a progress bar:
@@ -103,9 +132,9 @@ Packman then, with a progress bar:
 - signs the package files (if code signing is enabled),
 - builds the `.intunewin` into the package's `Intune` folder,
 - registers the Win32 app in Intune and uploads the encrypted content to Azure,
-- applies the detection rule (MSI version rule when an MSI is present, otherwise a
-  file-exists rule),
-- assigns the groups configured in Settings,
+- applies the detection rule you chose,
+- assigns the groups listed on the Review step (plus a per-package group, if that
+  option is enabled in Settings),
 - writes a local marker file recording the new Intune **App ID**.
 
 On success the status shows **Uploaded to Intune · App ID …**.

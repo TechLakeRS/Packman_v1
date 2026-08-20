@@ -16,15 +16,11 @@ public sealed class UploadToIntuneViewModel : ObservableObject
 {
     private readonly SettingsService _settings = AppServices.Settings;
     private readonly IntuneAuthService _auth = AppServices.Auth;
-    private readonly IntuneService _apps = AppServices.Apps;
 
     public UploadToIntuneViewModel()
     {
         AddRuleCommand = new RelayCommand(AddDetectionRule, () => CanAddRule);
         RemoveRuleCommand = new RelayCommand<DetectionRule>(r => { if (r != null) DetectionRules.Remove(r); });
-        SearchGroupsCommand = new RelayCommand(async () => await SearchGroupsAsync(), () => !IsSearchingGroups);
-        AddGroupCommand = new RelayCommand<EntraGroup>(AddGroup);
-        RemoveGroupCommand = new RelayCommand<AssignedGroup>(g => { if (g != null) SelectedGroups.Remove(g); });
         UploadCommand = new RelayCommand(async () => await UploadAsync(), () => UploadEnabled);
         DoneCommand = new RelayCommand(ResetAfterPublish);
 
@@ -251,72 +247,8 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     }
 
     // ── Assignment groups ───────────────────────────────
-    public ObservableCollection<EntraGroup> GroupResults { get; } = new();
-    public ObservableCollection<AssignedGroup> SelectedGroups { get; } = new();
-
-    private string _groupQuery = "";
-    public string GroupQuery { get => _groupQuery; set => Set(ref _groupQuery, value); }
-
-    private bool _isSearchingGroups;
-    public bool IsSearchingGroups
-    {
-        get => _isSearchingGroups;
-        private set { if (Set(ref _isSearchingGroups, value)) SearchGroupsCommand.RaiseCanExecuteChanged(); }
-    }
-
-    private string _groupSearchHint = "";
-    public string GroupSearchHint { get => _groupSearchHint; private set => Set(ref _groupSearchHint, value); }
-
-    private string _intent = "required"; // required | available | uninstall
-    public string Intent { get => _intent; set { if (Set(ref _intent, value)) OnPropertyChanged(nameof(IntentLabel)); } }
-    public string IntentLabel => char.ToUpper(Intent[0]) + Intent[1..];
-
-    private async Task SearchGroupsAsync()
-    {
-        GroupResults.Clear();
-        GroupSearchHint = "";
-        if (string.IsNullOrWhiteSpace(GroupQuery))
-            return;
-
-        if (!_auth.IsSignedIn)
-        {
-            GroupSearchHint = "Sign in to Intune on the Settings page first.";
-            return;
-        }
-
-        IsSearchingGroups = true;
-        try
-        {
-            var found = await _apps.SearchGroupsAsync(GroupQuery);
-            foreach (var g in found)
-                GroupResults.Add(g);
-            GroupSearchHint = found.Count == 0 ? "No groups match that name." : "";
-        }
-        catch (Exception ex)
-        {
-            GroupSearchHint = $"Search failed: {ex.Message}";
-        }
-        finally
-        {
-            IsSearchingGroups = false;
-        }
-    }
-
-    private void AddGroup(EntraGroup? group)
-    {
-        if (group == null || string.IsNullOrEmpty(group.Id)) return;
-        if (SelectedGroups.Any(g => g.GroupId == group.Id)) return;
-
-        SelectedGroups.Add(new AssignedGroup
-        {
-            GroupId = group.Id,
-            GroupName = group.DisplayName,
-            AssignmentType = Intent,
-        });
-
-        GroupResults.Clear();
-        GroupQuery = "";
-    }
+    /// <summary>Shared Entra group picker; each selected group carries its own intent.</summary>
+    public GroupPickerViewModel GroupPicker { get; } = new();
 
     // ── Publishing ──────────────────────────────────────
     public ObservableCollection<PublishStepViewModel> PublishSteps { get; }
@@ -408,12 +340,13 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             MarkDone(0); MarkDone(1); MarkDone(2);
 
             PublishSteps[3].State = "working";
-            if (SelectedGroups.Count > 0)
-                await uploadService.AssignAppToGroupsAsync(appId, SelectedGroups.Select(g => g.GroupId), Intent);
+            var groups = GroupPicker.AssignableGroups;
+            if (groups.Count > 0)
+                await uploadService.AssignAppToGroupsAsync(appId, groups);
             PublishSteps[3].State = "done";
 
-            ResultText = SelectedGroups.Count > 0
-                ? $"Published and assigned to {SelectedGroups.Count} group(s). App ID {appId}"
+            ResultText = groups.Count > 0
+                ? $"Published and assigned to {groups.Count} group(s). App ID {appId}"
                 : $"Published successfully. App ID {appId}";
             _succeeded = true;
             IsComplete = true;
@@ -469,7 +402,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             PackageFolderName = "";
             AppName = Manufacturer = Version = SizeText = "";
             DetectionRules.Clear();
-            SelectedGroups.Clear();
+            GroupPicker.SelectedGroups.Clear();
             OnPropertyChanged(nameof(DisplayTitle));
         }
         UploadCommand.RaiseCanExecuteChanged();
@@ -478,9 +411,6 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     // ── Commands ────────────────────────────────────────
     public RelayCommand AddRuleCommand { get; }
     public RelayCommand<DetectionRule> RemoveRuleCommand { get; }
-    public RelayCommand SearchGroupsCommand { get; }
-    public RelayCommand<EntraGroup> AddGroupCommand { get; }
-    public RelayCommand<AssignedGroup> RemoveGroupCommand { get; }
     public RelayCommand UploadCommand { get; }
     public RelayCommand DoneCommand { get; }
 

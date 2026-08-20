@@ -291,6 +291,10 @@
                                       Visibility="{Binding Steps[1].IsCurrent, Converter={StaticResource BoolToVis}}">
                             <views:StepUpload Margin="26,22,26,26"/>
                         </ScrollViewer>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                      Visibility="{Binding Steps[2].IsCurrent, Converter={StaticResource BoolToVis}}">
+                            <views:StepReview Margin="26,22,26,26"/>
+                        </ScrollViewer>
                         <views:StepEdit x:Name="EditStep" Margin="26,18,26,22"
                                         Visibility="{Binding IsEditToolOpen, Converter={StaticResource BoolToVis}}"/>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
@@ -345,9 +349,9 @@
                                 <Button Style="{StaticResource GhostButton}" Content="{Binding ToolActionLabel}"
                                         Click="ToolAction_Click" Margin="0,0,12,0"
                                         Visibility="{Binding IsEditToolOpen, Converter={StaticResource BoolToVis}}"/>
-                                <Button Style="{StaticResource PrimaryButton}" Command="{Binding ContinueToPublishCommand}">
+                                <Button Style="{StaticResource PrimaryButton}" Command="{Binding ContinueToUploadCommand}">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="CONTINUE TO PUBLISH" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <TextBlock Text="CONTINUE TO UPLOAD" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
                                         <TextBlock Text="↵" Margin="9,0,0,0" Opacity="0.55" VerticalAlignment="Center"
                                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="10"/>
                                     </StackPanel>
