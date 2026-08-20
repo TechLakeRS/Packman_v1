@@ -7,6 +7,9 @@ using System.Windows;
 
 namespace Packman.ViewModels;
 
+/// <summary>Which optional tool page is covering the wizard, if any.</summary>
+public enum PackageTool { None, EditScript, RemoteTest }
+
 public sealed class MainViewModel : ObservableObject
 {
     private readonly SettingsService _settingsService = AppServices.Settings;
@@ -19,6 +22,9 @@ public sealed class MainViewModel : ObservableObject
     public UpgradePackageViewModel Upgrade { get; } = new();
     public UploadStepViewModel Upload { get; }
 
+    private const int GenerateStep = 0;
+    private const int PublishStep = 1;
+
     private bool _isUpgradeMode;
     public bool IsUpgradeMode
     {
@@ -27,10 +33,14 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public RelayCommand BackCommand { get; }
-    public RelayCommand SkipCommand { get; }
     public RelayCommand PrimaryCommand { get; }
     public RelayCommand<int> GoToStepCommand { get; }
-    public RelayCommand ThemeToggleCommand { get; }
+    public RelayCommand OpenEditToolCommand { get; }
+    public RelayCommand OpenTestToolCommand { get; }
+    public RelayCommand CloseToolCommand { get; }
+    public RelayCommand ToolActionCommand { get; }
+    public RelayCommand ContinueToPublishCommand { get; }
+    public RelayCommand OpenPackageFolderCommand { get; }
 
     private int _currentStepIndex;
     public int CurrentStepIndex
@@ -45,28 +55,98 @@ public sealed class MainViewModel : ObservableObject
                 Steps[i].IsCurrent = i == value;
                 Steps[i].IsDone = i < value;
             }
-            if (value == 3) Upload.RefreshFromPackage();
+            if (value == PublishStep) Upload.RefreshFromPackage();
             OnPropertyChanged(nameof(PrimaryLabel));
             OnPropertyChanged(nameof(IsLastStep));
-            OnPropertyChanged(nameof(SkipVisible));
             OnPropertyChanged(nameof(StepPosition));
+            OnPropertyChanged(nameof(ShowPrimaryKeyHint));
             BackCommand.RaiseCanExecuteChanged();
-            SkipCommand.RaiseCanExecuteChanged();
         }
     }
 
-    public string PrimaryLabel =>
-        CurrentStepIndex == 0 && IsUpgradeMode ? "Upgrade Package" : Steps[CurrentStepIndex].PrimaryLabel;
-    public bool IsLastStep => CurrentStepIndex == Steps.Count - 1;
-    public bool SkipVisible => Steps[CurrentStepIndex].Optional && !IsLastStep;
-    public string StepPosition => $"Step {CurrentStepIndex + 1} of {Steps.Count}";
-
-    private bool _isDarkTheme;
-    public bool IsDarkTheme
+    // ── Optional tool pages (Edit Script / Remote Test) ─────────────────
+    private PackageTool _activeTool = PackageTool.None;
+    public PackageTool ActiveTool
     {
-        get => _isDarkTheme;
-        set { if (Set(ref _isDarkTheme, value)) App.ApplyTheme(value); }
+        get => _activeTool;
+        private set
+        {
+            if (!Set(ref _activeTool, value)) return;
+            OnPropertyChanged(nameof(IsWizard));
+            OnPropertyChanged(nameof(IsToolOpen));
+            OnPropertyChanged(nameof(IsEditToolOpen));
+            OnPropertyChanged(nameof(IsTestToolOpen));
+            OnPropertyChanged(nameof(ToolTitle));
+            OnPropertyChanged(nameof(ToolSubtitle));
+            OnPropertyChanged(nameof(ToolActionLabel));
+        }
     }
+
+    public bool IsWizard => _activeTool == PackageTool.None;
+    public bool IsToolOpen => _activeTool != PackageTool.None;
+    public bool IsEditToolOpen => _activeTool == PackageTool.EditScript;
+    public bool IsTestToolOpen => _activeTool == PackageTool.RemoteTest;
+
+    public string ToolTitle => _activeTool switch
+    {
+        PackageTool.EditScript => "Edit Script",
+        PackageTool.RemoteTest => "Remote Test",
+        _ => "",
+    };
+
+    public string ToolSubtitle => _activeTool switch
+    {
+        PackageTool.EditScript => "Edit the generated PSADT deployment script — completions come from the PSADT v4 catalog",
+        PackageTool.RemoteTest => "Deploy the built package to a test machine and watch the result",
+        _ => "",
+    };
+
+    public string ToolActionLabel => _activeTool switch
+    {
+        PackageTool.EditScript => "OPEN IN VS CODE",
+        PackageTool.RemoteTest => "RUN AGAIN",
+        _ => "",
+    };
+
+    // ── Package state surfaced to the Generate screen ───────────────────
+    public bool HasPackage => !string.IsNullOrEmpty(CreatePackage.CurrentPackagePath);
+
+    /// <summary>Trailing folder name, shown in the tool breadcrumb.</summary>
+    public string PackageName
+    {
+        get
+        {
+            var path = CreatePackage.CurrentPackagePath;
+            return string.IsNullOrEmpty(path) ? "" : Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar));
+        }
+    }
+
+    public string PackagePathShort => HasPackage ? CreatePackage.CurrentPackagePath : "no package yet";
+
+    public string PrimaryLabel
+    {
+        get
+        {
+            if (CurrentStepIndex == GenerateStep)
+            {
+                if (HasPackage) return "CONTINUE TO PUBLISH";
+                return IsUpgradeMode ? "UPGRADE PACKAGE" : "GENERATE PACKAGE";
+            }
+            if (Upload.IsFailed) return "RETRY UPLOAD";
+            if (Upload.IsSucceeded) return "DONE";
+            return "BUILD & UPLOAD";
+        }
+    }
+
+    public bool IsLastStep => CurrentStepIndex == Steps.Count - 1;
+
+    /// <summary>The ↵ affordance is hidden while an upload is in flight.</summary>
+    public bool ShowPrimaryKeyHint => !Upload.IsRunning;
+
+    /// <summary>An upload in flight cannot be cancelled, so the action is replaced by a quiet status.</summary>
+    public bool IsUploadRunning => Upload.IsRunning;
+
+    public string StepPosition => $"step {CurrentStepIndex + 1} of {Steps.Count}";
 
     // ── Intune connection status (footer) ──────────────────────────────
     public bool IsConnected => _auth.IsSignedIn;
@@ -80,19 +160,27 @@ public sealed class MainViewModel : ObservableObject
 
         Steps = new ObservableCollection<StepViewModel>
         {
-            new(0, "Generate",    false, "Generate Package", isFirst: true,  isLast: false),
-            new(1, "Edit Script", true,  "Continue",         isFirst: false, isLast: false),
-            new(2, "Remote Test", true,  "Continue",         isFirst: false, isLast: false),
-            new(3, "Upload",      false, "Build & Upload",   isFirst: false, isLast: true),
+            new(GenerateStep, "Generate"),
+            new(PublishStep,  "Publish"),
         };
 
-        BackCommand        = new RelayCommand(() => CurrentStepIndex--, () => CurrentStepIndex > 0);
-        SkipCommand        = new RelayCommand(() => CurrentStepIndex++, () => SkipVisible);
-        PrimaryCommand     = new RelayCommand(OnPrimary, () => !CreatePackage.IsGenerating && !Upgrade.IsBusy && !Upload.IsPublishing);
-        GoToStepCommand    = new RelayCommand<int>(i => CurrentStepIndex = i);
-        ThemeToggleCommand = new RelayCommand(() => IsDarkTheme = !IsDarkTheme);
+        BackCommand     = new RelayCommand(() => CurrentStepIndex--, () => CurrentStepIndex > 0);
+        PrimaryCommand  = new RelayCommand(OnPrimary, () => !CreatePackage.IsGenerating && !Upgrade.IsBusy && !Upload.IsPublishing);
+        GoToStepCommand = new RelayCommand<int>(i => CurrentStepIndex = i);
 
-        Steps[0].IsCurrent = true;
+        OpenEditToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.EditScript, () => HasPackage);
+        OpenTestToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.RemoteTest, () => HasPackage);
+        CloseToolCommand         = new RelayCommand(() => ActiveTool = PackageTool.None);
+        ToolActionCommand        = new RelayCommand(OnToolAction);
+        OpenPackageFolderCommand = new RelayCommand(OpenPackageFolder, () => HasPackage);
+
+        ContinueToPublishCommand = new RelayCommand(() =>
+        {
+            ActiveTool = PackageTool.None;
+            CurrentStepIndex = PublishStep;
+        });
+
+        Steps[GenerateStep].IsCurrent = true;
 
         _auth.StateChanged += () =>
         {
@@ -104,6 +192,8 @@ public sealed class MainViewModel : ObservableObject
         {
             if (e.PropertyName == nameof(CreatePackageViewModel.IsGenerating))
                 PrimaryCommand.RaiseCanExecuteChanged();
+            if (e.PropertyName == nameof(CreatePackageViewModel.CurrentPackagePath))
+                RaisePackageDependents();
         };
         Upgrade.PropertyChanged += (_, e) =>
         {
@@ -114,38 +204,61 @@ public sealed class MainViewModel : ObservableObject
         {
             if (e.PropertyName == nameof(UploadStepViewModel.IsPublishing))
                 PrimaryCommand.RaiseCanExecuteChanged();
+
+            // The publish button reads its label from the upload's own state.
+            if (e.PropertyName is nameof(UploadStepViewModel.IsPublishing)
+                              or nameof(UploadStepViewModel.IsRunning)
+                              or nameof(UploadStepViewModel.IsComplete))
+            {
+                OnPropertyChanged(nameof(PrimaryLabel));
+                OnPropertyChanged(nameof(ShowPrimaryKeyHint));
+                OnPropertyChanged(nameof(IsUploadRunning));
+            }
         };
+    }
+
+    private void RaisePackageDependents()
+    {
+        OnPropertyChanged(nameof(HasPackage));
+        OnPropertyChanged(nameof(PackageName));
+        OnPropertyChanged(nameof(PackagePathShort));
+        OnPropertyChanged(nameof(PrimaryLabel));
+        OpenEditToolCommand.RaiseCanExecuteChanged();
+        OpenTestToolCommand.RaiseCanExecuteChanged();
+        OpenPackageFolderCommand.RaiseCanExecuteChanged();
     }
 
     private async void OnPrimary()
     {
-        if (CurrentStepIndex == 0)
+        if (CurrentStepIndex == GenerateStep)
         {
+            // Once a package exists the button advances rather than regenerating.
+            if (HasPackage)
+            {
+                CurrentStepIndex = PublishStep;
+                return;
+            }
+
             if (IsUpgradeMode)
                 await RunUpgradeAsync();
             else
                 await RunCreateAsync();
+            return;
         }
-        else if (CurrentStepIndex == 1)
-        {
-            OpenScriptInEditor();
-            if (CurrentStepIndex < Steps.Count - 1) CurrentStepIndex++;
-        }
-        else if (IsLastStep)
-        {
-            await Upload.UploadAsync();
-        }
-        else if (CurrentStepIndex < Steps.Count - 1)
-        {
-            CurrentStepIndex++;
-        }
+
+        await Upload.UploadAsync();
+    }
+
+    private void OnToolAction()
+    {
+        if (_activeTool == PackageTool.EditScript) OpenScriptInEditor();
     }
 
     private async Task RunCreateAsync()
     {
         var packagePath = await CreatePackage.GenerateAsync(_settingsService.Settings);
         if (!string.IsNullOrEmpty(packagePath))
-            CurrentStepIndex = 1;
+            RaisePackageDependents();
         else if (!string.IsNullOrEmpty(CreatePackage.StatusText))
             MessageBox.Show(CreatePackage.StatusText, "Package Generation", MessageBoxButton.OK, MessageBoxImage.Warning);
     }
@@ -160,7 +273,7 @@ public sealed class MainViewModel : ObservableObject
             return;
         }
 
-        // Carry upgraded metadata into the create model so Edit/Test/Upload steps work.
+        // Carry upgraded metadata into the create model so the tools and publish work.
         var meta = Upgrade.LoadedMetadata;
         if (meta != null)
         {
@@ -173,7 +286,22 @@ public sealed class MainViewModel : ObservableObject
         CreatePackage.CurrentPackagePath = newPackagePath;
         CreatePackage.PredecessorAppId = PackageMarker.GetMarkerAppId(Upgrade.ExistingPackagePath) ?? "";
 
-        CurrentStepIndex = 1;
+        RaisePackageDependents();
+    }
+
+    private void OpenPackageFolder()
+    {
+        var path = CreatePackage.CurrentPackagePath;
+        if (string.IsNullOrEmpty(path) || !Directory.Exists(path)) return;
+
+        try
+        {
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to open package folder: {ex.Message}");
+        }
     }
 
     private void OpenScriptInEditor()
@@ -201,7 +329,7 @@ public sealed class MainViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to open script: {ex.Message}");
+            Debug.WriteLine($"Failed to open script: {ex.Message}");
         }
     }
 }

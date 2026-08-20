@@ -48,7 +48,6 @@ public partial class StepEdit : UserControl
     private FileSystemWatcher? _watcher;
     private CancellationTokenSource? _searchCts;
     private bool _suppressTreeSelection;
-    private MainViewModel? _subscribedVm;
 
     public StepEdit()
     {
@@ -73,17 +72,6 @@ public partial class StepEdit : UserControl
         // Warm the WebView2 up front so the step does not stall the first time it is shown.
         _ = InitializeEditorAsync();
 
-        if (VM != null && !ReferenceEquals(_subscribedVm, VM))
-        {
-            if (_subscribedVm != null) _subscribedVm.PropertyChanged -= Vm_PropertyChanged;
-            _subscribedVm = VM;
-            _subscribedVm.PropertyChanged += Vm_PropertyChanged;
-        }
-    }
-
-    private void Vm_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(MainViewModel.IsDarkTheme)) ApplyEditorTheme();
     }
 
     private async void StepEdit_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -180,14 +168,14 @@ public partial class StepEdit : UserControl
 
     private string CodeBackgroundHex()
     {
-        var color = (TryFindResource("CodeBgBrush") as SolidColorBrush)?.Color ?? Color.FromRgb(0x0C, 0x13, 0x22);
+        var color = (TryFindResource("CodeBgBrush") as SolidColorBrush)?.Color ?? Color.FromRgb(0x07, 0x08, 0x0B);
         return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
     }
 
     /// <summary>Keeps Monaco's canvas on the same colour as the card it sits in.</summary>
     private void ApplyEditorTheme()
     {
-        var color = (TryFindResource("CodeBgBrush") as SolidColorBrush)?.Color ?? Color.FromRgb(0x0C, 0x13, 0x22);
+        var color = (TryFindResource("CodeBgBrush") as SolidColorBrush)?.Color ?? Color.FromRgb(0x07, 0x08, 0x0B);
         EditorWebView.DefaultBackgroundColor = System.Drawing.Color.FromArgb(color.R, color.G, color.B);
         if (_editorReady) PostToEditor(new { type = "theme", background = CodeBackgroundHex() });
     }
