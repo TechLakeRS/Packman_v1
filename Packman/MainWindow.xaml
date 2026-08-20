@@ -257,9 +257,10 @@
                     <Border Grid.Row="0" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1"
                             Padding="26,18,26,16" Visibility="{Binding IsToolOpen, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-                            <Button Style="{StaticResource Breadcrumb}" Command="{Binding CloseToolCommand}">
+                            <Button Style="{StaticResource Breadcrumb}" Command="{Binding CloseToolCommand}"
+                                    Visibility="{Binding IsToolInWizard, Converter={StaticResource BoolToVis}}">
                                 <TextBlock>
-                                    <Run Text="←"/><Run Text=" "/><Run Text="{Binding ToolBreadcrumb, Mode=OneWay}"/>
+                                    <Run Text="← Create Package /"/><Run Text=" "/><Run Text="{Binding PackageName, Mode=OneWay}"/>
                                 </TextBlock>
                             </Button>
                             <Grid Margin="0,12,0,0">
@@ -273,7 +274,8 @@
                                                Margin="0,5,0,0" TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                                 <TextBlock Grid.Column="1" Text="optional step" Style="{StaticResource Caption}"
-                                           Margin="16,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                                           Margin="16,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                           Visibility="{Binding IsToolInWizard, Converter={StaticResource BoolToVis}}"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -340,15 +342,17 @@
                         </Grid>
                     </Border>
 
-                    <!-- Tool footer -->
+                    <!-- Tool footer — back to the package and on to upload, so it belongs to
+                         the wizard entry only; from the rail the tool is a page of its own. -->
                     <Border Grid.Row="2" Height="56" Background="{DynamicResource CardBrush}"
                             BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="26,0"
-                            Visibility="{Binding IsToolOpen, Converter={StaticResource BoolToVis}}">
+                            Visibility="{Binding IsToolInWizard, Converter={StaticResource BoolToVis}}">
                         <Grid>
                             <Button Style="{StaticResource BackButton}" Content="← BACK TO PACKAGE"
                                     HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding CloseToolCommand}"/>
                             <TextBlock Text="changes are saved to the package on disk" Style="{StaticResource Caption}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Visibility="{Binding IsEditToolOpen, Converter={StaticResource BoolToVis}}"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <Button Style="{StaticResource GhostButton}" Content="{Binding ToolActionLabel}"
                                         Click="ToolAction_Click" Margin="0,0,12,0"

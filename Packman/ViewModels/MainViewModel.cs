@@ -68,6 +68,8 @@ public sealed class MainViewModel : ObservableObject
 
     // ── Optional tool pages (Edit Script / Remote Test) ─────────────────
     private PackageTool _activeTool = PackageTool.None;
+    private bool _isToolStandalone;
+
     public PackageTool ActiveTool
     {
         get => _activeTool;
@@ -76,6 +78,7 @@ public sealed class MainViewModel : ObservableObject
             if (!Set(ref _activeTool, value)) return;
             OnPropertyChanged(nameof(IsWizard));
             OnPropertyChanged(nameof(IsToolOpen));
+            OnPropertyChanged(nameof(IsToolInWizard));
             OnPropertyChanged(nameof(IsEditToolOpen));
             OnPropertyChanged(nameof(IsTestToolOpen));
             OnPropertyChanged(nameof(ToolTitle));
@@ -86,8 +89,23 @@ public sealed class MainViewModel : ObservableObject
 
     public bool IsWizard => _activeTool == PackageTool.None;
     public bool IsToolOpen => _activeTool != PackageTool.None;
+
+    /// <summary>
+    /// A tool opened from the wizard sits inside it — breadcrumb back to the package,
+    /// footer on to the upload step. Opened from the rail it owns the screen instead,
+    /// with no wizard package behind it, so neither belongs.
+    /// </summary>
+    public bool IsToolInWizard => IsToolOpen && !_isToolStandalone;
     public bool IsEditToolOpen => _activeTool == PackageTool.EditScript;
     public bool IsTestToolOpen => _activeTool == PackageTool.RemoteTest;
+
+    /// <summary><paramref name="standalone"/> marks the rail entry, which has no wizard behind it.</summary>
+    public void OpenTool(PackageTool tool, bool standalone = false)
+    {
+        _isToolStandalone = standalone;
+        ActiveTool = tool;
+        OnPropertyChanged(nameof(IsToolInWizard));
+    }
 
     public string ToolTitle => _activeTool switch
     {
@@ -124,9 +142,6 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public string PackagePathShort => HasPackage ? CreatePackage.CurrentPackagePath : "no package yet";
-
-    /// <summary>Back-link shown above an open tool; Remote Test can be open with no package.</summary>
-    public string ToolBreadcrumb => HasPackage ? $"Create Package / {PackageName}" : "Create Package";
 
     public string PrimaryLabel
     {
@@ -176,14 +191,14 @@ public sealed class MainViewModel : ObservableObject
         PrimaryCommand  = new RelayCommand(OnPrimary, () => !CreatePackage.IsGenerating && !Upgrade.IsBusy && !Upload.IsPublishing);
         GoToStepCommand = new RelayCommand<int>(i => CurrentStepIndex = i);
 
-        OpenEditToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.EditScript, () => HasPackage);
-        OpenTestToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.RemoteTest);
-        CloseToolCommand         = new RelayCommand(() => ActiveTool = PackageTool.None);
+        OpenEditToolCommand      = new RelayCommand(() => OpenTool(PackageTool.EditScript), () => HasPackage);
+        OpenTestToolCommand      = new RelayCommand(() => OpenTool(PackageTool.RemoteTest), () => HasPackage);
+        CloseToolCommand         = new RelayCommand(() => OpenTool(PackageTool.None));
         OpenPackageFolderCommand = new RelayCommand(OpenPackageFolder, () => HasPackage);
 
         ContinueToUploadCommand = new RelayCommand(() =>
         {
-            ActiveTool = PackageTool.None;
+            OpenTool(PackageTool.None);
             CurrentStepIndex = UploadStep;
         });
 
@@ -229,9 +244,9 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(HasPackage));
         OnPropertyChanged(nameof(PackageName));
         OnPropertyChanged(nameof(PackagePathShort));
-        OnPropertyChanged(nameof(ToolBreadcrumb));
         OnPropertyChanged(nameof(PrimaryLabel));
         OpenEditToolCommand.RaiseCanExecuteChanged();
+        OpenTestToolCommand.RaiseCanExecuteChanged();
         OpenPackageFolderCommand.RaiseCanExecuteChanged();
     }
 
