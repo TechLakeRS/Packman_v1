@@ -11,7 +11,7 @@
         <!-- ============ FORM ============ -->
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                       Visibility="{Binding IsNotPublishing, Converter={StaticResource BoolToVis}}">
-            <StackPanel Margin="30,24,30,26">
+            <StackPanel Margin="26,20,26,26">
                 <StackPanel>
                     <TextBlock Text="Upload to Intune" Style="{StaticResource H1}"/>
                     <TextBlock Text="Publish an already-built package without re-creating it" Style="{StaticResource SubText}" Margin="0,5,0,0"/>

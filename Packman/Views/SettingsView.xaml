@@ -7,55 +7,96 @@
              mc:Ignorable="d"
              FontFamily="{StaticResource UIFontFamily}">
 
-    <Grid>
+    <Grid Margin="26,20,26,26">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- ══ Page header ══════════════════════════════════════════════ -->
-        <Grid Grid.Row="0" Margin="0,0,0,18">
+        <Grid Grid.Row="0" Margin="0,0,0,20">
             <StackPanel VerticalAlignment="Center">
                 <TextBlock Text="Settings" Style="{StaticResource H1}"/>
-                <TextBlock Text="Configure your packaging environment, authentication and integrations"
+                <TextBlock Text="Stored in appsettings.json next to the executable"
                            Style="{StaticResource SubText}" Margin="0,5,0,0"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <!-- Save status -->
-                <TextBlock Text="{Binding SaveStatus}" FontSize="12.5" Foreground="{DynamicResource OkBrush}"
-                           VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <!-- Version pill -->
-                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                        BorderThickness="1" CornerRadius="0" Padding="12,5" Margin="0,0,10,0">
-                    <TextBlock Text="v1.0.0" FontSize="12" Foreground="{DynamicResource MutedBrush}"/>
-                </Border>
+                <TextBlock Text="{Binding SaveStatus}" FontFamily="{StaticResource MonoFontFamily}" FontSize="10.5"
+                           Foreground="{DynamicResource OkBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
                 <!-- Reset -->
-                <Button Style="{StaticResource GhostButton}" Command="{Binding ResetCommand}" Margin="0,0,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,7,0">
-                            <Path Data="{StaticResource IconRefresh}" Stroke="{DynamicResource TextBrush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="Reset" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
+                <Button Style="{StaticResource GhostButton}" Content="RESET" Command="{Binding ResetCommand}" Margin="0,0,8,0"/>
                 <!-- Save Settings -->
-                <Button Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,7,0">
-                            <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="Save Settings" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
+                <Button Style="{StaticResource PrimaryButton}" Content="SAVE SETTINGS" Command="{Binding SaveCommand}"/>
             </StackPanel>
         </Grid>
 
+        <Border Grid.Row="0" VerticalAlignment="Bottom" Height="1" Background="{DynamicResource LineBrush}"/>
+
+        <!-- ══ Sections + content ═══════════════════════════════════════ -->
+        <Grid Grid.Row="1" Margin="0,22,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="206"/>
+                <ColumnDefinition Width="28"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <RadioButton x:Name="TabAuth" Style="{StaticResource SectionItem}" GroupName="SettingsTabs" IsChecked="True">
+                    <DockPanel LastChildFill="False" Width="182">
+                        <TextBlock DockPanel.Dock="Left" Text="Authentication" VerticalAlignment="Center"/>
+                    </DockPanel>
+                </RadioButton>
+                <RadioButton x:Name="TabCodeSign" Style="{StaticResource SectionItem}" GroupName="SettingsTabs">
+                    <DockPanel LastChildFill="False" Width="182">
+                        <TextBlock DockPanel.Dock="Left" Text="Code Signing" VerticalAlignment="Center"/>
+                    </DockPanel>
+                </RadioButton>
+                <RadioButton x:Name="TabNetworkPaths" Style="{StaticResource SectionItem}" GroupName="SettingsTabs">
+                    <DockPanel LastChildFill="False" Width="182">
+                        <TextBlock DockPanel.Dock="Left" Text="Network Paths" VerticalAlignment="Center"/>
+                    </DockPanel>
+                </RadioButton>
+                <RadioButton x:Name="TabGroupAssignment" Style="{StaticResource SectionItem}" GroupName="SettingsTabs">
+                    <DockPanel LastChildFill="False" Width="182">
+                        <TextBlock DockPanel.Dock="Left" Text="Group Assignment" VerticalAlignment="Center"/>
+                    </DockPanel>
+                </RadioButton>
+                <RadioButton x:Name="TabIntuneDefaults" Style="{StaticResource SectionItem}" GroupName="SettingsTabs">
+                    <DockPanel LastChildFill="False" Width="182">
+                        <TextBlock DockPanel.Dock="Left" Text="Intune Defaults" VerticalAlignment="Center"/>
+                    </DockPanel>
+                </RadioButton>
+                <!-- Planned sections -->
+                <RadioButton Style="{StaticResource SectionItem}" GroupName="SettingsTabs" IsEnabled="False">
+                    <DockPanel LastChildFill="False" Width="182">
+                        <TextBlock DockPanel.Dock="Left" Text="WDAC Hyper-V" VerticalAlignment="Center"/>
+                        <TextBlock DockPanel.Dock="Right" Text="SOON" VerticalAlignment="Center"
+                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="8.5" FontWeight="Medium"
+                                   Foreground="{DynamicResource Dim2Brush}"/>
+                    </DockPanel>
+                </RadioButton>
+                <RadioButton Style="{StaticResource SectionItem}" GroupName="SettingsTabs" IsEnabled="False">
+                    <DockPanel LastChildFill="False" Width="182">
+                        <TextBlock DockPanel.Dock="Left" Text="GitLab" VerticalAlignment="Center"/>
+                        <TextBlock DockPanel.Dock="Right" Text="SOON" VerticalAlignment="Center"
+                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="8.5" FontWeight="Medium"
+                                   Foreground="{DynamicResource Dim2Brush}"/>
+                    </DockPanel>
+                </RadioButton>
+                <RadioButton Style="{StaticResource SectionItem}" GroupName="SettingsTabs" IsEnabled="False">
+                    <DockPanel LastChildFill="False" Width="182">
+                        <TextBlock DockPanel.Dock="Left" Text="Key Vault Caching" VerticalAlignment="Center"/>
+                        <TextBlock DockPanel.Dock="Right" Text="SOON" VerticalAlignment="Center"
+                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="8.5" FontWeight="Medium"
+                                   Foreground="{DynamicResource Dim2Brush}"/>
+                    </DockPanel>
+                </RadioButton>
+
         <!-- ══ First-run setup banner ═══════════════════════════════════ -->
-        <Border x:Name="FirstRunBanner" Grid.Row="1" Background="{DynamicResource PrimarySoftBrush}"
-                BorderBrush="{DynamicResource PrimaryDimBrush}" BorderThickness="1" CornerRadius="0"
-                Padding="16,11" Margin="0,0,0,18">
+        <Border x:Name="FirstRunBanner" Background="{DynamicResource WarnSoftBrush}"
+                BorderBrush="{DynamicResource WarnBrush}" BorderThickness="2,0,0,0"
+                Padding="12,11" Margin="0,16,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -78,97 +119,15 @@
                 </Button>
             </Grid>
         </Border>
-
-        <!-- ══ Tab strip ════════════════════════════════════════════════ -->
-        <Border Grid.Row="2" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal">
-                <RadioButton x:Name="TabAuth" Style="{StaticResource PageTab}" GroupName="SettingsTabs" IsChecked="True">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
-                            <Path Data="{StaticResource IconShield}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="Authentication" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </RadioButton>
-                <RadioButton x:Name="TabCodeSign" Style="{StaticResource PageTab}" GroupName="SettingsTabs">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
-                            <Path Data="{StaticResource IconShield}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="Code Signing" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </RadioButton>
-                <RadioButton x:Name="TabNetworkPaths" Style="{StaticResource PageTab}" GroupName="SettingsTabs">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
-                            <Path Data="{StaticResource IconFolder}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="Network Paths" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </RadioButton>
-                <RadioButton x:Name="TabGroupAssignment" Style="{StaticResource PageTab}" GroupName="SettingsTabs">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
-                            <Path Data="{StaticResource IconGroup}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="Group Assignment" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </RadioButton>
-                <RadioButton x:Name="TabIntuneDefaults" Style="{StaticResource PageTab}" GroupName="SettingsTabs">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
-                            <Path Data="{StaticResource IconLaptop}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="Intune Defaults" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </RadioButton>
-                <!-- Planned sections -->
-                <RadioButton Style="{StaticResource PageTab}" GroupName="SettingsTabs" IsEnabled="False">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
-                            <Path Data="{StaticResource IconMonitor}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="WDAC Hyper-V" VerticalAlignment="Center"/>
-                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                CornerRadius="0" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="SOON" FontSize="9" Foreground="{DynamicResource Muted2Brush}"/>
-                        </Border>
-                    </StackPanel>
-                </RadioButton>
-                <RadioButton Style="{StaticResource PageTab}" GroupName="SettingsTabs" IsEnabled="False">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
-                            <Path Data="{StaticResource IconCode}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="GitLab" VerticalAlignment="Center"/>
-                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                CornerRadius="0" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="SOON" FontSize="9" Foreground="{DynamicResource Muted2Brush}"/>
-                        </Border>
-                    </StackPanel>
-                </RadioButton>
-                <RadioButton Style="{StaticResource PageTab}" GroupName="SettingsTabs" IsEnabled="False">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="14" Height="14" Margin="0,0,8,0">
-                            <Path Data="{StaticResource IconGear}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="Key Vault Caching" VerticalAlignment="Center"/>
-                        <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                CornerRadius="0" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="SOON" FontSize="9" Foreground="{DynamicResource Muted2Brush}"/>
-                        </Border>
-                    </StackPanel>
-                </RadioButton>
             </StackPanel>
-        </Border>
 
         <!-- ══ Tab content ══════════════════════════════════════════════ -->
-        <ScrollViewer Grid.Row="3" Margin="0,16,0,0"
+        <ScrollViewer Grid.Column="2" Margin="0"
                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
 
                     <!-- Authentication card -->
-                    <Border Style="{StaticResource Card}"
+                    <Border Background="Transparent" BorderThickness="0" Padding="0"
                             Visibility="{Binding IsChecked, ElementName=TabAuth, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
 
@@ -241,13 +200,13 @@
                                         <!-- Not signed in status -->
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0"
                                                     Visibility="{Binding IsNotSignedIn, Converter={StaticResource BoolToVis}}">
-                                            <Ellipse Width="7" Height="7" Fill="{DynamicResource MutedBrush}" Margin="0,0,7,0"/>
+                                            <Rectangle Width="6" Height="6" Fill="{DynamicResource FaintBrush}" Margin="0,0,8,0"/>
                                             <TextBlock Text="Not signed in" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <!-- Signed in status -->
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0"
                                                     Visibility="{Binding IsSignedIn, Converter={StaticResource BoolToVis}}">
-                                            <Ellipse Width="7" Height="7" Fill="{DynamicResource OkBrush}" Margin="0,0,7,0"/>
+                                            <Rectangle Width="6" Height="6" Fill="{DynamicResource OkBrush}" Margin="0,0,8,0"/>
                                             <TextBlock Text="{Binding SignedInUser}" FontSize="12.5" Foreground="{DynamicResource OkBrush}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <!-- Sign in button -->
@@ -402,8 +361,8 @@
                                             <DataTemplate>
                                                 <Grid Margin="0,3">
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                                        <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,9,0">
-                                                            <Ellipse.Style>
+                                                        <Rectangle Width="6" Height="6" VerticalAlignment="Center" Margin="0,0,9,0">
+                                                            <Rectangle.Style>
                                                                 <Style TargetType="Ellipse">
                                                                     <Setter Property="Fill" Value="{DynamicResource BadBrush}"/>
                                                                     <Style.Triggers>
@@ -412,8 +371,8 @@
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
-                                                            </Ellipse.Style>
-                                                        </Ellipse>
+                                                            </Rectangle.Style>
+                                                        </Rectangle>
                                                         <TextBlock Text="{Binding Name}" FontSize="12.5" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                     <TextBlock Text="{Binding Detail}" HorizontalAlignment="Right" VerticalAlignment="Center"
@@ -444,7 +403,7 @@
                     </Border>
 
                     <!-- Code Signing card -->
-                    <Border Style="{StaticResource Card}"
+                    <Border Background="Transparent" BorderThickness="0" Padding="0"
                             Visibility="{Binding IsChecked, ElementName=TabCodeSign, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
 
@@ -609,7 +568,7 @@
                     </Border>
 
                     <!-- Network Paths card -->
-                    <Border Style="{StaticResource Card}"
+                    <Border Background="Transparent" BorderThickness="0" Padding="0"
                             Visibility="{Binding IsChecked, ElementName=TabNetworkPaths, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
 
@@ -657,7 +616,7 @@
                     </Border>
 
                     <!-- Group Assignment card -->
-                    <Border Style="{StaticResource Card}"
+                    <Border Background="Transparent" BorderThickness="0" Padding="0"
                             Visibility="{Binding IsChecked, ElementName=TabGroupAssignment, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
 
@@ -819,7 +778,7 @@
                     </Border>
 
                     <!-- Intune Defaults card -->
-                    <Border Style="{StaticResource Card}"
+                    <Border Background="Transparent" BorderThickness="0" Padding="0"
                             Visibility="{Binding IsChecked, ElementName=TabIntuneDefaults, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
 
@@ -1038,5 +997,6 @@
 
                 </StackPanel>
         </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>

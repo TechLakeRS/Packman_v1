@@ -11,7 +11,7 @@
 
     <Grid>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="30,24,30,26">
+        <StackPanel Margin="26,20,26,26">
 
             <!-- Breadcrumb: Applications / {category} -->
             <Button Style="{StaticResource Breadcrumb}" Click="Back_Click" Margin="0,0,0,14">
@@ -157,8 +157,8 @@
                                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                                                     CornerRadius="0" Padding="12,6" Margin="0,0,8,8">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Ellipse Width="7" Height="7" VerticalAlignment="Center">
-                                                        <Ellipse.Style>
+                                                    <Rectangle Width="6" Height="6" VerticalAlignment="Center">
+                                                        <Rectangle.Style>
                                                             <Style TargetType="Ellipse">
                                                                 <Setter Property="Fill" Value="{DynamicResource Muted2Brush}"/>
                                                                 <Style.Triggers>
@@ -170,8 +170,8 @@
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
-                                                        </Ellipse.Style>
-                                                    </Ellipse>
+                                                        </Rectangle.Style>
+                                                    </Rectangle>
                                                     <TextBlock Text="{Binding ChipText}" FontSize="12" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource InkBrush}" Margin="7,0,0,0" VerticalAlignment="Center"/>
                                                 </StackPanel>

@@ -9,7 +9,7 @@
              d:DataContext="{d:DesignInstance Type=vm:ApplicationsViewModel}"
              FontFamily="{StaticResource UIFontFamily}">
 
-    <Grid Margin="30,24,30,26">
+    <Grid Margin="26,20,26,22">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -17,252 +17,233 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" Margin="0,0,0,18">
             <StackPanel HorizontalAlignment="Left">
                 <TextBlock Text="Applications" Style="{StaticResource H1}"/>
                 <TextBlock Text="Browse and manage every package in your library" Style="{StaticResource SubText}" Margin="0,5,0,0"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <Button Style="{StaticResource GhostButton}" Command="{Binding RefreshCommand}" ToolTip="Reload from Intune">
-                    <StackPanel Orientation="Horizontal">
-                        <Viewbox Width="15" Height="15">
-                            <Path Data="{StaticResource IconRefresh}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Viewbox>
-                        <TextBlock Text="Refresh" Margin="7,0,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <TextBlock Text="{Binding RangeText}" Style="{StaticResource Caption}" Margin="0,0,14,0"/>
+                <Button Style="{StaticResource GhostButton}" Content="REFRESH"
+                        Command="{Binding RefreshCommand}" ToolTip="Reload from Intune"/>
             </StackPanel>
         </Grid>
 
-        <!-- Tools: search + manufacturer / category / updated-within filters -->
-        <Grid Grid.Row="1" Margin="0,20,0,16">
+        <!-- Search + filters -->
+        <Grid Grid.Row="1" Margin="0,0,0,14">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="9"/>
+                <ColumnDefinition Width="186"/>
+                <ColumnDefinition Width="9"/>
+                <ColumnDefinition Width="170"/>
+                <ColumnDefinition Width="9"/>
+                <ColumnDefinition Width="170"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0" MinWidth="180">
-                <TextBox Style="{StaticResource TextField}" Height="40"
-                         local:PlaceholderText.Text="Search applications…"
-                         Text="{Binding Search, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                <Viewbox Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="14,0,0,0" IsHitTestVisible="False">
-                    <Path Data="{StaticResource IconSearch}" Stroke="{DynamicResource Muted2Brush}" StrokeThickness="2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                </Viewbox>
-            </Grid>
-
-            <ComboBox Grid.Column="1" Width="200" Height="40" Margin="14,0,0,0"
-                      ItemsSource="{Binding Manufacturers}" SelectedItem="{Binding SelectedManufacturer, Mode=TwoWay}"/>
-            <ComboBox Grid.Column="2" Width="185" Height="40" Margin="14,0,0,0"
-                      ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"/>
-            <ComboBox Grid.Column="3" Width="185" Height="40" Margin="14,0,0,0"
-                      ItemsSource="{Binding UpdatedWindows}" SelectedItem="{Binding SelectedUpdatedWindow, Mode=TwoWay}"/>
+            <TextBox Grid.Column="0" Style="{StaticResource MonoField}" Height="32"
+                     local:PlaceholderText.Text="Search applications…"
+                     Text="{Binding Search, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <ComboBox Grid.Column="2" ItemsSource="{Binding Manufacturers}" SelectedItem="{Binding SelectedManufacturer, Mode=TwoWay}"/>
+            <ComboBox Grid.Column="4" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"/>
+            <ComboBox Grid.Column="6" ItemsSource="{Binding UpdatedWindows}" SelectedItem="{Binding SelectedUpdatedWindow, Mode=TwoWay}"/>
         </Grid>
 
-        <!-- Table card. The shadow lives on a separate empty border so the blur is
-             rasterised once, instead of on every frame the scrolling rows invalidate. -->
-        <Grid Grid.Row="2">
-            <Border CornerRadius="0" Background="{DynamicResource CardBrush}">
-            </Border>
+        <!-- Table -->
+        <Border Grid.Row="2" Background="{DynamicResource ShellBrush}"
+                BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="34"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <Border CornerRadius="0" Background="{DynamicResource CardBrush}"
-                    BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Header row: Application / Updated sort on click -->
-                    <Grid Grid.Row="0" Margin="18,14">
+                <!-- Column heads -->
+                <Border Grid.Row="0" Background="{DynamicResource CardBrush}"
+                        BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,0,0,1" Padding="14,0">
+                    <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="26"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="185"/>
                             <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="22"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="18"/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Style="{StaticResource Breadcrumb}" Command="{Binding SortByNameCommand}"
-                                FontSize="11" FontWeight="Bold" ToolTip="Sort by name">
-                            <TextBlock Text="{Binding NameHeader}"/>
+                        <Button Grid.Column="1" Style="{StaticResource Breadcrumb}" Command="{Binding SortByNameCommand}"
+                                Margin="12,0,0,0" ToolTip="Sort by name">
+                            <TextBlock Text="{Binding NameHeader}" Style="{StaticResource ColHead}"
+                                       FontSize="9.5" Foreground="{DynamicResource MutedBrush}" Margin="0"/>
                         </Button>
-                        <TextBlock Grid.Column="1" Text="VERSION" Style="{StaticResource ColHead}"/>
-                        <Button Grid.Column="2" Style="{StaticResource Breadcrumb}" Command="{Binding SortByUpdatedCommand}"
-                                FontSize="11" FontWeight="Bold" Margin="0,0,18,0" ToolTip="Sort by last updated">
-                            <TextBlock Text="{Binding UpdatedHeader}"/>
+                        <TextBlock Grid.Column="2" Text="CATEGORY" Style="{StaticResource ColHead}" FontSize="9.5" Margin="0"/>
+                        <TextBlock Grid.Column="3" Text="VERSION" Style="{StaticResource ColHead}" FontSize="9.5" Margin="0"/>
+                        <Button Grid.Column="4" Style="{StaticResource Breadcrumb}" Command="{Binding SortByUpdatedCommand}"
+                                ToolTip="Sort by last updated">
+                            <TextBlock Text="{Binding UpdatedHeader}" Style="{StaticResource ColHead}" FontSize="9.5" Margin="0"/>
                         </Button>
-                        <TextBlock Grid.Column="3" Text=""/>
                     </Grid>
-                    <Border Grid.Row="1" Height="1" Background="{DynamicResource LineBrush}"/>
+                </Border>
 
-                    <!-- Rows -->
-                    <ItemsControl Grid.Row="2" ItemsSource="{Binding Page}"
-                                  VirtualizingPanel.IsVirtualizing="True"
-                                  VirtualizingPanel.VirtualizationMode="Recycling"
-                                  VirtualizingPanel.ScrollUnit="Pixel">
-                        <ItemsControl.Template>
-                            <ControlTemplate TargetType="ItemsControl">
-                                <ScrollViewer CanContentScroll="True" Focusable="False"
-                                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                    <ItemsPresenter/>
-                                </ScrollViewer>
-                            </ControlTemplate>
-                        </ItemsControl.Template>
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <VirtualizingStackPanel/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                        CommandParameter="{Binding}" Cursor="Hand" HorizontalContentAlignment="Stretch">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="rb" Background="Transparent" BorderBrush="{DynamicResource Line2Brush}" BorderThickness="0,0,0,1">
-                                                <ContentPresenter/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="rb" Property="Background" Value="{DynamicResource PrimarySoftBrush}"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                    <Grid Margin="18,13">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="185"/>
-                                            <ColumnDefinition Width="130"/>
-                                            <ColumnDefinition Width="22"/>
-                                        </Grid.ColumnDefinitions>
+                <!-- Rows -->
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding Page}" AlternationCount="2"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              VirtualizingPanel.ScrollUnit="Pixel">
+                    <ItemsControl.Template>
+                        <ControlTemplate TargetType="ItemsControl">
+                            <ScrollViewer CanContentScroll="True" Focusable="False"
+                                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </ControlTemplate>
+                    </ItemsControl.Template>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}" Cursor="Hand" HorizontalContentAlignment="Stretch" Height="48">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="rb" BorderThickness="2,0,0,1" Padding="12,0,14,0"
+                                                BorderBrush="{DynamicResource Line2Brush}">
+                                            <Border.Background>
+                                                <SolidColorBrush Color="Transparent"/>
+                                            </Border.Background>
+                                            <ContentPresenter VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <!-- Zebra striping via alternation, hover lights the left edge. -->
+                                            <DataTrigger Binding="{Binding (ItemsControl.AlternationIndex), RelativeSource={RelativeSource TemplatedParent}}" Value="1">
+                                                <Setter TargetName="rb" Property="Background" Value="{DynamicResource Card2Brush}"/>
+                                            </DataTrigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="rb" Property="Background" Value="{DynamicResource PrimaryFaintBrush}"/>
+                                                <Setter TargetName="rb" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="26"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="18"/>
+                                    </Grid.ColumnDefinitions>
 
-                                        <!-- App -->
-                                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Border Width="36" Height="36" CornerRadius="0" Background="{Binding TileColor, Converter={StaticResource HexToBrush}}">
-                                                <TextBlock Text="{Binding Initial}" Foreground="White" FontWeight="Bold" FontSize="16"
-                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding DisplayName}" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
-                                                    <!-- Publishing warning: only visible when the upload isn't fully published -->
-                                                    <Border Background="{DynamicResource WarnSoftBrush}" CornerRadius="0" Padding="7,1" Margin="7,0,0,0" VerticalAlignment="Center"
-                                                            Visibility="{Binding ShowStateWarning, Converter={StaticResource BoolToVis}}">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Ellipse Width="5" Height="5" Fill="{DynamicResource WarnBrush}" VerticalAlignment="Center"/>
-                                                            <TextBlock Text="{Binding StateWarningText}" FontSize="10" FontWeight="Bold"
-                                                                       Foreground="{DynamicResource WarnBrush}" Margin="5,0,0,0"/>
-                                                        </StackPanel>
-                                                    </Border>
-                                                </StackPanel>
-                                                <TextBlock Text="{Binding Publisher}" FontSize="11.5" Foreground="{DynamicResource MutedBrush}"/>
-                                            </StackPanel>
+                                    <Border Grid.Column="0" Width="26" Height="26" BorderBrush="{DynamicResource Edge2Brush}" BorderThickness="1">
+                                        <TextBlock Text="{Binding Initial}" FontFamily="{StaticResource LabelFontFamily}"
+                                                   FontSize="11" FontWeight="Medium" Foreground="{DynamicResource MutedBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding DisplayName}" FontSize="12.5" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Publisher}" FontSize="10.5" Margin="0,4,0,0"
+                                                       Foreground="{DynamicResource Muted3Brush}" TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
-
-                                        <!-- Version -->
-                                        <TextBlock Grid.Column="1" Text="{Binding Version}" VerticalAlignment="Center" Margin="18,0"
-                                                   FontFamily="{StaticResource MonoFontFamily}" FontSize="12.5" Foreground="{DynamicResource TextBrush}"
-                                                   TextTrimming="CharacterEllipsis"/>
-
-                                        <!-- Updated -->
-                                        <TextBlock Grid.Column="2" Text="{Binding UpdatedText}" VerticalAlignment="Center" Margin="0,0,18,0"
-                                                   FontSize="13" Foreground="{DynamicResource MutedBrush}"
-                                                   TextTrimming="CharacterEllipsis"/>
-
-                                        <!-- Chevron affordance -->
-                                        <Path Grid.Column="3" Data="{StaticResource IconChevR}" Stretch="Uniform" Width="14" Height="14"
-                                              VerticalAlignment="Center" HorizontalAlignment="Center"
-                                              Stroke="{DynamicResource Muted2Brush}" StrokeThickness="2" Fill="Transparent"
-                                              StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Grid>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!-- Loading / empty. These sit over the list area and paint the card
-                         background, so a refresh hides the stale rows underneath. -->
-                    <StackPanel Grid.Row="2" Margin="18,34" Background="{DynamicResource CardBrush}"
-                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
-                        <Ellipse Width="40" Height="40" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="4"
-                                 StrokeDashArray="22 8" StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center">
-                            <Ellipse.RenderTransform>
-                                <RotateTransform Angle="0"/>
-                            </Ellipse.RenderTransform>
-                            <Ellipse.Triggers>
-                                <EventTrigger RoutedEvent="Ellipse.Loaded">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                             From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                            </Ellipse.Triggers>
-                        </Ellipse>
-                        <TextBlock Text="{Binding LoadStatus}" Foreground="{DynamicResource MutedBrush}" FontSize="13"
-                                   HorizontalAlignment="Center" Margin="0,16,0,0"/>
-                    </StackPanel>
-                    <StackPanel Grid.Row="2" Margin="18,28" Background="{DynamicResource CardBrush}"
-                                Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVis}}">
-                        <TextBlock Text="No applications to show" Foreground="{DynamicResource InkBrush}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource MutedBrush}" FontSize="12.5" Margin="0,6,0,0"
-                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="420" TextAlignment="Center"/>
-                    </StackPanel>
-
-                    <!-- Not connected: prompt the user to connect on Settings first -->
-                    <StackPanel Grid.Row="2" Margin="18,40" Background="{DynamicResource CardBrush}"
-                                Visibility="{Binding ShowConnectPrompt, Converter={StaticResource BoolToVis}}">
-                        <Border Width="52" Height="52" CornerRadius="0" Background="{DynamicResource PrimaryDimBrush}" HorizontalAlignment="Center">
-                            <Viewbox Width="24" Height="24">
-                                <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Viewbox>
-                        </Border>
-                        <TextBlock Text="Not connected to Microsoft Intune" Foreground="{DynamicResource InkBrush}" FontSize="14" FontWeight="Bold"
-                                   HorizontalAlignment="Center" Margin="0,16,0,0"/>
-                        <TextBlock Text="Connect to your tenant on the Settings page to browse applications from Intune."
-                                   Foreground="{DynamicResource MutedBrush}" FontSize="12.5" Margin="0,6,0,0"
-                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="420" TextAlignment="Center"/>
-                        <Button Style="{StaticResource PrimaryButton}" Command="{Binding ConnectCommand}"
-                                HorizontalAlignment="Center" Margin="0,16,0,0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Go to Settings to connect" VerticalAlignment="Center"/>
-                                <Viewbox Width="14" Height="14" Margin="8,0,0,0">
-                                    <Path Data="{StaticResource IconChevR}" Stroke="White" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                </Viewbox>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-
-                    <!-- Pagination footer -->
-                    <Border Grid.Row="3" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="18,12"
-                            Visibility="{Binding ShowPager, Converter={StaticResource BoolToVis}}">
-                        <Grid>
-                            <TextBlock Text="{Binding RangeText}" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                       FontSize="12.5" Foreground="{DynamicResource MutedBrush}"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Style="{StaticResource GhostButton}" Command="{Binding PrevPageCommand}" Padding="12,0" Height="34">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Width="13" Height="13" Margin="0,0,5,0"><Path Data="{StaticResource IconChevL}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox>
-                                        <TextBlock Text="Previous" VerticalAlignment="Center"/>
+                                        <Border BorderBrush="{DynamicResource WarnLineBrush}" BorderThickness="1" Padding="7,4" Margin="9,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Visibility="{Binding ShowStateWarning, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="{Binding StateWarningText}" FontFamily="{StaticResource LabelFontFamily}"
+                                                       FontSize="8.5" FontWeight="SemiBold" Foreground="{DynamicResource WarnBrush}"/>
+                                        </Border>
                                     </StackPanel>
-                                </Button>
-                                <TextBlock Text="{Binding PageDisplay}" VerticalAlignment="Center" Margin="14,0" FontSize="12.5"
-                                           FontWeight="Bold" Foreground="{DynamicResource TextBrush}"/>
-                                <Button Style="{StaticResource GhostButton}" Command="{Binding NextPageCommand}" Padding="12,0" Height="34">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Next" VerticalAlignment="Center"/>
-                                        <Viewbox Width="13" Height="13" Margin="5,0,0,0"><Path Data="{StaticResource IconChevR}" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Viewbox>
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </Grid>
+
+                                    <TextBlock Grid.Column="2" Text="{Binding Category}" VerticalAlignment="Center" Margin="0,0,12,0"
+                                               FontSize="11.5" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding Version}" VerticalAlignment="Center" Margin="0,0,12,0"
+                                               FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5"
+                                               Foreground="{DynamicResource Text2Brush}" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding UpdatedText}" VerticalAlignment="Center" Margin="0,0,12,0"
+                                               FontFamily="{StaticResource MonoFontFamily}" FontSize="11"
+                                               Foreground="{DynamicResource Muted3Brush}" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="5" Text="›" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                               FontFamily="{StaticResource MonoFontFamily}" FontSize="11"
+                                               Foreground="{DynamicResource FaintBrush}"/>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Loading / empty / not-connected all paint over the list area. -->
+                <StackPanel Grid.Row="1" Margin="18,34" Background="{DynamicResource ShellBrush}"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
+                    <Ellipse Width="34" Height="34" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2"
+                             StrokeDashArray="22 8" StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center">
+                        <Ellipse.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Ellipse.RenderTransform>
+                        <Ellipse.Triggers>
+                            <EventTrigger RoutedEvent="Ellipse.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                         From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Ellipse.Triggers>
+                    </Ellipse>
+                    <TextBlock Text="{Binding LoadStatus}" FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5"
+                               Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Margin="18,28" Background="{DynamicResource ShellBrush}"
+                            Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="No applications to show" Foreground="{DynamicResource InkBrush}" FontSize="13.5"
+                               FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding StatusText}" FontFamily="{StaticResource MonoFontFamily}" FontSize="11"
+                               Foreground="{DynamicResource Muted2Brush}" Margin="0,8,0,0" LineHeight="17"
+                               HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="420" TextAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Margin="18,40" Background="{DynamicResource ShellBrush}"
+                            Visibility="{Binding ShowConnectPrompt, Converter={StaticResource BoolToVis}}">
+                    <Border Width="34" Height="34" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1.5" HorizontalAlignment="Center">
+                        <Rectangle Width="10" Height="10" Fill="{DynamicResource FaintBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                </Grid>
-            </Border>
-        </Grid>
+                    <TextBlock Text="Not connected to Microsoft Intune" Foreground="{DynamicResource InkBrush}" FontSize="13.5"
+                               FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                    <TextBlock Text="Connect to your tenant on the Settings page to browse applications from Intune."
+                               FontFamily="{StaticResource MonoFontFamily}" FontSize="11" LineHeight="17"
+                               Foreground="{DynamicResource Muted2Brush}" Margin="0,8,0,0"
+                               HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="420" TextAlignment="Center"/>
+                    <Button Style="{StaticResource PrimaryButton}" Command="{Binding ConnectCommand}"
+                            Content="GO TO SETTINGS" HorizontalAlignment="Center" Margin="0,18,0,0"/>
+                </StackPanel>
+
+                <!-- Pager -->
+                <Border Grid.Row="2" Height="42" Background="{DynamicResource CardBrush}"
+                        BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,0" Padding="14,0"
+                        Visibility="{Binding ShowPager, Converter={StaticResource BoolToVis}}">
+                    <Grid>
+                        <TextBlock Text="{Binding RangeText}" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                   FontFamily="{StaticResource MonoFontFamily}" FontSize="11"
+                                   Foreground="{DynamicResource Muted3Brush}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button Style="{StaticResource GhostButton}" Content="← PREVIOUS" Padding="11,7"
+                                    Command="{Binding PrevPageCommand}"/>
+                            <TextBlock Text="{Binding PageDisplay}" VerticalAlignment="Center" Margin="14,0"
+                                       FontFamily="{StaticResource MonoFontFamily}" FontSize="11"
+                                       Foreground="{DynamicResource Text2Brush}"/>
+                            <Button Style="{StaticResource GhostButton}" Content="NEXT →" Padding="11,7"
+                                    Command="{Binding NextPageCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>
