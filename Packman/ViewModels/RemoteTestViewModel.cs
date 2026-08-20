@@ -75,8 +75,9 @@ public sealed class RemoteTestViewModel : ObservableObject
 
         _create.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(CreatePackageViewModel.CurrentPackagePath))
-                RaiseCommandStates();
+            if (e.PropertyName != nameof(CreatePackageViewModel.CurrentPackagePath)) return;
+            OnPropertyChanged(nameof(NeedsPackage));
+            RaiseCommandStates();
         };
     }
 
@@ -142,7 +143,10 @@ public sealed class RemoteTestViewModel : ObservableObject
     public bool HasDiscoveredRule => _discoveredRule != null;
     public string DiscoveredSummary { get => _discoveredSummary; private set => Set(ref _discoveredSummary, value); }
 
-    private bool CanRun() => !_isRunning && IsValidTarget && !string.IsNullOrEmpty(_create.CurrentPackagePath);
+    /// <summary>Only install and uninstall need a package; check and discover run on the target alone.</summary>
+    public bool NeedsPackage => string.IsNullOrEmpty(_create.CurrentPackagePath);
+
+    private bool CanRun() => !_isRunning && IsValidTarget && !NeedsPackage;
 
     private void RaiseCommandStates()
     {

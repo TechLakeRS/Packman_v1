@@ -259,7 +259,7 @@
                         <StackPanel>
                             <Button Style="{StaticResource Breadcrumb}" Command="{Binding CloseToolCommand}">
                                 <TextBlock>
-                                    <Run Text="← Create Package /"/><Run Text=" "/><Run Text="{Binding PackageName, Mode=OneWay}"/>
+                                    <Run Text="←"/><Run Text=" "/><Run Text="{Binding ToolBreadcrumb, Mode=OneWay}"/>
                                 </TextBlock>
                             </Button>
                             <Grid Margin="0,12,0,0">

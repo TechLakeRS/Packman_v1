@@ -125,6 +125,9 @@ public sealed class MainViewModel : ObservableObject
 
     public string PackagePathShort => HasPackage ? CreatePackage.CurrentPackagePath : "no package yet";
 
+    /// <summary>Back-link shown above an open tool; Remote Test can be open with no package.</summary>
+    public string ToolBreadcrumb => HasPackage ? $"Create Package / {PackageName}" : "Create Package";
+
     public string PrimaryLabel
     {
         get
@@ -174,7 +177,7 @@ public sealed class MainViewModel : ObservableObject
         GoToStepCommand = new RelayCommand<int>(i => CurrentStepIndex = i);
 
         OpenEditToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.EditScript, () => HasPackage);
-        OpenTestToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.RemoteTest, () => HasPackage);
+        OpenTestToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.RemoteTest);
         CloseToolCommand         = new RelayCommand(() => ActiveTool = PackageTool.None);
         OpenPackageFolderCommand = new RelayCommand(OpenPackageFolder, () => HasPackage);
 
@@ -226,9 +229,9 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(HasPackage));
         OnPropertyChanged(nameof(PackageName));
         OnPropertyChanged(nameof(PackagePathShort));
+        OnPropertyChanged(nameof(ToolBreadcrumb));
         OnPropertyChanged(nameof(PrimaryLabel));
         OpenEditToolCommand.RaiseCanExecuteChanged();
-        OpenTestToolCommand.RaiseCanExecuteChanged();
         OpenPackageFolderCommand.RaiseCanExecuteChanged();
     }
 
