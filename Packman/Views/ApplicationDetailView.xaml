@@ -11,7 +11,7 @@
 
     <Grid>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="30,24,30,26">
+        <StackPanel Margin="26,20,26,26">
 
             <!-- Breadcrumb: Applications / {category} -->
             <Button Style="{StaticResource Breadcrumb}" Click="Back_Click" Margin="0,0,0,14">
@@ -43,9 +43,9 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Width="58" Height="58" CornerRadius="14" VerticalAlignment="Center"
+                <Border Grid.Column="0" Width="58" Height="58" CornerRadius="0" VerticalAlignment="Center"
                         Background="{Binding Detail.TileColor, Converter={StaticResource HexToBrush}}">
-                    <TextBlock Text="{Binding Detail.Initial}" Foreground="White" FontWeight="ExtraBold" FontSize="26"
+                    <TextBlock Text="{Binding Detail.Initial}" Foreground="White" FontWeight="Bold" FontSize="26"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
 
@@ -155,10 +155,10 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                                    CornerRadius="20" Padding="12,6" Margin="0,0,8,8">
+                                                    CornerRadius="0" Padding="12,6" Margin="0,0,8,8">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Ellipse Width="7" Height="7" VerticalAlignment="Center">
-                                                        <Ellipse.Style>
+                                                    <Rectangle Width="6" Height="6" VerticalAlignment="Center">
+                                                        <Rectangle.Style>
                                                             <Style TargetType="Ellipse">
                                                                 <Setter Property="Fill" Value="{DynamicResource Muted2Brush}"/>
                                                                 <Style.Triggers>
@@ -170,8 +170,8 @@
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
-                                                        </Ellipse.Style>
-                                                    </Ellipse>
+                                                        </Rectangle.Style>
+                                                    </Rectangle>
                                                     <TextBlock Text="{Binding ChipText}" FontSize="12" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource InkBrush}" Margin="7,0,0,0" VerticalAlignment="Center"/>
                                                 </StackPanel>
@@ -198,7 +198,7 @@
                         <Border Style="{StaticResource Card}" Margin="0,18,0,0">
                             <StackPanel>
                                 <TextBlock Text="Package source" Style="{StaticResource H2}" Margin="0,0,0,12"/>
-                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="9" Padding="12,9">
+                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12,9">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -220,7 +220,7 @@
                             <StackPanel>
                                 <TextBlock Text="Package source" Style="{StaticResource H2}"/>
                                 <TextBlock Text="Network share location" Style="{StaticResource FieldLabel}" Margin="0,14,0,6"/>
-                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="9" Padding="12,9">
+                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12,9">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -286,7 +286,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0" Width="19" Height="19" CornerRadius="10" VerticalAlignment="Center">
+                                                    <Border Grid.Column="0" Width="19" Height="19" CornerRadius="0" VerticalAlignment="Center">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
                                                                 <Setter Property="Background" Value="{DynamicResource WarnBrush}"/>
@@ -331,7 +331,7 @@
                             <StackPanel>
                                 <TextBlock Text="Command lines" Style="{StaticResource H2}" Margin="0,0,0,16"/>
                                 <TextBlock Text="Install command" Style="{StaticResource FieldLabel}" Margin="0,0,0,6"/>
-                                <Border Background="{DynamicResource CodeBgBrush}" CornerRadius="9" Padding="13,9">
+                                <Border Background="{DynamicResource CodeBgBrush}" CornerRadius="0" Padding="13,9">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -345,7 +345,7 @@
                                     </Grid>
                                 </Border>
                                 <TextBlock Text="Uninstall command" Style="{StaticResource FieldLabel}" Margin="0,14,0,6"/>
-                                <Border Background="{DynamicResource CodeBgBrush}" CornerRadius="9" Padding="13,9">
+                                <Border Background="{DynamicResource CodeBgBrush}" CornerRadius="0" Padding="13,9">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -387,7 +387,7 @@
                                 <ItemsControl ItemsSource="{Binding DetectionDisplays}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border CornerRadius="10" Padding="12,10" Margin="0,10,0,0" Background="{DynamicResource FieldBrush}" BorderThickness="1">
+                                            <Border CornerRadius="0" Padding="12,10" Margin="0,10,0,0" Background="{DynamicResource FieldBrush}" BorderThickness="1">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
                                                         <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
@@ -407,8 +407,8 @@
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <Border Grid.Column="0" Background="{DynamicResource PrimaryDimBrush}" CornerRadius="6" Padding="8,3" VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding TypeTag}" FontSize="9.5" FontWeight="ExtraBold" Foreground="{DynamicResource PrimaryBrush}"/>
+                                                        <Border Grid.Column="0" Background="{DynamicResource PrimaryDimBrush}" CornerRadius="0" Padding="8,3" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding TypeTag}" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}"/>
                                                         </Border>
                                                         <TextBlock Grid.Column="1" Text="{Binding Summary}" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
                                                                    Foreground="{DynamicResource InkBrush}" Margin="11,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"/>
@@ -522,25 +522,25 @@
                             <StackPanel>
                                 <TextBlock Text="Requirements" Style="{StaticResource H2}" Margin="0,0,0,12"/>
                                 <UniformGrid Columns="4">
-                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="12,9" Margin="0,0,10,0">
+                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12,9" Margin="0,0,10,0">
                                         <StackPanel>
                                             <TextBlock Text="INSTALL CONTEXT" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}"/>
                                             <TextBlock Text="{Binding Detail.InstallContext}" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" Margin="0,3,0,0"/>
                                         </StackPanel>
                                     </Border>
-                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="12,9" Margin="0,0,10,0">
+                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12,9" Margin="0,0,10,0">
                                         <StackPanel>
                                             <TextBlock Text="RESTART BEHAVIOR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}"/>
                                             <TextBlock Text="{Binding Detail.RestartBehaviorText}" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" Margin="0,3,0,0"/>
                                         </StackPanel>
                                     </Border>
-                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="12,9" Margin="0,0,10,0">
+                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12,9" Margin="0,0,10,0">
                                         <StackPanel>
                                             <TextBlock Text="MAX INSTALL TIME" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}"/>
                                             <TextBlock Text="{Binding Detail.MaxRunTimeText}" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" Margin="0,3,0,0"/>
                                         </StackPanel>
                                     </Border>
-                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="12,9">
+                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12,9">
                                         <StackPanel>
                                             <TextBlock Text="DISK SPACE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}"/>
                                             <TextBlock Text="{Binding Detail.MinDiskSpaceText}" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" Margin="0,3,0,0"/>
@@ -564,7 +564,7 @@
                                             <Button Click="GroupRow_Click" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="View members">
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
-                                                        <Border x:Name="rb" Background="Transparent" BorderBrush="{DynamicResource Line2Brush}" BorderThickness="0,0,0,1" CornerRadius="8">
+                                                        <Border x:Name="rb" Background="Transparent" BorderBrush="{DynamicResource Line2Brush}" BorderThickness="0,0,0,1" CornerRadius="0">
                                                             <ContentPresenter/>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
@@ -581,7 +581,7 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="10" Background="{DynamicResource PrimaryDimBrush}" VerticalAlignment="Center">
+                                                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="0" Background="{DynamicResource PrimaryDimBrush}" VerticalAlignment="Center">
                                                         <Viewbox Width="17" Height="17">
                                                             <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                                         </Viewbox>
@@ -630,7 +630,7 @@
                                                     Click="AddAssignment_Click" IsEnabled="{Binding CanAddAssignment}"/>
                                         </Grid>
                                         <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                                CornerRadius="9" Margin="0,8,0,0" MaxHeight="180"
+                                                CornerRadius="0" Margin="0,8,0,0" MaxHeight="180"
                                                 Visibility="{Binding HasGroupResults, Converter={StaticResource BoolToVis}}">
                                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                                 <ItemsControl ItemsSource="{Binding GroupResults}">
@@ -670,12 +670,12 @@
                 <StackPanel Grid.Column="2">
                     <Border Style="{StaticResource Card}">
                         <StackPanel>
-                            <TextBlock Text="Deployment status" FontSize="13.5" FontWeight="ExtraBold" Foreground="{DynamicResource InkBrush}" Margin="0,0,0,10"/>
+                            <TextBlock Text="Deployment status" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" Margin="0,0,0,10"/>
 
                             <StackPanel Visibility="{Binding HasSummary, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="Targeted devices" FontSize="11.5" Foreground="{DynamicResource MutedBrush}"/>
-                                <TextBlock Text="{Binding TargetedDevicesText}" FontSize="24" FontWeight="ExtraBold" Foreground="{DynamicResource InkBrush}" Margin="0,1,0,12"/>
-                                <Border Height="9" CornerRadius="5" Background="{DynamicResource Line2Brush}" Margin="0,0,0,14" ClipToBounds="True">
+                                <TextBlock Text="{Binding TargetedDevicesText}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" Margin="0,1,0,12"/>
+                                <Border Height="9" CornerRadius="0" Background="{DynamicResource Line2Brush}" Margin="0,0,0,14" ClipToBounds="True">
                                     <StackPanel Orientation="Horizontal">
                                         <Border Width="{Binding BarInstalled}" Background="{DynamicResource OkBrush}"/>
                                         <Border Width="{Binding BarPending}" Background="{DynamicResource WarnBrush}"/>
@@ -706,7 +706,7 @@
 
                     <Border Style="{StaticResource Card}" Margin="0,16,0,0">
                         <StackPanel>
-                            <TextBlock Text="Intune publishing" FontSize="13.5" FontWeight="ExtraBold" Foreground="{DynamicResource InkBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="Intune publishing" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" Margin="0,0,0,4"/>
                             <ContentControl Tag="State" Style="{StaticResource DlRow}">
                                 <ContentControl Content="{Binding Detail}" ContentTemplate="{StaticResource StatusBadgeTemplate}"/>
                             </ContentControl>
@@ -734,7 +734,7 @@
                     </Border>
 
                     <!-- Danger zone -->
-                    <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="14" Padding="16" Margin="0,16,0,0">
+                    <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="16" Margin="0,16,0,0">
                         <StackPanel>
                             <TextBlock Text="Retire application" FontSize="12.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
                             <TextBlock Text="Removes the app and its assignments from Intune. Devices keep their installed copy."
@@ -778,7 +778,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="{Binding FlyoutGroup.GroupName}" FontSize="15" FontWeight="ExtraBold"
+                    <TextBlock Text="{Binding FlyoutGroup.GroupName}" FontSize="15" FontWeight="Bold"
                                Foreground="{DynamicResource InkBrush}" TextWrapping="Wrap"/>
                     <ContentControl Content="{Binding FlyoutGroup}" ContentTemplate="{StaticResource StatusBadgeTemplate}"
                                     HorizontalAlignment="Left" Margin="0,6,0,0"/>
@@ -789,7 +789,7 @@
             </Grid>
 
             <!-- Blast-radius warning -->
-            <Border Grid.Row="1" Background="{DynamicResource WarnSoftBrush}" CornerRadius="9" Padding="11,9" Margin="0,0,0,12"
+            <Border Grid.Row="1" Background="{DynamicResource WarnSoftBrush}" CornerRadius="0" Padding="11,9" Margin="0,0,0,12"
                     Visibility="{Binding FlyoutHasGroup, Converter={StaticResource BoolToVis}}">
                 <TextBlock Text="Membership changes affect every app assigned to this group — not just this one."
                            FontSize="11.5" Foreground="{DynamicResource WarnBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
@@ -805,7 +805,7 @@
 
             <!-- Search results -->
             <Border Grid.Row="3" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                    CornerRadius="9" Margin="0,0,0,8" MaxHeight="160"
+                    CornerRadius="0" Margin="0,0,0,8" MaxHeight="160"
                     Visibility="{Binding HasMemberResults, Converter={StaticResource BoolToVis}}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding MemberSearchResults}">
@@ -840,7 +840,7 @@
             </Border>
 
             <!-- Members -->
-            <Border Grid.Row="4" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="9"
+            <Border Grid.Row="4" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0"
                     Visibility="{Binding FlyoutHasGroup, Converter={StaticResource BoolToVis}}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding Members}" Margin="10,4">

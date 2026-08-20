@@ -4,10 +4,6 @@ public sealed class StepViewModel : ObservableObject
 {
     public int Index { get; }
     public string Title { get; }
-    public bool Optional { get; }
-    public bool IsFirst { get; }
-    public bool IsLast { get; }
-    public string PrimaryLabel { get; }
     public string Number => (Index + 1).ToString();
 
     private bool _isCurrent;
@@ -26,14 +22,9 @@ public sealed class StepViewModel : ObservableObject
 
     public bool IsActive => IsCurrent || IsDone;
 
-    public StepViewModel(int index, string title, bool optional,
-                        string primaryLabel, bool isFirst, bool isLast)
+    public StepViewModel(int index, string title)
     {
         Index = index;
         Title = title;
-        Optional = optional;
-        PrimaryLabel = primaryLabel;
-        IsFirst = isFirst;
-        IsLast = isLast;
     }
 }
