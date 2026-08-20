@@ -15,16 +15,23 @@
     <Color x:Key="EdgeColor">#232936</Color>
     <Color x:Key="Edge2Color">#2B3243</Color>
     <Color x:Key="FieldColor">#0A0C11</Color>
+    <!-- Resting / hover surface for outlined controls. -->
+    <Color x:Key="ControlColor">#161A23</Color>
+    <Color x:Key="ControlHoverColor">#1D222D</Color>
 
     <Color x:Key="InkColor">#F2F4F8</Color>
     <Color x:Key="TextColor">#E7EBF2</Color>
     <Color x:Key="Text2Color">#B9C0CE</Color>
-    <Color x:Key="MutedColor">#8D97A8</Color>
-    <Color x:Key="Muted2Color">#7C8598</Color>
-    <Color x:Key="Muted3Color">#6B7488</Color>
-    <Color x:Key="DimColor">#565E70</Color>
-    <Color x:Key="Dim2Color">#4E5666</Color>
-    <Color x:Key="FaintColor">#3F4655</Color>
+    <!-- De-emphasis ramp. Every step here carries text, so each one clears
+         WCAG AA (4.5:1) against the panel; MarkColor is the only value below
+         that and is reserved for non-text marks. -->
+    <Color x:Key="MutedColor">#A0A9BC</Color>
+    <Color x:Key="Muted2Color">#919AAD</Color>
+    <Color x:Key="Muted3Color">#828B9E</Color>
+    <Color x:Key="DimColor">#7A8396</Color>
+    <Color x:Key="Dim2Color">#757E91</Color>
+    <Color x:Key="FaintColor">#757E91</Color>
+    <Color x:Key="MarkColor">#3F4655</Color>
 
     <!-- oklch(0.78 0.16 148) / oklch(0.86 0.16 96) / oklch(0.66 0.19 27) -->
     <Color x:Key="OkColor">#66D37A</Color>
@@ -50,8 +57,8 @@
 
     <Color x:Key="CodeBgColor">#07080B</Color>
     <Color x:Key="CodeTxtColor">#E7EBF2</Color>
-    <Color x:Key="CodeBarTxtColor">#8D97A8</Color>
-    <Color x:Key="CodeCommentColor">#565E70</Color>
+    <Color x:Key="CodeBarTxtColor">#A0A9BC</Color>
+    <Color x:Key="CodeCommentColor">#7A8396</Color>
     <Color x:Key="CodeKeywordColor">#E0A050</Color>
     <Color x:Key="CodeStringColor">#66D37A</Color>
 
@@ -67,6 +74,8 @@
     <SolidColorBrush x:Key="EdgeBrush" Color="{StaticResource EdgeColor}"/>
     <SolidColorBrush x:Key="Edge2Brush" Color="{StaticResource Edge2Color}"/>
     <SolidColorBrush x:Key="FieldBrush" Color="{StaticResource FieldColor}"/>
+    <SolidColorBrush x:Key="ControlBrush" Color="{StaticResource ControlColor}"/>
+    <SolidColorBrush x:Key="ControlHoverBrush" Color="{StaticResource ControlHoverColor}"/>
 
     <SolidColorBrush x:Key="InkBrush" Color="{StaticResource InkColor}"/>
     <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
@@ -77,6 +86,8 @@
     <SolidColorBrush x:Key="DimBrush" Color="{StaticResource DimColor}"/>
     <SolidColorBrush x:Key="Dim2Brush" Color="{StaticResource Dim2Color}"/>
     <SolidColorBrush x:Key="FaintBrush" Color="{StaticResource FaintColor}"/>
+    <!-- Dots, chevrons and idle rules only — never text. -->
+    <SolidColorBrush x:Key="MarkBrush" Color="{StaticResource MarkColor}"/>
 
     <SolidColorBrush x:Key="OkBrush" Color="{StaticResource OkColor}"/>
     <SolidColorBrush x:Key="OkSoftBrush" Color="{StaticResource OkSoftColor}"/>

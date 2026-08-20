@@ -50,8 +50,10 @@
                 </Border>
 
                 <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Detail.DisplayName}" Style="{StaticResource H1}" FontSize="24" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding Detail.SubLine}" FontSize="13" Foreground="{DynamicResource MutedBrush}" Margin="0,5,0,0"/>
+                    <TextBlock Text="{Binding Detail.DisplayName}" Style="{StaticResource H1}" FontSize="24" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" ToolTip="{Binding Detail.DisplayName}"/>
+                    <TextBlock Text="{Binding Detail.SubLine}" FontSize="13" Foreground="{DynamicResource MutedBrush}" Margin="0,5,0,0"
+                               TextTrimming="CharacterEllipsis"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
@@ -408,7 +410,7 @@
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <Border Grid.Column="0" Background="{DynamicResource PrimaryDimBrush}" CornerRadius="0" Padding="8,3" VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding TypeTag}" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}"/>
+                                                            <TextBlock Text="{Binding TypeTag}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}"/>
                                                         </Border>
                                                         <TextBlock Grid.Column="1" Text="{Binding Summary}" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
                                                                    Foreground="{DynamicResource InkBrush}" Margin="11,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"/>

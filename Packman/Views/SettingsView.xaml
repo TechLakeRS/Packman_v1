@@ -72,7 +72,7 @@
                     <DockPanel LastChildFill="False" Width="182">
                         <TextBlock DockPanel.Dock="Left" Text="WDAC Hyper-V" VerticalAlignment="Center"/>
                         <TextBlock DockPanel.Dock="Right" Text="SOON" VerticalAlignment="Center"
-                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="8.5" FontWeight="Medium"
+                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="10" FontWeight="Medium"
                                    Foreground="{DynamicResource Dim2Brush}"/>
                     </DockPanel>
                 </RadioButton>
@@ -80,7 +80,7 @@
                     <DockPanel LastChildFill="False" Width="182">
                         <TextBlock DockPanel.Dock="Left" Text="GitLab" VerticalAlignment="Center"/>
                         <TextBlock DockPanel.Dock="Right" Text="SOON" VerticalAlignment="Center"
-                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="8.5" FontWeight="Medium"
+                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="10" FontWeight="Medium"
                                    Foreground="{DynamicResource Dim2Brush}"/>
                     </DockPanel>
                 </RadioButton>
@@ -88,7 +88,7 @@
                     <DockPanel LastChildFill="False" Width="182">
                         <TextBlock DockPanel.Dock="Left" Text="Key Vault Caching" VerticalAlignment="Center"/>
                         <TextBlock DockPanel.Dock="Right" Text="SOON" VerticalAlignment="Center"
-                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="8.5" FontWeight="Medium"
+                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="10" FontWeight="Medium"
                                    Foreground="{DynamicResource Dim2Brush}"/>
                     </DockPanel>
                 </RadioButton>
@@ -200,14 +200,14 @@
                                         <!-- Not signed in status -->
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0"
                                                     Visibility="{Binding IsNotSignedIn, Converter={StaticResource BoolToVis}}">
-                                            <Rectangle Width="6" Height="6" Fill="{DynamicResource FaintBrush}" Margin="0,0,8,0"/>
+                                            <Rectangle Width="6" Height="6" Fill="{DynamicResource MarkBrush}" Margin="0,0,8,0"/>
                                             <TextBlock Text="Not signed in" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <!-- Signed in status -->
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0"
                                                     Visibility="{Binding IsSignedIn, Converter={StaticResource BoolToVis}}">
                                             <Rectangle Width="6" Height="6" Fill="{DynamicResource OkBrush}" Margin="0,0,8,0"/>
-                                            <TextBlock Text="{Binding SignedInUser}" FontSize="12.5" Foreground="{DynamicResource OkBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding SignedInUser}" FontSize="12.5" Foreground="{DynamicResource OkBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                         <!-- Sign in button -->
                                         <Button Grid.Column="3" Style="{StaticResource PrimaryButton}"
@@ -308,8 +308,8 @@
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Margin="0,2">
-                                                <TextBlock Text="{Binding FriendlyName}" FontWeight="SemiBold" FontSize="13"/>
-                                                <TextBlock Text="{Binding Thumbprint}" FontSize="11" Foreground="{DynamicResource MutedBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
+                                                <TextBlock Text="{Binding FriendlyName}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding Thumbprint}" FontSize="11" Foreground="{DynamicResource MutedBrush}" FontFamily="{StaticResource MonoFontFamily}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -373,10 +373,10 @@
                                                                 </Style>
                                                             </Rectangle.Style>
                                                         </Rectangle>
-                                                        <TextBlock Text="{Binding Name}" FontSize="12.5" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Name}" FontSize="12.5" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
                                                     <TextBlock Text="{Binding Detail}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                               FontSize="11.5" Foreground="{DynamicResource MutedBrush}"/>
+                                                               FontSize="11.5" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -480,8 +480,8 @@
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Margin="0,2">
-                                                <TextBlock Text="{Binding FriendlyName}" FontWeight="SemiBold" FontSize="13"/>
-                                                <TextBlock Text="{Binding Thumbprint}" FontSize="11" Foreground="{DynamicResource MutedBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
+                                                <TextBlock Text="{Binding FriendlyName}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding Thumbprint}" FontSize="11" Foreground="{DynamicResource MutedBrush}" FontFamily="{StaticResource MonoFontFamily}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -742,7 +742,7 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="{Binding GroupName}" VerticalAlignment="Center"
-                                                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}"/>
+                                                           FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
                                                 <!-- Intent toggle -->
                                                 <Border Grid.Column="1" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}"
                                                         BorderThickness="1" CornerRadius="0" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">

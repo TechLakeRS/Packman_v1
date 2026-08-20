@@ -131,7 +131,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Button Style="{StaticResource PickerRow}" Click="BulkGroupResult_Click">
-                                                    <TextBlock Text="{Binding DisplayName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" Margin="12,8"/>
+                                                    <TextBlock Text="{Binding DisplayName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" Margin="12,8" TextTrimming="CharacterEllipsis"/>
                                                 </Button>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -212,7 +212,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" Text="{Binding PcName}" VerticalAlignment="Center"
                                                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="12.5"
-                                                                   Foreground="{DynamicResource InkBrush}"/>
+                                                                   Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock Grid.Column="1" Text="{Binding Status}" VerticalAlignment="Center"
                                                                    FontSize="12" FontWeight="Bold" Margin="12,0">
                                                             <TextBlock.Style>
@@ -271,8 +271,8 @@
                                             <DataTemplate>
                                                 <Button Style="{StaticResource PickerRow}" Click="DeviceResult_Click">
                                                     <StackPanel Margin="12,7">
-                                                        <TextBlock Text="{Binding DisplayName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}"/>
-                                                        <TextBlock Text="{Binding Subtitle}" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+                                                        <TextBlock Text="{Binding DisplayName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding Subtitle}" FontSize="11" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
                                                 </Button>
                                             </DataTemplate>
@@ -298,7 +298,7 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                                                        <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock Text="{Binding Description}" FontSize="11.5" Foreground="{DynamicResource MutedBrush}"
                                                                    TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
@@ -342,7 +342,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Button Style="{StaticResource PickerRow}" Click="AppGroupResult_Click">
-                                                    <TextBlock Text="{Binding DisplayName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" Margin="12,8"/>
+                                                    <TextBlock Text="{Binding DisplayName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" Margin="12,8" TextTrimming="CharacterEllipsis"/>
                                                 </Button>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -368,8 +368,8 @@
                                                         <ColumnDefinition Width="Auto" MinWidth="110"/>
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
-                                                        <TextBlock Text="{Binding Publisher}" FontSize="11.5" Foreground="{DynamicResource MutedBrush}"/>
+                                                        <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding Publisher}" FontSize="11.5" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
                                                     <TextBlock Grid.Column="1" Text="{Binding AppType}" VerticalAlignment="Center" Margin="12,0"
                                                                FontSize="12" Foreground="{DynamicResource MutedBrush}"/>
