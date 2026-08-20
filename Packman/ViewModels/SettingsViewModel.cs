@@ -204,13 +204,28 @@ public sealed class SettingsViewModel : ObservableObject
             {
                 OnPropertyChanged(nameof(NewGroupAvailable));
                 OnPropertyChanged(nameof(NewGroupRequired));
-                OnPropertyChanged(nameof(NewGroupUninstall));
             }
         }
     }
     public bool NewGroupAvailable { get => _newGroupIntent == AssignmentIntent.Available; set { if (value) NewGroupIntent = AssignmentIntent.Available; } }
     public bool NewGroupRequired { get => _newGroupIntent == AssignmentIntent.Required; set { if (value) NewGroupIntent = AssignmentIntent.Required; } }
-    public bool NewGroupUninstall { get => _newGroupIntent == AssignmentIntent.Uninstall; set { if (value) NewGroupIntent = AssignmentIntent.Uninstall; } }
+
+    private bool _createUninstallGroupPerPackage;
+    public bool CreateUninstallGroupPerPackage
+    {
+        get => _createUninstallGroupPerPackage;
+        set { if (Set(ref _createUninstallGroupPerPackage, value)) OnPropertyChanged(nameof(CreateUninstallGroupPerPackageDisabled)); }
+    }
+    public bool CreateUninstallGroupPerPackageDisabled { get => !_createUninstallGroupPerPackage; set => CreateUninstallGroupPerPackage = !value; }
+
+    private string _uninstallGroupNameTemplate = "%vendor%_%appName%_%appVersion%_Uninstall";
+    public string UninstallGroupNameTemplate
+    {
+        get => _uninstallGroupNameTemplate;
+        set { if (Set(ref _uninstallGroupNameTemplate, value)) OnPropertyChanged(nameof(UninstallGroupNamePreview)); }
+    }
+
+    public string UninstallGroupNamePreview => GroupAssignmentNamer.Build(UninstallGroupNameTemplate, "Contoso", "Acme Reader", "1.2.3");
 
     // ── Intune Defaults ────────────────────────────────────────────────
     private string _defaultInstallCommand = AppSettings.IntuneDefaultsConfig.DefaultInstallCommand;
@@ -261,6 +276,9 @@ public sealed class SettingsViewModel : ObservableObject
 
     private string _newReturnCodeInput = "";
     public string NewReturnCodeInput { get => _newReturnCodeInput; set => Set(ref _newReturnCodeInput, value); }
+
+    private string _newReturnCodeDescription = "";
+    public string NewReturnCodeDescription { get => _newReturnCodeDescription; set => Set(ref _newReturnCodeDescription, value); }
 
     public ObservableCollection<ReturnCodeRow> ReturnCodes { get; } = new();
 
@@ -318,6 +336,8 @@ public sealed class SettingsViewModel : ObservableObject
         CreateGroupPerPackage = s.GroupAssignment.CreateGroupPerPackage;
         GroupNameTemplate = s.GroupAssignment.GroupNameTemplate;
         NewGroupIntent = s.GroupAssignment.NewGroupIntent;
+        CreateUninstallGroupPerPackage = s.GroupAssignment.CreateUninstallGroupPerPackage;
+        UninstallGroupNameTemplate = s.GroupAssignment.UninstallGroupNameTemplate;
         ExistingGroups.Clear();
         foreach (var g in s.GroupAssignment.ExistingGroups)
             ExistingGroups.Add(new GroupAssignmentRow(g.GroupName, g.Intent, RemoveGroup));
@@ -341,15 +361,16 @@ public sealed class SettingsViewModel : ObservableObject
     {
         ReturnCodes.Clear();
         foreach (var c in codes)
-            ReturnCodes.Add(new ReturnCodeRow(c.Code, c.Type, RemoveReturnCode));
+            ReturnCodes.Add(new ReturnCodeRow(c.Code, c.Type, c.Description, RemoveReturnCode));
     }
 
     private void AddReturnCode()
     {
         if (!int.TryParse(NewReturnCodeInput.Trim(), out var code)) return;
         if (ReturnCodes.Any(r => r.Code == code.ToString())) return;
-        ReturnCodes.Add(new ReturnCodeRow(code, ReturnCodeType.Success, RemoveReturnCode));
+        ReturnCodes.Add(new ReturnCodeRow(code, ReturnCodeType.Success, NewReturnCodeDescription.Trim(), RemoveReturnCode));
         NewReturnCodeInput = "";
+        NewReturnCodeDescription = "";
     }
 
     private void RemoveReturnCode(ReturnCodeRow row) => ReturnCodes.Remove(row);
@@ -492,6 +513,8 @@ public sealed class SettingsViewModel : ObservableObject
         s.GroupAssignment.CreateGroupPerPackage = CreateGroupPerPackage;
         s.GroupAssignment.GroupNameTemplate = GroupNameTemplate;
         s.GroupAssignment.NewGroupIntent = NewGroupIntent;
+        s.GroupAssignment.CreateUninstallGroupPerPackage = CreateUninstallGroupPerPackage;
+        s.GroupAssignment.UninstallGroupNameTemplate = UninstallGroupNameTemplate;
         s.GroupAssignment.ExistingGroups = ExistingGroups
             .Select(g => new AppSettings.ExistingGroupAssignment
             {

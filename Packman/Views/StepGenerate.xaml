@@ -77,6 +77,15 @@
                                      local:PlaceholderText.Text="e.g. 124.0.1"
                                      Text="{Binding CreatePackage.Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
+
+                        <StackPanel Grid.Column="2" Grid.Row="2">
+                            <TextBlock Text="Architecture" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox Margin="0,6,0,0" SelectedValuePath="Content"
+                                      SelectedValue="{Binding CreatePackage.Architecture, Mode=TwoWay}">
+                                <ComboBoxItem Content="x64"/>
+                                <ComboBoxItem Content="x86"/>
+                            </ComboBox>
+                        </StackPanel>
                     </Grid>
 
                     <!-- Sources path: browse sits inside the field, hint sits under it -->
@@ -122,63 +131,6 @@
                                    Text="Installs for all users with elevated privileges (most common for managed apps)."/>
                     </Grid>
 
-                    <!-- Advanced options -->
-                    <Border Height="1" Background="{DynamicResource Line3Brush}" Margin="0,20,0,0"/>
-                    <ToggleButton x:Name="AdvancedToggle" Cursor="Hand" HorizontalAlignment="Left"
-                                  Background="Transparent" BorderThickness="0" Margin="0,13,0,0">
-                        <ToggleButton.Template>
-                            <ControlTemplate TargetType="ToggleButton">
-                                <StackPanel Orientation="Horizontal" Background="Transparent">
-                                    <TextBlock VerticalAlignment="Center" FontFamily="{StaticResource MonoFontFamily}"
-                                               FontSize="10" Foreground="{DynamicResource Muted2Brush}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="&#x25B8;"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}" Value="True">
-                                                        <Setter Property="Text" Value="&#x25BE;"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="ADVANCED OPTIONS" Margin="10,0,0,0" VerticalAlignment="Center"
-                                               FontFamily="{StaticResource LabelFontFamily}" FontSize="10" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource Text2Brush}"/>
-                                    <TextBlock Text="override architecture and author" Margin="10,0,0,0" VerticalAlignment="Center"
-                                               FontSize="11.5" Foreground="{DynamicResource DimBrush}"/>
-                                </StackPanel>
-                            </ControlTemplate>
-                        </ToggleButton.Template>
-                    </ToggleButton>
-
-                    <Border Background="{DynamicResource RailBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                            Padding="16,14" Margin="0,14,0,0"
-                            Visibility="{Binding IsChecked, ElementName=AdvancedToggle, Converter={StaticResource BoolToVis}}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="180"/>
-                                <ColumnDefinition Width="24"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Architecture" Style="{StaticResource FieldLabel}"/>
-                                <ComboBox Margin="0,6,0,0" SelectedValuePath="Content"
-                                          SelectedValue="{Binding CreatePackage.Architecture, Mode=TwoWay}">
-                                    <ComboBoxItem Content="x64"/>
-                                    <ComboBoxItem Content="x86"/>
-                                </ComboBox>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Author" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0" Height="32"
-                                         local:PlaceholderText.Text="Defaults to current user"
-                                         Text="{Binding CreatePackage.Author, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
                 </StackPanel>
             </Border>
 
