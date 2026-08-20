@@ -42,7 +42,7 @@ public partial class MainWindow : Window
     /// <summary>Shows exactly one content page and collapses the rest. Null-safe for load-time calls.</summary>
     private void ShowOnly(UIElement? page, string? screenTitle = null)
     {
-        foreach (var p in new UIElement?[] { CreatePackagePage, SettingsPage, UploadIntunePage, ApplicationsPage, AppDetailPage, AdvancedPage })
+        foreach (var p in new UIElement?[] { CreatePackagePage, RemoteTestPage, SettingsPage, UploadIntunePage, ApplicationsPage, AppDetailPage, AdvancedPage })
             if (p != null) p.Visibility = ReferenceEquals(p, page) ? Visibility.Visible : Visibility.Collapsed;
 
         if (screenTitle != null && ScreenTitleText != null) ScreenTitleText.Text = screenTitle;
@@ -51,11 +51,11 @@ public partial class MainWindow : Window
     /// <summary>Switches to the Upload to Intune page (used by the wizard's cross-link).</summary>
     public void NavigateToUploadIntune() => UploadIntuneNavBtn.IsChecked = true;
 
-    /// <summary>Both share the same page, so returning to the wizard has to close an open tool.</summary>
+    /// <summary>A tool covers the wizard on the same page, so coming back here has to close it.</summary>
     private void CreatePackageNavBtn_Checked(object sender, RoutedEventArgs e)
     {
         ShowOnly(CreatePackagePage, "Create Package");
-        (DataContext as MainViewModel)?.OpenTool(PackageTool.None);
+        (DataContext as MainViewModel)?.CloseToolCommand.Execute(null);
     }
 
     private void UploadIntuneNavBtn_Checked(object sender, RoutedEventArgs e)
@@ -85,12 +85,12 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Remote Test shares the wizard's page, but from the rail it stands alone: no package
-    /// comes with it, so the user picks one on the page itself.
+    /// The rail's Remote Test is a screen of its own, separate from the wizard's tool of the
+    /// same name: it starts with no package, so the user picks one built earlier.
     /// </summary>
     private void RemoteTestNavBtn_Checked(object sender, RoutedEventArgs e)
     {
-        ShowOnly(CreatePackagePage, "Remote Test");
-        (DataContext as MainViewModel)?.OpenTool(PackageTool.RemoteTest, standalone: true);
+        ShowOnly(RemoteTestPage, "Remote Test");
+        RemoteTestPage.Refresh();
     }
 }
