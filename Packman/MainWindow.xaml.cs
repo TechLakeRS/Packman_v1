@@ -83,7 +83,6 @@ public partial class MainWindow : Window
     private void RemoteTestNavBtn_Checked(object sender, RoutedEventArgs e)
     {
         ShowOnly(CreatePackagePage, "Create Package / Remote Test");
-        if (DataContext is MainViewModel vm && vm.OpenTestToolCommand.CanExecute(null))
-            vm.OpenTestToolCommand.Execute(null);
+        (DataContext as MainViewModel)?.OpenTestToolCommand.Execute(null);
     }
 }

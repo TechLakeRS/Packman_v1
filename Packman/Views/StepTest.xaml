@@ -68,6 +68,11 @@
                             Margin="0,8,0,0" Command="{Binding DetectCommand}"
                             ToolTip="Search the target for the installed executable and build a detection rule from it."/>
 
+                    <TextBlock Text="No package generated yet — install and uninstall stay disabled until the Generate step has produced one."
+                               Margin="0,12,0,0" FontSize="12" LineHeight="18" TextWrapping="Wrap"
+                               Foreground="{DynamicResource Muted2Brush}"
+                               Visibility="{Binding NeedsPackage, Converter={StaticResource BoolToVis}}"/>
+
                     <StackPanel Margin="0,14,0,0" Visibility="{Binding IsCopying, Converter={StaticResource BoolToVis}}">
                         <TextBlock Style="{StaticResource Caption}">
                             <Run Text="copying package —"/><Run Text=" "/><Run Text="{Binding CopyPercent, Mode=OneWay}"/><Run Text="%"/>
