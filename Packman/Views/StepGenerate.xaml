@@ -128,7 +128,7 @@
                             <ControlTemplate TargetType="ToggleButton">
                                 <StackPanel Orientation="Horizontal" Background="Transparent">
                                     <TextBlock VerticalAlignment="Center" FontFamily="{StaticResource MonoFontFamily}"
-                                               FontSize="9" Foreground="{DynamicResource Muted2Brush}">
+                                               FontSize="10" Foreground="{DynamicResource Muted2Brush}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="&#x25B8;"/>
@@ -185,7 +185,7 @@
                 <Rectangle Width="6" Height="6" VerticalAlignment="Center">
                     <Rectangle.Style>
                         <Style TargetType="Rectangle">
-                            <Setter Property="Fill" Value="{DynamicResource FaintBrush}"/>
+                            <Setter Property="Fill" Value="{DynamicResource MarkBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding HasPackage}" Value="True">
                                     <Setter Property="Fill" Value="{DynamicResource OkBrush}"/>
@@ -274,7 +274,7 @@
                             Visibility="{Binding Upgrade.HasLoadedPackage, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
                             <TextBlock Text="{Binding Upgrade.PackageDisplayName}" FontSize="12.5" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource InkBrush}"/>
+                                       Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                 <TextBlock Text="{Binding Upgrade.PackageDisplayVersion}" FontFamily="{StaticResource MonoFontFamily}"
                                            FontSize="10.5" Foreground="{DynamicResource Muted2Brush}"/>
@@ -316,7 +316,7 @@
             </Border>
 
             <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-                <Rectangle Width="6" Height="6" VerticalAlignment="Center" Fill="{DynamicResource FaintBrush}"/>
+                <Rectangle Width="6" Height="6" VerticalAlignment="Center" Fill="{DynamicResource MarkBrush}"/>
                 <TextBlock Text="{Binding Upgrade.StatusText}" Margin="10,0,0,0" VerticalAlignment="Center"
                            FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" LineHeight="17"
                            Foreground="{DynamicResource Muted2Brush}" TextWrapping="Wrap"/>

@@ -30,8 +30,9 @@
                     <DockPanel Margin="16,14">
                         <TextBlock DockPanel.Dock="Right" Text="{Binding Upload.ReviewSize}" VerticalAlignment="Center"
                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="11" Foreground="{DynamicResource DimBrush}"/>
-                        <TextBlock Text="{Binding Upload.AppSummaryName}" VerticalAlignment="Center"
-                                   FontSize="15" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
+                        <TextBlock Text="{Binding Upload.AppSummaryName}" VerticalAlignment="Center" MaxWidth="360"
+                                   FontSize="15" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"
+                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding Upload.AppSummaryName}"/>
                         <TextBlock Text="{Binding Upload.AppSummaryDetail}" Margin="12,0,0,0" VerticalAlignment="Center"
                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="11"
                                    Foreground="{DynamicResource Muted2Brush}" TextTrimming="CharacterEllipsis"/>
@@ -74,7 +75,7 @@
 
                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                     <Border BorderBrush="{DynamicResource PrimaryLineBrush}" BorderThickness="1" Padding="7,4" VerticalAlignment="Top">
-                        <TextBlock Text="RULE" FontFamily="{StaticResource LabelFontFamily}" FontSize="8.5" FontWeight="SemiBold"
+                        <TextBlock Text="RULE" FontFamily="{StaticResource LabelFontFamily}" FontSize="10" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryBrush}"/>
                     </Border>
                     <TextBlock Text="{Binding Upload.DetectionSummary}" Margin="9,0,0,0" MaxWidth="520"
@@ -91,7 +92,7 @@
                     <ControlTemplate TargetType="ToggleButton">
                         <StackPanel Orientation="Horizontal" Background="Transparent">
                             <TextBlock VerticalAlignment="Center" FontFamily="{StaticResource MonoFontFamily}"
-                                       FontSize="9" Foreground="{DynamicResource Muted2Brush}">
+                                       FontSize="10" Foreground="{DynamicResource Muted2Brush}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Text" Value="&#x25B8;"/>
@@ -452,7 +453,7 @@
                                         </TextBlock>
 
                                         <TextBlock Grid.Column="2" Text="{Binding StatusLabel}" VerticalAlignment="Center"
-                                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="8.5" FontWeight="SemiBold">
+                                                   FontFamily="{StaticResource LabelFontFamily}" FontSize="10" FontWeight="SemiBold">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Foreground" Value="{DynamicResource FaintBrush}"/>

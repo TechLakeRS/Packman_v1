@@ -79,7 +79,7 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryFgBrush}"/>
         <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontSize" Value="9.5"/>
+        <Setter Property="FontSize" Value="10.5"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="16,11"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -108,10 +108,10 @@
     <Style x:Key="GhostButton" TargetType="{x:Type Button}">
         <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Text2Brush}"/>
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="{DynamicResource ControlBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Edge2Brush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="FontSize" Value="9.5"/>
+        <Setter Property="FontSize" Value="10.5"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -123,6 +123,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource ControlHoverBrush}"/>
                             <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
                         </Trigger>
@@ -141,7 +142,7 @@
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontSize" Value="9.5"/>
+        <Setter Property="FontSize" Value="10.5"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="4,6"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -179,6 +180,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource ControlHoverBrush}"/>
                             <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
                         </Trigger>
@@ -197,7 +199,7 @@
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="FontSize" Value="9.5"/>
+        <Setter Property="FontSize" Value="10.5"/>
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -354,7 +356,7 @@
     <Style x:Key="NavNumber" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource FaintBrush}"/>
-        <Setter Property="FontSize" Value="9.5"/>
+        <Setter Property="FontSize" Value="10"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
@@ -364,7 +366,7 @@
         <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
-        <Setter Property="FontSize" Value="9.5"/>
+        <Setter Property="FontSize" Value="10"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="14,9"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -491,7 +493,7 @@
                                                   Content="{TemplateBinding SelectionBoxItem}"
                                                   ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                                   VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="&#x25BE;" FontFamily="{StaticResource MonoFontFamily}" FontSize="9"
+                                <TextBlock Grid.Column="1" Text="&#x25BE;" FontFamily="{StaticResource MonoFontFamily}" FontSize="10"
                                            Foreground="{DynamicResource Dim2Brush}"
                                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                 <ToggleButton Grid.ColumnSpan="2" Background="Transparent" BorderThickness="0"
@@ -532,7 +534,7 @@
     <Style x:Key="ColHead" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Dim2Brush}"/>
-        <Setter Property="FontSize" Value="8.5"/>
+        <Setter Property="FontSize" Value="10"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="0,0,14,0"/>
@@ -543,7 +545,7 @@
         <Border x:Name="bg" CornerRadius="0" Padding="7,4" Background="Transparent"
                 BorderThickness="1" BorderBrush="{DynamicResource EdgeBrush}">
             <TextBlock x:Name="lbl" Text="{Binding StatusLabel}" FontFamily="{StaticResource LabelFontFamily}"
-                       FontSize="8.5" FontWeight="SemiBold"
+                       FontSize="10" FontWeight="SemiBold"
                        Foreground="{DynamicResource Muted2Brush}" VerticalAlignment="Center"/>
         </Border>
         <DataTemplate.Triggers>
@@ -723,7 +725,7 @@
         <Setter Property="Foreground" Value="{DynamicResource BadBrush}"/>
     </Style>
     <Style x:Key="StatRowMut" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource StatRow}">
-        <Setter Property="Foreground" Value="{DynamicResource FaintBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Muted3Brush}"/>
     </Style>
 
     <!-- ═══════════════ Status list row ═══════════════ -->

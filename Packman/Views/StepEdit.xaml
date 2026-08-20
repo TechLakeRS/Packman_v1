@@ -44,7 +44,7 @@
                     </Button>
                     <Button Style="{StaticResource FlatTabButton}" Width="18" Height="24" Margin="0,0,4,0"
                             Click="TabClose_Click" Tag="{Binding}" ToolTip="Close">
-                        <TextBlock Text="✕" FontSize="9.5" Foreground="{DynamicResource CodeBarTxtBrush}"/>
+                        <TextBlock Text="✕" FontSize="10" Foreground="{DynamicResource CodeBarTxtBrush}"/>
                     </Button>
                 </StackPanel>
             </Border>
@@ -227,7 +227,7 @@
                                     <TextBlock x:Name="StatusEncoding" Text="UTF-8" Margin="12,0,0,0" FontSize="11" Foreground="{DynamicResource CodeBarTxtBrush}"/>
                                     <TextBlock x:Name="StatusLanguage" Text="PowerShell" Margin="12,0,0,0" FontSize="11" Foreground="{DynamicResource CodeBarTxtBrush}"/>
                                     <Border Background="#2E3B67F5" BorderBrush="#733B67F5" BorderThickness="1" CornerRadius="0" Padding="7,1" Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="PSADT INTELLISENSE" FontSize="9" FontWeight="Bold" Foreground="#8FA9F9"/>
+                                        <TextBlock Text="PSADT INTELLISENSE" FontSize="10" FontWeight="Bold" Foreground="#8FA9F9"/>
                                     </Border>
                                 </StackPanel>
                             </Grid>

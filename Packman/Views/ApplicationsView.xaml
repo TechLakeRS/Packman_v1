@@ -74,13 +74,13 @@
                         <Button Grid.Column="1" Style="{StaticResource Breadcrumb}" Command="{Binding SortByNameCommand}"
                                 Margin="12,0,0,0" ToolTip="Sort by name">
                             <TextBlock Text="{Binding NameHeader}" Style="{StaticResource ColHead}"
-                                       FontSize="9.5" Foreground="{DynamicResource MutedBrush}" Margin="0"/>
+                                       FontSize="10" Foreground="{DynamicResource MutedBrush}" Margin="0"/>
                         </Button>
-                        <TextBlock Grid.Column="2" Text="CATEGORY" Style="{StaticResource ColHead}" FontSize="9.5" Margin="0"/>
-                        <TextBlock Grid.Column="3" Text="VERSION" Style="{StaticResource ColHead}" FontSize="9.5" Margin="0"/>
+                        <TextBlock Grid.Column="2" Text="CATEGORY" Style="{StaticResource ColHead}" FontSize="10" Margin="0"/>
+                        <TextBlock Grid.Column="3" Text="VERSION" Style="{StaticResource ColHead}" FontSize="10" Margin="0"/>
                         <Button Grid.Column="4" Style="{StaticResource Breadcrumb}" Command="{Binding SortByUpdatedCommand}"
                                 ToolTip="Sort by last updated">
-                            <TextBlock Text="{Binding UpdatedHeader}" Style="{StaticResource ColHead}" FontSize="9.5" Margin="0"/>
+                            <TextBlock Text="{Binding UpdatedHeader}" Style="{StaticResource ColHead}" FontSize="10" Margin="0"/>
                         </Button>
                     </Grid>
                 </Border>
@@ -152,7 +152,7 @@
                                                 VerticalAlignment="Center"
                                                 Visibility="{Binding ShowStateWarning, Converter={StaticResource BoolToVis}}">
                                             <TextBlock Text="{Binding StateWarningText}" FontFamily="{StaticResource LabelFontFamily}"
-                                                       FontSize="8.5" FontWeight="SemiBold" Foreground="{DynamicResource WarnBrush}"/>
+                                                       FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource WarnBrush}"/>
                                         </Border>
                                     </StackPanel>
 
@@ -208,7 +208,7 @@
                 <StackPanel Grid.Row="1" Margin="18,40" Background="{DynamicResource ShellBrush}"
                             Visibility="{Binding ShowConnectPrompt, Converter={StaticResource BoolToVis}}">
                     <Border Width="34" Height="34" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1.5" HorizontalAlignment="Center">
-                        <Rectangle Width="10" Height="10" Fill="{DynamicResource FaintBrush}"
+                        <Rectangle Width="10" Height="10" Fill="{DynamicResource MarkBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="Not connected to Microsoft Intune" Foreground="{DynamicResource InkBrush}" FontSize="13.5"

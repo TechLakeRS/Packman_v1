@@ -47,7 +47,7 @@
                     <Border Width="250" Height="28" CornerRadius="2"
                             Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
-                            <Ellipse Width="9" Height="9" Stroke="{DynamicResource Dim2Brush}" StrokeThickness="1.5"/>
+                            <Ellipse Width="9" Height="9" Stroke="{DynamicResource MarkBrush}" StrokeThickness="1.5"/>
                             <TextBlock Text="search applications, packages…" Margin="8,0,0,0" VerticalAlignment="Center"
                                        FontFamily="{StaticResource MonoFontFamily}" FontSize="11"
                                        Foreground="{DynamicResource Dim2Brush}"/>
@@ -75,7 +75,7 @@
                         </Border>
                         <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="admin.sarker" FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}"/>
-                            <TextBlock Text="contoso.com" FontFamily="{StaticResource MonoFontFamily}" FontSize="9.5"
+                            <TextBlock Text="contoso.com" FontFamily="{StaticResource MonoFontFamily}" FontSize="10"
                                        Foreground="{DynamicResource DimBrush}" Margin="0,3,0,0"/>
                         </StackPanel>
                     </StackPanel>
@@ -140,7 +140,7 @@
 
                     <StackPanel DockPanel.Dock="Bottom" Margin="16,0">
                         <Border Height="1" Background="{DynamicResource Line3Brush}" Margin="0,0,0,7"/>
-                        <TextBlock Text="PSADT v4 · GRAPH BETA" FontFamily="{StaticResource LabelFontFamily}" FontSize="9"
+                        <TextBlock Text="PSADT v4 · GRAPH BETA" FontFamily="{StaticResource LabelFontFamily}" FontSize="10"
                                    FontWeight="SemiBold" Foreground="{DynamicResource FaintBrush}"/>
                         <TextBlock Text="net9.0-windows" FontFamily="{StaticResource MonoFontFamily}" FontSize="10"
                                    Foreground="{DynamicResource FaintBrush}" Margin="0,5,0,0"/>
@@ -162,12 +162,18 @@
                             Padding="26,20,26,0" Visibility="{Binding IsWizard, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
                             <Grid>
-                                <StackPanel HorizontalAlignment="Left">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" HorizontalAlignment="Left">
                                     <TextBlock Text="Create Package" Style="{StaticResource H1}"/>
                                     <TextBlock Text="Build a new application package for Intune deployment"
                                                Style="{StaticResource SubText}" Margin="0,5,0,0"/>
                                 </StackPanel>
-                                <TextBlock Text="{Binding PackagePathShort}" Style="{StaticResource Caption}"
+                                <TextBlock Grid.Column="1" Text="{Binding PackagePathShort}" Style="{StaticResource Caption}"
+                                           MaxWidth="420" Margin="16,0,0,0" TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding PackagePathShort}"
                                            HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                             </Grid>
 
@@ -257,12 +263,17 @@
                                 </TextBlock>
                             </Button>
                             <Grid Margin="0,12,0,0">
-                                <StackPanel HorizontalAlignment="Left">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" HorizontalAlignment="Left">
                                     <TextBlock Text="{Binding ToolTitle}" Style="{StaticResource H1}"/>
-                                    <TextBlock Text="{Binding ToolSubtitle}" Style="{StaticResource SubText}" Margin="0,5,0,0"/>
+                                    <TextBlock Text="{Binding ToolSubtitle}" Style="{StaticResource SubText}"
+                                               Margin="0,5,0,0" TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
-                                <TextBlock Text="optional step" Style="{StaticResource Caption}"
-                                           HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                                <TextBlock Grid.Column="1" Text="optional step" Style="{StaticResource Caption}"
+                                           Margin="16,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -311,7 +322,7 @@
                                         </Style>
                                     </Button.Style>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding PrimaryLabel}" FontSize="10" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding PrimaryLabel}" FontSize="10.5" VerticalAlignment="Center"/>
                                         <TextBlock Text="↵" Margin="9,0,0,0" Opacity="0.55" VerticalAlignment="Center"
                                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="10"
                                                    Visibility="{Binding ShowPrimaryKeyHint, Converter={StaticResource BoolToVis}}"/>
@@ -336,7 +347,7 @@
                                         Visibility="{Binding IsEditToolOpen, Converter={StaticResource BoolToVis}}"/>
                                 <Button Style="{StaticResource PrimaryButton}" Command="{Binding ContinueToPublishCommand}">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="CONTINUE TO PUBLISH" FontSize="10" VerticalAlignment="Center"/>
+                                        <TextBlock Text="CONTINUE TO PUBLISH" FontSize="10.5" VerticalAlignment="Center"/>
                                         <TextBlock Text="↵" Margin="9,0,0,0" Opacity="0.55" VerticalAlignment="Center"
                                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="10"/>
                                     </StackPanel>
@@ -356,12 +367,19 @@
 
         <!-- ═══════════ STATUS BAR ═══════════ -->
         <Border Grid.Row="2" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0">
-            <Grid Margin="16,0">
+            <DockPanel Margin="16,0" LastChildFill="True">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                    <TextBlock Text="last sync never" FontFamily="{StaticResource MonoFontFamily}" FontSize="10.5"
+                               Foreground="{DynamicResource Dim2Brush}" VerticalAlignment="Center"/>
+                    <Border Width="1" Height="11" Background="{DynamicResource EdgeBrush}" Margin="9,0"/>
+                    <TextBlock Text="v1.0.0" FontFamily="{StaticResource MonoFontFamily}" FontSize="10.5"
+                               Foreground="{DynamicResource Dim2Brush}" VerticalAlignment="Center"/>
+                </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                     <Rectangle Width="6" Height="6">
                         <Rectangle.Style>
                             <Style TargetType="Rectangle">
-                                <Setter Property="Fill" Value="{DynamicResource FaintBrush}"/>
+                                <Setter Property="Fill" Value="{DynamicResource MarkBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsConnected}" Value="True">
                                         <Setter Property="Fill" Value="{DynamicResource OkBrush}"/>
@@ -372,16 +390,10 @@
                     </Rectangle>
                     <TextBlock Text="{Binding ConnectionStatusText}" Margin="9,0,0,0"
                                FontFamily="{StaticResource MonoFontFamily}" FontSize="10.5"
-                               Foreground="{DynamicResource Muted2Brush}" VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource Muted2Brush}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" ToolTip="{Binding ConnectionStatusText}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Text="last sync never" FontFamily="{StaticResource MonoFontFamily}" FontSize="10.5"
-                               Foreground="{DynamicResource Dim2Brush}" VerticalAlignment="Center"/>
-                    <Border Width="1" Height="11" Background="{DynamicResource EdgeBrush}" Margin="9,0"/>
-                    <TextBlock Text="v1.0.0" FontFamily="{StaticResource MonoFontFamily}" FontSize="10.5"
-                               Foreground="{DynamicResource Dim2Brush}" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Grid>
+            </DockPanel>
         </Border>
     </Grid>
 </Window>
