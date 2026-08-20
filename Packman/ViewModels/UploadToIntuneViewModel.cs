@@ -472,7 +472,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             GroupPicker.SelectedGroups.Clear();
             _msiProductCode = "";
             NewRuleProductCode = "";
-            SelectedGroups.Clear();
+            GroupPicker.SelectedGroups.Clear();
             OnPropertyChanged(nameof(DisplayTitle));
         }
         UploadCommand.RaiseCanExecuteChanged();

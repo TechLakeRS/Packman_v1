@@ -358,19 +358,7 @@ public class UploadStepViewModel : ObservableObject
             OnPropertyChanged(nameof(DetectionName));
             OnPropertyChanged(nameof(DetectionValue));
         }
-        // Seed the editable detection fields from the rule read off the package.
-        var autoRule = BuildDetectionRules(_create.CurrentPackagePath, appInfo)[0];
-        _detectionPath = string.IsNullOrEmpty(autoRule.Path) ? "%ProgramFiles%" : autoRule.Path;
-        _detectionName = string.IsNullOrEmpty(autoRule.FileOrFolderName) ? $"{appInfo.Name}.exe" : autoRule.FileOrFolderName;
-        _detectionValue = string.IsNullOrEmpty(autoRule.DetectionValue) ? appInfo.Version : autoRule.DetectionValue;
-        _detectionProductCode = string.IsNullOrWhiteSpace(appInfo.MsiProductCode) ? FindMsiProductCode() : appInfo.MsiProductCode;
-        if (isNewPackage)
-            SelectedDetectionMethod = autoRule.DetectionType == "version" ? DetectionMethod.FileVersion : DetectionMethod.FileExists;
-        OnPropertyChanged(nameof(DetectionPath));
-        OnPropertyChanged(nameof(DetectionName));
-        OnPropertyChanged(nameof(DetectionValue));
-        OnPropertyChanged(nameof(DetectionProductCode));
-        OnPropertyChanged(nameof(HasNoMsiProductCode));
+      
         RefreshDetectionSummary();
 
         // Review panel.
