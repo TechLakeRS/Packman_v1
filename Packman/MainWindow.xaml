@@ -332,7 +332,8 @@
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <Button Style="{StaticResource GhostButton}" Content="{Binding ToolActionLabel}"
-                                        Command="{Binding ToolActionCommand}" Margin="0,0,12,0"/>
+                                        Click="ToolAction_Click" Margin="0,0,12,0"
+                                        Visibility="{Binding IsEditToolOpen, Converter={StaticResource BoolToVis}}"/>
                                 <Button Style="{StaticResource PrimaryButton}" Command="{Binding ContinueToPublishCommand}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="CONTINUE TO PUBLISH" FontSize="10" VerticalAlignment="Center"/>

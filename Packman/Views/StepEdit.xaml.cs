@@ -751,7 +751,9 @@ public partial class StepEdit : UserControl
 
     // ═══════════ External editor ═══════════
 
-    private void OpenEditor_Click(object sender, RoutedEventArgs e)
+    /// <summary>Opens the active file (or the deploy script) in VS Code / ISE.
+    /// Driven by the tool footer in the shell.</summary>
+    public void OpenInExternalEditor()
     {
         var appFolder = ApplicationFolder;
         var scriptPath = Path.Combine(appFolder, "Invoke-AppDeployToolkit.ps1");

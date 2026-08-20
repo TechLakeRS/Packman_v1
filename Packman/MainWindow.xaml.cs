@@ -73,6 +73,12 @@ public partial class MainWindow : Window
 
     private void SettingsNavBtn_Checked(object sender, RoutedEventArgs e) => ShowOnly(SettingsPage, "Settings");
 
+    /// <summary>The tool footer's action belongs to the tool page that is open.</summary>
+    private void ToolAction_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel { IsEditToolOpen: true }) EditStep.OpenInExternalEditor();
+    }
+
     /// <summary>Remote Test is an optional tool of the package wizard, so the rail entry opens it there.</summary>
     private void RemoteTestNavBtn_Checked(object sender, RoutedEventArgs e)
     {

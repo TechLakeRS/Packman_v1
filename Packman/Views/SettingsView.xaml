@@ -28,7 +28,7 @@
                            VerticalAlignment="Center" Margin="0,0,12,0"/>
                 <!-- Version pill -->
                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                        BorderThickness="1" CornerRadius="20" Padding="12,5" Margin="0,0,10,0">
+                        BorderThickness="1" CornerRadius="0" Padding="12,5" Margin="0,0,10,0">
                     <TextBlock Text="v1.0.0" FontSize="12" Foreground="{DynamicResource MutedBrush}"/>
                 </Border>
                 <!-- Reset -->
@@ -54,7 +54,7 @@
 
         <!-- ══ First-run setup banner ═══════════════════════════════════ -->
         <Border x:Name="FirstRunBanner" Grid.Row="1" Background="{DynamicResource PrimarySoftBrush}"
-                BorderBrush="{DynamicResource PrimaryDimBrush}" BorderThickness="1" CornerRadius="12"
+                BorderBrush="{DynamicResource PrimaryDimBrush}" BorderThickness="1" CornerRadius="0"
                 Padding="16,11" Margin="0,0,0,18">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -130,7 +130,7 @@
                         </Viewbox>
                         <TextBlock Text="WDAC Hyper-V" VerticalAlignment="Center"/>
                         <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                CornerRadius="8" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                CornerRadius="0" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="SOON" FontSize="9" Foreground="{DynamicResource Muted2Brush}"/>
                         </Border>
                     </StackPanel>
@@ -142,7 +142,7 @@
                         </Viewbox>
                         <TextBlock Text="GitLab" VerticalAlignment="Center"/>
                         <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                CornerRadius="8" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                CornerRadius="0" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="SOON" FontSize="9" Foreground="{DynamicResource Muted2Brush}"/>
                         </Border>
                     </StackPanel>
@@ -154,7 +154,7 @@
                         </Viewbox>
                         <TextBlock Text="Key Vault Caching" VerticalAlignment="Center"/>
                         <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                CornerRadius="8" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                CornerRadius="0" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="SOON" FontSize="9" Foreground="{DynamicResource Muted2Brush}"/>
                         </Border>
                     </StackPanel>
@@ -173,21 +173,15 @@
                         <StackPanel>
 
                             <!-- Card header -->
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                    <Viewbox Width="20" Height="20">
-                                        <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Border>
-                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Authentication" Style="{StaticResource H2}"/>
-                                    <TextBlock Text="How EPS connects to Microsoft Intune &amp; Entra ID" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="AUTHENTICATION" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="How EPS connects to Microsoft Intune &amp; Entra ID" Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                             <!-- Auth mode tab bar (Interactive | App Registration) -->
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                    BorderThickness="1" CornerRadius="11" Padding="4">
+                                    BorderThickness="1" CornerRadius="0" Padding="4">
                                 <UniformGrid Rows="1">
                                     <RadioButton Style="{StaticResource ModeToggle}" GroupName="AuthModeGroup"
                                                  IsChecked="{Binding IsInteractive}">
@@ -227,7 +221,7 @@
 
                                 <!-- Browser sign-in row -->
                                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="11" Padding="16,14" Margin="0,14,0,0">
+                                        BorderThickness="1" CornerRadius="0" Padding="16,14" Margin="0,14,0,0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -235,7 +229,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="9" Background="{DynamicResource PrimaryDimBrush}" Margin="0,0,14,0">
+                                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="0" Background="{DynamicResource PrimaryDimBrush}" Margin="0,0,14,0">
                                             <Viewbox Width="16" Height="16">
                                                 <Path Data="{StaticResource IconGrid}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                             </Viewbox>
@@ -324,7 +318,7 @@
                                 <!-- Certificate source -->
                                 <TextBlock Text="Certificate" Style="{StaticResource FieldLabel}" Margin="0,18,0,7"/>
                                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="10" Padding="4" HorizontalAlignment="Left">
+                                        BorderThickness="1" CornerRadius="0" Padding="4" HorizontalAlignment="Left">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="AuthCertSource"
                                                      IsChecked="{Binding AuthUseStoreCert}">
@@ -383,7 +377,7 @@
 
                             <!-- Connection test (both auth modes) -->
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                    BorderThickness="1" CornerRadius="11" Padding="16,14" Margin="0,16,0,0">
+                                    BorderThickness="1" CornerRadius="0" Padding="16,14" Margin="0,16,0,0">
                                 <StackPanel>
                                     <Grid>
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left">
@@ -461,7 +455,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
+                                <Border Grid.Column="0" Width="42" Height="42" CornerRadius="0" Background="{DynamicResource PrimaryDimBrush}">
                                     <Viewbox Width="20" Height="20">
                                         <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     </Viewbox>
@@ -472,7 +466,7 @@
                                 </StackPanel>
                                 <!-- Enable / Disable toggle -->
                                 <Border Grid.Column="2" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="10" Padding="4" VerticalAlignment="Center">
+                                        BorderThickness="1" CornerRadius="0" Padding="4" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="CodeSignEnable"
                                                      IsChecked="{Binding CodeSigningDisabled}">
@@ -496,7 +490,7 @@
 
                                 <!-- Cert source toggle -->
                                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="10" Padding="4" HorizontalAlignment="Left" Margin="0,0,0,14">
+                                        BorderThickness="1" CornerRadius="0" Padding="4" HorizontalAlignment="Left" Margin="0,0,0,14">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="CodeSignCertSource"
                                                      IsChecked="{Binding CodeSignUseStoreCert}">
@@ -620,17 +614,11 @@
                         <StackPanel>
 
                             <!-- Card header -->
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                    <Viewbox Width="20" Height="20">
-                                        <Path Data="{StaticResource IconFolder}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Border>
-                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Network Paths" Style="{StaticResource H2}"/>
-                                    <TextBlock Text="File share locations for package output and PSADT template" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="NETWORK PATHS" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="File share locations for package output and PSADT template" Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                             <!-- Intune Applications output path -->
                             <TextBlock Text="Intune Applications Path" Style="{StaticResource FieldLabel}"/>
@@ -674,17 +662,11 @@
                         <StackPanel>
 
                             <!-- Card header -->
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                    <Viewbox Width="20" Height="20">
-                                        <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Border>
-                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Group Assignment" Style="{StaticResource H2}"/>
-                                    <TextBlock Text="Assign uploaded packages to Entra ID groups automatically" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="GROUP ASSIGNMENT" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="Assign uploaded packages to Entra ID groups automatically" Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                             <!-- ── Per-package group ──────────────────────────── -->
                             <Grid Margin="0,0,0,14">
@@ -698,7 +680,7 @@
                                 </StackPanel>
                                 <!-- On / Off toggle -->
                                 <Border Grid.Column="1" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="10" Padding="4" VerticalAlignment="Center">
+                                        BorderThickness="1" CornerRadius="0" Padding="4" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="GroupPerPackage"
                                                      IsChecked="{Binding CreateGroupPerPackageDisabled}">
@@ -738,7 +720,7 @@
                                 <!-- Assignment intent for the new group -->
                                 <TextBlock Text="Assignment type" Style="{StaticResource FieldLabel}" Margin="0,14,0,7"/>
                                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="10" Padding="4" HorizontalAlignment="Left">
+                                        BorderThickness="1" CornerRadius="0" Padding="4" HorizontalAlignment="Left">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="NewGroupIntent"
                                                      IsChecked="{Binding NewGroupAvailable}">
@@ -793,7 +775,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                                BorderThickness="1" CornerRadius="11" Padding="14,10" Margin="0,0,0,8">
+                                                BorderThickness="1" CornerRadius="0" Padding="14,10" Margin="0,0,0,8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -804,7 +786,7 @@
                                                            FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}"/>
                                                 <!-- Intent toggle -->
                                                 <Border Grid.Column="1" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                                        BorderThickness="1" CornerRadius="9" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                        BorderThickness="1" CornerRadius="0" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
                                                     <StackPanel Orientation="Horizontal">
                                                         <RadioButton Style="{StaticResource ContextToggle}"
                                                                      IsChecked="{Binding IsAvailable}">
@@ -842,17 +824,11 @@
                         <StackPanel>
 
                             <!-- Card header -->
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                    <Viewbox Width="20" Height="20">
-                                        <Path Data="{StaticResource IconLaptop}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Border>
-                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Intune Defaults" Style="{StaticResource H2}"/>
-                                    <TextBlock Text="App details, requirements and return codes applied to every package unless changed on the Create Package page" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="INTUNE DEFAULTS" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="App details, requirements and return codes applied to every package unless changed on the Create Package page" Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                             <!-- ── App details ────────────────────────────────── -->
                             <TextBlock Text="App details" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
@@ -1010,7 +986,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                                BorderThickness="1" CornerRadius="11" Padding="14,10" Margin="0,0,0,8">
+                                                BorderThickness="1" CornerRadius="0" Padding="14,10" Margin="0,0,0,8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -1022,7 +998,7 @@
                                                            Foreground="{DynamicResource InkBrush}"/>
                                                 <!-- Outcome toggle -->
                                                 <Border Grid.Column="1" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                                        BorderThickness="1" CornerRadius="9" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                        BorderThickness="1" CornerRadius="0" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
                                                     <StackPanel Orientation="Horizontal">
                                                         <RadioButton Style="{StaticResource ContextToggle}" IsChecked="{Binding IsSuccess}">
                                                             <TextBlock Text="Success" VerticalAlignment="Center"/>

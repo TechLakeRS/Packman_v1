@@ -30,17 +30,11 @@
                         <!-- Select Package card -->
                         <Border Style="{StaticResource Card}" VerticalAlignment="Top">
                             <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                    <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                        <Viewbox Width="18" Height="18">
-                                            <Path Data="{StaticResource IconUpload}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                        </Viewbox>
-                                    </Border>
-                                    <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="Select Package" Style="{StaticResource H2}"/>
-                                        <TextBlock Text="Choose the folder that contains the Invoke-AppDeployToolkit package" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="SELECT PACKAGE" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="Choose the folder that contains the Invoke-AppDeployToolkit package" Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                                 <!-- Folder picker row -->
                                 <Grid>
@@ -59,14 +53,14 @@
                                 </Grid>
 
                                 <!-- Validation error -->
-                                <Border Background="{DynamicResource BadSoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,12,0,0"
+                                <Border Background="{DynamicResource BadSoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12" Margin="0,12,0,0"
                                         Visibility="{Binding HasValidationError, Converter={StaticResource BoolToVis}}">
                                     <TextBlock Text="{Binding ValidationError}" FontSize="12.5" Foreground="{DynamicResource BadBrush}" TextWrapping="Wrap"/>
                                 </Border>
 
                                 <!-- Validated metadata -->
                                 <StackPanel Visibility="{Binding IsValidated, Converter={StaticResource BoolToVis}}" Margin="0,14,0,0">
-                                    <Border Background="{DynamicResource OkSoftBrush}" CornerRadius="10" Padding="12,10">
+                                    <Border Background="{DynamicResource OkSoftBrush}" CornerRadius="0" Padding="12,10">
                                         <StackPanel Orientation="Horizontal">
                                             <Viewbox Width="15" Height="15">
                                                 <Path Data="{StaticResource IconCheck}" Stroke="{DynamicResource OkBrush}" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -91,23 +85,17 @@
                         <!-- Detection method card -->
                         <Border Style="{StaticResource Card}" Margin="0,18,0,0" VerticalAlignment="Top">
                             <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                                    <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                        <Viewbox Width="18" Height="18">
-                                            <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                        </Viewbox>
-                                    </Border>
-                                    <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="Detection method" Style="{StaticResource H2}"/>
-                                        <TextBlock Text="How Intune confirms the app is installed" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="DETECTION METHOD" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="How Intune confirms the app is installed" Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                                 <!-- Rule list -->
                                 <ItemsControl ItemsSource="{Binding DetectionRules}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="12,10" Margin="0,0,0,8">
+                                            <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12,10" Margin="0,0,0,8">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
@@ -144,7 +132,7 @@
                                 </TextBlock>
 
                                 <!-- Add-rule editor -->
-                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,6,0,0">
+                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12" Margin="0,6,0,0">
                                     <StackPanel>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -191,22 +179,16 @@
                     <!-- RIGHT COLUMN: Assignment -->
                     <Border Grid.Column="2" Style="{StaticResource Card}" VerticalAlignment="Top">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                    <Viewbox Width="18" Height="18">
-                                        <Path Data="{StaticResource IconRocket}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Border>
-                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Assignment" Style="{StaticResource H2}"/>
-                                    <TextBlock Text="Who receives this app" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="ASSIGNMENT" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="Who receives this app" Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                             <!-- Intent toggle -->
                             <TextBlock Text="Assignment type" Style="{StaticResource FieldLabel}" Margin="0,0,0,7"/>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="10" Padding="4" HorizontalAlignment="Left">
+                                    CornerRadius="0" Padding="4" HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <RadioButton Style="{StaticResource ContextToggle}" GroupName="Intent" Content="Required"
                                                  IsChecked="{Binding Intent, Mode=TwoWay, Converter={StaticResource StringMatch}, ConverterParameter=required}"/>
@@ -252,7 +234,7 @@
                                                 CommandParameter="{Binding}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="9" Padding="12,9">
+                                                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12,9">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Width="14" Height="14" Margin="0,0,9,0">
                                                                 <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -275,7 +257,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Background="{DynamicResource PrimaryDimBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1"
-                                                CornerRadius="8" Padding="11,6" Margin="0,0,8,8">
+                                                CornerRadius="0" Padding="11,6" Margin="0,0,8,8">
                                             <StackPanel Orientation="Horizontal">
                                                 <Viewbox Width="13" Height="13" Margin="0,0,7,0">
                                                     <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -312,14 +294,14 @@
                             </Button>
 
                             <!-- Not signed in notice -->
-                            <Border Background="{DynamicResource BadSoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11" Padding="12" Margin="0,14,0,0"
+                            <Border Background="{DynamicResource BadSoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12" Margin="0,14,0,0"
                                     Visibility="{Binding IsNotSignedIn, Converter={StaticResource BoolToVis}}">
                                 <TextBlock FontSize="12.5" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"
                                            Text="Not signed in to Intune. Open Settings and sign in before uploading."/>
                             </Border>
 
                             <!-- Signed-in note -->
-                            <Border Background="{DynamicResource PrimarySoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="11" Padding="12" Margin="0,14,0,0"
+                            <Border Background="{DynamicResource PrimarySoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="12" Margin="0,14,0,0"
                                     Visibility="{Binding IsSignedIn, Converter={StaticResource BoolToVis}}">
                                 <TextBlock FontSize="12.5" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap">
                                     <Run Text="Connected to "/>
@@ -370,7 +352,7 @@
                 </Viewbox>
 
                 <!-- Done check (complete & success) -->
-                <Border Width="52" Height="52" CornerRadius="26" Background="{DynamicResource OkSoftBrush}" HorizontalAlignment="Center"
+                <Border Width="52" Height="52" CornerRadius="0" Background="{DynamicResource OkSoftBrush}" HorizontalAlignment="Center"
                         Visibility="{Binding IsSucceeded, Converter={StaticResource BoolToVis}}">
                     <Viewbox Width="22" Height="22">
                         <Path Data="{StaticResource IconCheck}" Stroke="{DynamicResource OkBrush}" StrokeThickness="2.6" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -378,14 +360,14 @@
                 </Border>
 
                 <!-- Error mark (complete & failed) -->
-                <Border Width="52" Height="52" CornerRadius="26" Background="{DynamicResource BadSoftBrush}" HorizontalAlignment="Center"
+                <Border Width="52" Height="52" CornerRadius="0" Background="{DynamicResource BadSoftBrush}" HorizontalAlignment="Center"
                         Visibility="{Binding IsFailed, Converter={StaticResource BoolToVis}}">
                     <Viewbox Width="20" Height="20">
                         <Path Data="{StaticResource IconX}" Stroke="{DynamicResource BadBrush}" StrokeThickness="2.4" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                     </Viewbox>
                 </Border>
 
-                <TextBlock Text="{Binding PublishTitle}" FontSize="20" FontWeight="ExtraBold" Foreground="{DynamicResource InkBrush}"
+                <TextBlock Text="{Binding PublishTitle}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"
                            HorizontalAlignment="Center" Margin="0,18,0,0"/>
                 <TextBlock Text="Building the Win32 package and pushing to Microsoft Intune. This usually takes ~30 seconds — keep this tab open."
                            FontSize="13" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" TextAlignment="Center"
@@ -396,7 +378,7 @@
                 <ItemsControl ItemsSource="{Binding PublishSteps}" Margin="0,24,0,0">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border CornerRadius="12" Padding="16,14" Margin="0,0,0,10"
+                            <Border CornerRadius="0" Padding="16,14" Margin="0,0,0,10"
                                     Background="{DynamicResource CardBrush}" BorderThickness="1">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -419,21 +401,21 @@
                                     <!-- status circle -->
                                     <Grid Grid.Column="0" Width="26" Height="26" VerticalAlignment="Center">
                                         <!-- done -->
-                                        <Border CornerRadius="13" Background="{DynamicResource OkBrush}" Visibility="{Binding IsDone, Converter={StaticResource BoolToVis}}">
+                                        <Border CornerRadius="0" Background="{DynamicResource OkBrush}" Visibility="{Binding IsDone, Converter={StaticResource BoolToVis}}">
                                             <Viewbox Width="13" Height="13">
                                                 <Path Data="{StaticResource IconCheck}" Stroke="White" StrokeThickness="2.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                             </Viewbox>
                                         </Border>
                                         <!-- working -->
-                                        <Border CornerRadius="13" Background="{DynamicResource PrimaryBrush}" Visibility="{Binding IsWorking, Converter={StaticResource BoolToVis}}"/>
+                                        <Border CornerRadius="0" Background="{DynamicResource PrimaryBrush}" Visibility="{Binding IsWorking, Converter={StaticResource BoolToVis}}"/>
                                         <!-- error -->
-                                        <Border CornerRadius="13" Background="{DynamicResource BadBrush}" Visibility="{Binding IsError, Converter={StaticResource BoolToVis}}">
+                                        <Border CornerRadius="0" Background="{DynamicResource BadBrush}" Visibility="{Binding IsError, Converter={StaticResource BoolToVis}}">
                                             <Viewbox Width="12" Height="12">
                                                 <Path Data="{StaticResource IconX}" Stroke="White" StrokeThickness="2.4" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                             </Viewbox>
                                         </Border>
                                         <!-- pending -->
-                                        <Border CornerRadius="13" Background="{DynamicResource Line2Brush}" Visibility="{Binding IsPending, Converter={StaticResource BoolToVis}}">
+                                        <Border CornerRadius="0" Background="{DynamicResource Line2Brush}" Visibility="{Binding IsPending, Converter={StaticResource BoolToVis}}">
                                             <TextBlock Text="{Binding Number}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Muted2Brush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
                                     </Grid>

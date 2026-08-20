@@ -63,13 +63,10 @@
         <!-- Table card. The shadow lives on a separate empty border so the blur is
              rasterised once, instead of on every frame the scrolling rows invalidate. -->
         <Grid Grid.Row="2">
-            <Border CornerRadius="16" Background="{DynamicResource CardBrush}">
-                <Border.Effect>
-                    <DropShadowEffect Color="Black" Opacity="0.08" ShadowDepth="8" BlurRadius="32" Direction="270"/>
-                </Border.Effect>
+            <Border CornerRadius="0" Background="{DynamicResource CardBrush}">
             </Border>
 
-            <Border CornerRadius="16" Background="{DynamicResource CardBrush}"
+            <Border CornerRadius="0" Background="{DynamicResource CardBrush}"
                     BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -88,12 +85,12 @@
                             <ColumnDefinition Width="22"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" Style="{StaticResource Breadcrumb}" Command="{Binding SortByNameCommand}"
-                                FontSize="11" FontWeight="ExtraBold" ToolTip="Sort by name">
+                                FontSize="11" FontWeight="Bold" ToolTip="Sort by name">
                             <TextBlock Text="{Binding NameHeader}"/>
                         </Button>
                         <TextBlock Grid.Column="1" Text="VERSION" Style="{StaticResource ColHead}"/>
                         <Button Grid.Column="2" Style="{StaticResource Breadcrumb}" Command="{Binding SortByUpdatedCommand}"
-                                FontSize="11" FontWeight="ExtraBold" Margin="0,0,18,0" ToolTip="Sort by last updated">
+                                FontSize="11" FontWeight="Bold" Margin="0,0,18,0" ToolTip="Sort by last updated">
                             <TextBlock Text="{Binding UpdatedHeader}"/>
                         </Button>
                         <TextBlock Grid.Column="3" Text=""/>
@@ -144,15 +141,15 @@
 
                                         <!-- App -->
                                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Border Width="36" Height="36" CornerRadius="9" Background="{Binding TileColor, Converter={StaticResource HexToBrush}}">
-                                                <TextBlock Text="{Binding Initial}" Foreground="White" FontWeight="ExtraBold" FontSize="16"
+                                            <Border Width="36" Height="36" CornerRadius="0" Background="{Binding TileColor, Converter={StaticResource HexToBrush}}">
+                                                <TextBlock Text="{Binding Initial}" Foreground="White" FontWeight="Bold" FontSize="16"
                                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="{Binding DisplayName}" FontSize="13.5" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
                                                     <!-- Publishing warning: only visible when the upload isn't fully published -->
-                                                    <Border Background="{DynamicResource WarnSoftBrush}" CornerRadius="8" Padding="7,1" Margin="7,0,0,0" VerticalAlignment="Center"
+                                                    <Border Background="{DynamicResource WarnSoftBrush}" CornerRadius="0" Padding="7,1" Margin="7,0,0,0" VerticalAlignment="Center"
                                                             Visibility="{Binding ShowStateWarning, Converter={StaticResource BoolToVis}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Ellipse Width="5" Height="5" Fill="{DynamicResource WarnBrush}" VerticalAlignment="Center"/>
@@ -219,7 +216,7 @@
                     <!-- Not connected: prompt the user to connect on Settings first -->
                     <StackPanel Grid.Row="2" Margin="18,40" Background="{DynamicResource CardBrush}"
                                 Visibility="{Binding ShowConnectPrompt, Converter={StaticResource BoolToVis}}">
-                        <Border Width="52" Height="52" CornerRadius="14" Background="{DynamicResource PrimaryDimBrush}" HorizontalAlignment="Center">
+                        <Border Width="52" Height="52" CornerRadius="0" Background="{DynamicResource PrimaryDimBrush}" HorizontalAlignment="Center">
                             <Viewbox Width="24" Height="24">
                                 <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>

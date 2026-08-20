@@ -38,7 +38,6 @@ public sealed class MainViewModel : ObservableObject
     public RelayCommand OpenEditToolCommand { get; }
     public RelayCommand OpenTestToolCommand { get; }
     public RelayCommand CloseToolCommand { get; }
-    public RelayCommand ToolActionCommand { get; }
     public RelayCommand ContinueToPublishCommand { get; }
     public RelayCommand OpenPackageFolderCommand { get; }
 
@@ -171,7 +170,6 @@ public sealed class MainViewModel : ObservableObject
         OpenEditToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.EditScript, () => HasPackage);
         OpenTestToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.RemoteTest, () => HasPackage);
         CloseToolCommand         = new RelayCommand(() => ActiveTool = PackageTool.None);
-        ToolActionCommand        = new RelayCommand(OnToolAction);
         OpenPackageFolderCommand = new RelayCommand(OpenPackageFolder, () => HasPackage);
 
         ContinueToPublishCommand = new RelayCommand(() =>
@@ -249,11 +247,6 @@ public sealed class MainViewModel : ObservableObject
         await Upload.UploadAsync();
     }
 
-    private void OnToolAction()
-    {
-        if (_activeTool == PackageTool.EditScript) OpenScriptInEditor();
-    }
-
     private async Task RunCreateAsync()
     {
         var packagePath = await CreatePackage.GenerateAsync(_settingsService.Settings);
@@ -304,32 +297,4 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
-    private void OpenScriptInEditor()
-    {
-        var packagePath = CreatePackage.CurrentPackagePath;
-        if (string.IsNullOrEmpty(packagePath)) return;
-
-        var scriptPath = Path.Combine(packagePath, "Application", "Invoke-AppDeployToolkit.ps1");
-        if (!File.Exists(scriptPath)) return;
-
-        try
-        {
-            var vsCode = EditorLocator.FindVSCodePath();
-            var ise = vsCode == null ? EditorLocator.FindPowerShellISEPath() : null;
-
-            ProcessStartInfo psi;
-            if (vsCode != null)
-                psi = new ProcessStartInfo(vsCode, $"\"{scriptPath}\"") { UseShellExecute = true };
-            else if (ise != null)
-                psi = new ProcessStartInfo(ise, $"\"{scriptPath}\"") { UseShellExecute = true };
-            else
-                psi = new ProcessStartInfo(scriptPath) { UseShellExecute = true };
-
-            Process.Start(psi);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Failed to open script: {ex.Message}");
-        }
-    }
 }

@@ -80,7 +80,7 @@
                 <!-- Not connected -->
                 <Border Style="{StaticResource Card}" Padding="30,44" Visibility="{Binding ShowConnectPrompt, Converter={StaticResource BoolToVis}}">
                     <StackPanel>
-                        <Border Width="52" Height="52" CornerRadius="14" Background="{DynamicResource PrimaryDimBrush}" HorizontalAlignment="Center">
+                        <Border Width="52" Height="52" CornerRadius="0" Background="{DynamicResource PrimaryDimBrush}" HorizontalAlignment="Center">
                             <Viewbox Width="24" Height="24">
                                 <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
@@ -108,18 +108,11 @@
                     <Border Style="{StaticResource Card}"
                             Visibility="{Binding IsChecked, ElementName=TabBulkAdd, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                    <Viewbox Width="20" Height="20">
-                                        <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Border>
-                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Bulk add PCs to a group" Style="{StaticResource H2}"/>
-                                    <TextBlock Text="Paste a list of PC names — one per line, or separated by commas — and add them all at once."
-                                               Style="{StaticResource SubText}" Margin="0,3,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="BULK ADD PCS TO A GROUP" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="Paste a list of PC names — one per line, or separated by commas — and add them all at once." Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                             <TextBlock Text="Target group" Style="{StaticResource FieldLabel}" Margin="0,0,0,5"/>
                             <Grid>
@@ -131,7 +124,7 @@
                                 </Viewbox>
                             </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="9" Margin="0,8,0,0" MaxHeight="180"
+                                    CornerRadius="0" Margin="0,8,0,0" MaxHeight="180"
                                     Visibility="{Binding HasBulkGroupResults, Converter={StaticResource BoolToVis}}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding BulkGroupResults}">
@@ -179,7 +172,7 @@
 
                             <TextBlock Text="PC names" Style="{StaticResource FieldLabel}" Margin="0,16,0,5"/>
                             <!-- Plain TextBox in a card border: the TextField style is single-line (hidden scrollbars, centred content) -->
-                            <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="10">
+                            <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0">
                                 <TextBox Height="150" AcceptsReturn="True" TextWrapping="Wrap" Padding="12,10"
                                          Background="Transparent" BorderThickness="0"
                                          Foreground="{DynamicResource InkBrush}" CaretBrush="{DynamicResource InkBrush}"
@@ -204,7 +197,7 @@
 
                             <!-- Per-PC results -->
                             <Border Background="{DynamicResource Card2Brush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="10" Margin="0,12,0,0" MaxHeight="320"
+                                    CornerRadius="0" Margin="0,12,0,0" MaxHeight="320"
                                     Visibility="{Binding HasBulkRows, Converter={StaticResource BoolToVis}}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding BulkRows}">
@@ -255,18 +248,11 @@
                     <Border Style="{StaticResource Card}"
                             Visibility="{Binding IsChecked, ElementName=TabPcGroups, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                    <Viewbox Width="20" Height="20">
-                                        <Path Data="{StaticResource IconLaptop}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Border>
-                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Groups a PC belongs to" Style="{StaticResource H2}"/>
-                                    <TextBlock Text="Type a PC name to see every group it is a direct member of."
-                                               Style="{StaticResource SubText}" Margin="0,3,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="GROUPS A PC BELONGS TO" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="Type a PC name to see every group it is a direct member of." Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                             <Grid>
                                 <TextBox Style="{StaticResource TextField}"
@@ -277,7 +263,7 @@
                                 </Viewbox>
                             </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="9" Margin="0,8,0,0" MaxHeight="200"
+                                    CornerRadius="0" Margin="0,8,0,0" MaxHeight="200"
                                     Visibility="{Binding HasDeviceResults, Converter={StaticResource BoolToVis}}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding DeviceResults}">
@@ -300,7 +286,7 @@
                                        Visibility="{Binding HasDeviceStatus, Converter={StaticResource BoolToVis}}"/>
 
                             <Border Background="{DynamicResource Card2Brush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="10" Margin="0,12,0,0"
+                                    CornerRadius="0" Margin="0,12,0,0"
                                     Visibility="{Binding HasDeviceGroups, Converter={StaticResource BoolToVis}}">
                                 <ItemsControl ItemsSource="{Binding DeviceGroups}">
                                     <ItemsControl.ItemTemplate>
@@ -316,7 +302,7 @@
                                                         <TextBlock Text="{Binding Description}" FontSize="11.5" Foreground="{DynamicResource MutedBrush}"
                                                                    TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
-                                                    <Border Grid.Column="1" CornerRadius="8" Padding="8,2" VerticalAlignment="Center"
+                                                    <Border Grid.Column="1" CornerRadius="0" Padding="8,2" VerticalAlignment="Center"
                                                             Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
                                                         <TextBlock Text="{Binding MembershipType}" FontSize="10.5" FontWeight="Bold"
                                                                    Foreground="{DynamicResource MutedBrush}"/>
@@ -334,18 +320,11 @@
                     <Border Style="{StaticResource Card}"
                             Visibility="{Binding IsChecked, ElementName=TabGroupApps, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource PrimaryDimBrush}">
-                                    <Viewbox Width="20" Height="20">
-                                        <Path Data="{StaticResource IconApp}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                    </Viewbox>
-                                </Border>
-                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Apps assigned to a group" Style="{StaticResource H2}"/>
-                                    <TextBlock Text="Type a group name to see every app that targets it. Graph has no reverse lookup, so the app list is scanned."
-                                               Style="{StaticResource SubText}" Margin="0,3,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
+<DockPanel Margin="0,0,0,14">
+    <TextBlock DockPanel.Dock="Left" Text="APPS ASSIGNED TO A GROUP" Style="{StaticResource SectionLabel}"/>
+    <TextBlock DockPanel.Dock="Right" Text="Type a group name to see every app that targets it. Graph has no reverse lookup, so the app list is scanned." Style="{StaticResource Caption}"/>
+    <Border Style="{StaticResource Rule}"/>
+</DockPanel>
 
                             <Grid>
                                 <TextBox Style="{StaticResource TextField}"
@@ -356,7 +335,7 @@
                                 </Viewbox>
                             </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="9" Margin="0,8,0,0" MaxHeight="180"
+                                    CornerRadius="0" Margin="0,8,0,0" MaxHeight="180"
                                     Visibility="{Binding HasAppGroupResults, Converter={StaticResource BoolToVis}}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding AppGroupResults}">
@@ -376,7 +355,7 @@
                                        Visibility="{Binding HasAppScanStatus, Converter={StaticResource BoolToVis}}"/>
 
                             <Border Background="{DynamicResource Card2Brush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="10" Margin="0,12,0,0"
+                                    CornerRadius="0" Margin="0,12,0,0"
                                     Visibility="{Binding HasGroupApps, Converter={StaticResource BoolToVis}}">
                                 <ItemsControl ItemsSource="{Binding GroupApps}">
                                     <ItemsControl.ItemTemplate>
