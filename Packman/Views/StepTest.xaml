@@ -18,6 +18,31 @@
             <Border Style="{StaticResource Card}">
                 <StackPanel>
                     <DockPanel Margin="0,0,0,14">
+                        <TextBlock DockPanel.Dock="Left" Text="PACKAGE" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding PackageSourceCaption}" Style="{StaticResource Caption}"/>
+                        <Border Style="{StaticResource Rule}"/>
+                    </DockPanel>
+
+                    <StackPanel Visibility="{Binding HasPackage, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{Binding PackageLabel}" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding PackagePath}" Margin="0,6,0,0" FontSize="11" TextWrapping="Wrap"
+                                   FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource DimBrush}"/>
+                    </StackPanel>
+
+                    <TextBlock Text="No package selected. Generate one on the Generate step and it lands here automatically, or browse to a package already built on the share."
+                               FontSize="12" LineHeight="18" TextWrapping="Wrap" Foreground="{DynamicResource Muted2Brush}"
+                               Visibility="{Binding NeedsPackage, Converter={StaticResource BoolToVis}}"/>
+
+                    <Button Style="{StaticResource GhostButton}" Content="BROWSE FOR PACKAGE" HorizontalAlignment="Stretch"
+                            Margin="0,12,0,0" Click="BrowsePackage_Click" IsEnabled="{Binding IsIdle}"
+                            ToolTip="Pick a PSADT package folder on the share to test."/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,18,0,0">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,14">
                         <TextBlock DockPanel.Dock="Left" Text="TARGET DEVICE" Style="{StaticResource SectionLabel}"/>
                         <TextBlock DockPanel.Dock="Right" Text="{Binding StatusText}" Style="{StaticResource Caption}"/>
                         <Border Style="{StaticResource Rule}"/>
@@ -68,11 +93,6 @@
                             Margin="0,8,0,0" Command="{Binding DetectCommand}"
                             ToolTip="Search the target for the installed executable and build a detection rule from it."/>
 
-                    <TextBlock Text="No package generated yet — install and uninstall stay disabled until the Generate step has produced one."
-                               Margin="0,12,0,0" FontSize="12" LineHeight="18" TextWrapping="Wrap"
-                               Foreground="{DynamicResource Muted2Brush}"
-                               Visibility="{Binding NeedsPackage, Converter={StaticResource BoolToVis}}"/>
-
                     <StackPanel Margin="0,14,0,0" Visibility="{Binding IsCopying, Converter={StaticResource BoolToVis}}">
                         <TextBlock Style="{StaticResource Caption}">
                             <Run Text="copying package —"/><Run Text=" "/><Run Text="{Binding CopyPercent, Mode=OneWay}"/><Run Text="%"/>
@@ -97,6 +117,10 @@
                     <Button Style="{StaticResource GhostButton}" Content="USE FOR PUBLISH" HorizontalAlignment="Left"
                             Margin="0,12,0,0" Command="{Binding ApplyDetectionCommand}"
                             ToolTip="Replace the publish step's detection rule with this one."/>
+                    <TextBlock Text="The publish step holds the wizard's own package, so a package picked from the share cannot feed it."
+                               Margin="0,8,0,0" FontSize="11" LineHeight="17" TextWrapping="Wrap"
+                               Foreground="{DynamicResource Muted2Brush}"
+                               Visibility="{Binding IsSelectedPackage, Converter={StaticResource BoolToVis}}"/>
                 </StackPanel>
             </Border>
         </StackPanel>
