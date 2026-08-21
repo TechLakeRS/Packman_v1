@@ -104,8 +104,7 @@ public sealed class SettingsViewModel : ObservableObject
     public bool IsAppRegistration { get => !_isInteractive; set => IsInteractive = !value; }
 
     // ── Appearance ─────────────────────────────────────────────────────
-    // Applied and persisted the moment it changes: a theme you had to press Save
-    // to keep would silently revert on the next launch.
+    // Applied and saved on change: one you had to press Save for would revert on relaunch.
     private AppTheme _theme = AppTheme.Dark;
     public AppTheme Theme
     {
@@ -213,7 +212,7 @@ public sealed class SettingsViewModel : ObservableObject
         set { if (Set(ref _groupNameTemplate, value)) OnPropertyChanged(nameof(GroupNamePreview)); }
     }
 
-    // Live example using sample values so the user can see how tokens resolve.
+    // Sample values, so the token expansion is visible.
     public string GroupNamePreview => GroupAssignmentNamer.Build(GroupNameTemplate, "Contoso", "Acme Reader", "1.2.3");
 
     private AssignmentIntent _newGroupIntent = AssignmentIntent.Required;
@@ -334,8 +333,7 @@ public sealed class SettingsViewModel : ObservableObject
         LoadFromSettings();
         LoadCertificatesFromStore();
 
-        // A settings file that could not be parsed was set aside at startup; say so
-        // rather than letting the page look like a fresh install.
+        // An unparseable file was set aside at startup; say so rather than looking fresh.
         if (_svc.LoadError != null) SaveStatus = _svc.LoadError;
     }
 
@@ -567,10 +565,7 @@ public sealed class SettingsViewModel : ObservableObject
         TryPersist();
     }
 
-    /// <summary>
-    /// Writes the settings file and reports what actually happened. Reporting success
-    /// unconditionally used to hide a failed write until the next launch lost the edits.
-    /// </summary>
+    /// <summary>Writes the settings file and reports what actually happened.</summary>
     private void TryPersist()
     {
         try

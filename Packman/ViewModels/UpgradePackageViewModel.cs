@@ -6,8 +6,8 @@ using System.IO;
 namespace Packman.ViewModels;
 
 /// <summary>
-/// Drives the "Upgrade Existing" flow on the first wizard step: select an existing
-/// PSADT package, pick a new source + version, and produce a new v4 package version.
+/// The "Upgrade Existing" flow: pick a built package, a new source and version, and
+/// produce the next version of it.
 /// </summary>
 public class UpgradePackageViewModel : ObservableObject
 {
@@ -77,9 +77,7 @@ public class UpgradePackageViewModel : ObservableObject
         private set => Set(ref _hasLoadedPackage, value);
     }
 
-    /// <summary>
-    /// Loads metadata from an existing PSADT v4 package folder.
-    /// </summary>
+    /// <summary>Loads metadata from an existing package folder.</summary>
     public void LoadPackage(string packagePath)
     {
         ExistingPackagePath = packagePath;
@@ -116,9 +114,7 @@ public class UpgradePackageViewModel : ObservableObject
         HasLoadedPackage = true;
     }
 
-    /// <summary>
-    /// Sets the new source file and auto-populates the new version from its metadata.
-    /// </summary>
+    /// <summary>Sets the new source file and reads the version off it.</summary>
     public void SetNewSource(string sourcePath)
     {
         NewSourcePath = sourcePath;
@@ -148,9 +144,7 @@ public class UpgradePackageViewModel : ObservableObject
         !string.IsNullOrWhiteSpace(NewSourcePath) &&
         File.Exists(NewSourcePath);
 
-    /// <summary>
-    /// Creates the new package version. Returns the new package path, or null on failure.
-    /// </summary>
+    /// <summary>Creates the new version. Returns its path, or null on failure.</summary>
     public async Task<string?> UpgradeAsync(AppSettings settings)
     {
         if (!CanUpgrade)

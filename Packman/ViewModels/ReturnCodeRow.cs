@@ -9,7 +9,7 @@ public sealed class ReturnCodeRow : ObservableObject
     public string Code { get => _code; set => Set(ref _code, value); }
 
     private string _description;
-    /// <summary>Free-text note kept alongside the code; not sent to Intune.</summary>
+    /// <summary>Note kept alongside the code; not sent to Intune.</summary>
     public string Description { get => _description; set => Set(ref _description, value); }
 
     private ReturnCodeType _type;

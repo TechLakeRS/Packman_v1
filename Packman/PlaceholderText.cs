@@ -13,9 +13,8 @@ public static class PlaceholderText
     public static void SetText(DependencyObject d, string value) => d.SetValue(TextProperty, value);
 
     /// <summary>
-    /// A placeholder is the only visible description of some fields (the filter and search
-    /// boxes have no label beside them), so it doubles as the accessible name. An explicit
-    /// AutomationProperties.Name always wins.
+    /// Filter and search boxes carry no label, so the placeholder doubles as the accessible
+    /// name. An explicit AutomationProperties.Name still wins.
     /// </summary>
     private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {

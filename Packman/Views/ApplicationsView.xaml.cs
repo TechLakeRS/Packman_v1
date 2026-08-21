@@ -10,10 +10,10 @@ public partial class ApplicationsView : UserControl
 {
     public ApplicationsViewModel ViewModel { get; }
 
-    /// <summary>Raised when a row is opened; the host swaps in the detail screen.</summary>
+    /// <summary>Raised on row activation; the host swaps in the detail screen.</summary>
     public event Action<IntuneApplication>? AppOpened;
 
-    /// <summary>Raised when the user asks to connect; the host switches to the Settings screen.</summary>
+    /// <summary>Raised on "connect"; the host switches to Settings.</summary>
     public event Action? ConnectRequested;
 
     public ApplicationsView()
@@ -25,6 +25,6 @@ public partial class ApplicationsView : UserControl
         InitializeComponent();
     }
 
-    /// <summary>Loads (or refreshes) the list. Called by the host when the screen is shown.</summary>
+    /// <summary>Loads or refreshes the list. Called each time the screen is shown.</summary>
     public void Load() => ErrorReporter.FireAndForget(() => ViewModel.LoadAsync());
 }

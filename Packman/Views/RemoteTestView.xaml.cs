@@ -5,9 +5,8 @@ using System.Windows.Controls;
 namespace Packman.Views;
 
 /// <summary>
-/// Remote Test as a screen of its own, reached from the rail. It carries no package —
-/// the user picks one built earlier — which is what separates it from the same tool
-/// opened inside the package wizard.
+/// Remote Test as its own screen, reached from the rail. Unlike the wizard's copy it
+/// starts with no package, so the user picks one built earlier.
 /// </summary>
 public partial class RemoteTestView : UserControl
 {
@@ -20,6 +19,6 @@ public partial class RemoteTestView : UserControl
         InitializeComponent();
     }
 
-    /// <summary>Picks up machines the wizard's Remote Test used. Called by the host when shown.</summary>
+    /// <summary>Picks up machines the wizard's Remote Test used.</summary>
     public void Refresh() => ViewModel.RefreshRecentComputers();
 }

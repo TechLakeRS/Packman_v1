@@ -6,11 +6,9 @@ using System.Text.RegularExpressions;
 namespace Packman.Services;
 
 /// <summary>
-/// Discovers file-based detection rules by searching a test machine's Program Files,
-/// ProgramData and user profile folders over the C$ admin share for the executable the
-/// package just installed. Run after a successful remote install, this finds the rule
-/// rather than assuming it — which is the hard part for EXE packages, where the package
-/// itself carries no product code.
+/// Finds a file-based detection rule by searching a test machine over C$ for the
+/// executable the package just installed. Mainly for EXE packages, which carry no
+/// product code to detect on.
 /// </summary>
 public class DetectionDiscoveryService
 {
@@ -41,7 +39,7 @@ public class DetectionDiscoveryService
         {
             result.Messages.Add($"Searching for {appName} (version {appVersion}) on {computerName}");
 
-            // Metadata from the source installer helps pick the right executable.
+            // Installer metadata helps pick the right executable.
             FileVersionInfo? sourceMetadata = null;
             if (!string.IsNullOrEmpty(sourceInstallerPath) && File.Exists(sourceInstallerPath))
             {
@@ -64,7 +62,7 @@ public class DetectionDiscoveryService
             }
             result.Messages.Add($"Search terms: {string.Join(", ", searchTerms)}");
 
-            // Score candidate folders across all search roots by app-name term matches.
+            // Score folders by app-name term matches.
             var scoredDirs = new List<(DirectoryInfo Dir, int Score)>();
             foreach (string root in GetSearchRoots(computerName))
             {
@@ -79,7 +77,7 @@ public class DetectionDiscoveryService
             scoredDirs = scoredDirs.OrderByDescending(d => d.Score).ToList();
             result.Messages.Add($"Found {scoredDirs.Count} candidate folders");
 
-            // With strong matches available, drop the weak ones.
+            // Drop weak matches when strong ones exist.
             if (scoredDirs.Count > 0 && scoredDirs[0].Score >= 3)
                 scoredDirs = scoredDirs.Where(d => d.Score >= 2).ToList();
 
@@ -149,8 +147,7 @@ public class DetectionDiscoveryService
         return result;
     }
 
-    // Machine-wide install locations plus per-user AppData\Local (covers user-context
-    // installs, e.g. AppData\Local\Programs).
+    // Machine-wide locations plus AppData\Local for user-context installs.
     private static List<string> GetSearchRoots(string computerName)
     {
         string cShare = $@"\\{computerName}\C$";
@@ -175,7 +172,7 @@ public class DetectionDiscoveryService
         return roots;
     }
 
-    // Root's child directories plus one nested level (handles Vendor\Product layouts).
+    // One nested level, for Vendor\Product layouts.
     private static List<DirectoryInfo> GetDirectoriesWithChildren(string root)
     {
         var dirs = new List<DirectoryInfo>();
@@ -187,7 +184,7 @@ public class DetectionDiscoveryService
         return dirs;
     }
 
-    // Executables in the folder and one level down, excluding installers/uninstallers.
+    // Executables one level down, minus installers/uninstallers.
     private static List<FileInfo> GetExecutables(DirectoryInfo dir)
     {
         var files = SafeGetExeFiles(dir);
@@ -226,7 +223,7 @@ public class DetectionDiscoveryService
             return best;
         }
 
-        // No metadata match; fall back to the largest non-installer executable.
+        // Fall back to the largest non-installer executable.
         return exes.OrderByDescending(f => f.Length).First();
     }
 

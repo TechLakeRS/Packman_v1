@@ -14,8 +14,7 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // Without these, anything thrown off the UI thread or out of an awaited command
-        // takes the process down with no window and no log.
+        // Without these, a throw off the UI thread takes the process down with no trace.
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
@@ -32,7 +31,7 @@ public partial class App : Application
 
     private void OnDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        // Terminating by definition; write the log so the crash leaves a trace.
+        // Terminating either way; at least leave a log behind.
         if (e.ExceptionObject is Exception ex) WriteCrashLog(ex);
     }
 
@@ -42,7 +41,7 @@ public partial class App : Application
         WriteCrashLog(e.Exception);
     }
 
-    /// <summary>Logs the failure and tells the user, instead of vanishing.</summary>
+    /// <summary>Logs the failure and tells the user.</summary>
     private static void Report(Exception ex, string headline)
     {
         var logPath = WriteCrashLog(ex);

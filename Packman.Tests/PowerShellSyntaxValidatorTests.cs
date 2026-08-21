@@ -24,7 +24,7 @@ public class PowerShellSyntaxValidatorTests
     [Fact]
     public void An_unescaped_apostrophe_in_metadata_is_a_syntax_error()
     {
-        // This is what PSADTGenerator would emit for the vendor "O'Reilly" without escaping.
+        // What the generator would emit for "O'Reilly" without escaping.
         Assert.NotEmpty(PowerShellSyntaxValidator.Validate("$s = @{ AppVendor = 'O'Reilly' }"));
     }
 
@@ -41,7 +41,7 @@ public class PowerShellSyntaxValidatorTests
         Assert.True(error.Line >= 1, "line numbers are 1-based for Monaco");
         Assert.True(error.Column >= 1, "column numbers are 1-based for Monaco");
 
-        // Monaco draws nothing for a zero-width marker, so the validator widens them.
+        // Monaco draws nothing for a zero-width marker, so they get widened.
         if (error.EndLine == error.Line)
             Assert.True(error.EndColumn > error.Column);
     }

@@ -6,9 +6,8 @@ using System.Linq;
 namespace Packman.ViewModels;
 
 /// <summary>
-/// Entra group search-and-assign picker, shared by the Create Package wizard's Upload
-/// step and the standalone Upload to Intune page. Each selected group carries its own
-/// intent, so the list can mix Required, Available and Uninstall.
+/// Group search-and-assign picker, shared by the wizard's Upload step and the standalone
+/// Upload page. Each group carries its own intent, so the list can mix all three.
 /// </summary>
 public sealed class GroupPickerViewModel : ObservableObject
 {
@@ -44,7 +43,7 @@ public sealed class GroupPickerViewModel : ObservableObject
     public string GroupSearchHint { get => _groupSearchHint; private set => Set(ref _groupSearchHint, value); }
 
     private string _intent = "required"; // required | available | uninstall
-    /// <summary>Intent applied to the next group added from the search results.</summary>
+    /// <summary>Intent applied to the next group added.</summary>
     public string Intent { get => _intent; set { if (Set(ref _intent, value)) OnPropertyChanged(nameof(IntentLabel)); } }
     public string IntentLabel => char.ToUpper(Intent[0]) + Intent[1..];
 
@@ -98,9 +97,8 @@ public sealed class GroupPickerViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Replaces the selection with the groups configured in Settings ▸ Group Assignment,
-    /// resolving each name to its Entra id. Names that don't resolve are kept in the list
-    /// without an id so the user can see and remove them; the upload skips them.
+    /// Replaces the selection with the groups from Settings, resolving each name to an id.
+    /// Unresolved names stay in the list without one so they are visible; the upload skips them.
     /// </summary>
     public async Task SeedFromSettingsAsync(AppSettings.GroupAssignmentConfig config)
     {
@@ -143,7 +141,7 @@ public sealed class GroupPickerViewModel : ObservableObject
             : $"Not found in Entra, will be skipped: {string.Join(", ", unresolved)}";
     }
 
-    /// <summary>The groups that can actually be assigned (unresolved names dropped).</summary>
+    /// <summary>The groups that can actually be assigned.</summary>
     public List<AssignedGroup> AssignableGroups =>
         SelectedGroups.Where(g => !string.IsNullOrWhiteSpace(g.GroupId)).ToList();
 

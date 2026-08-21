@@ -8,8 +8,8 @@ namespace Packman.Services;
 
 public partial class IntuneUploadService
 {
-    // Azure caps a block blob at 50,000 blocks and requires every block id in one blob
-    // to be the same length, so the index is padded to a fixed width that covers the cap.
+    // Azure caps a block blob at 50,000 blocks and wants every id the same length, so the
+    // index is padded to a width that covers the cap.
     private const int MaxBlocks = 50_000;
     private const string BlockIdFormat = "00000";
 
@@ -153,7 +153,7 @@ public partial class IntuneUploadService
         var sasRenewalTimer = Stopwatch.StartNew();
         var currentSasUri = sasUri;
 
-        // One buffer for the whole upload; a fresh 6 MB array per chunk goes to the LOH.
+        // One buffer for the run: a fresh 6 MB array per chunk goes straight to the LOH.
         var buffer = new byte[chunkSize];
 
         for (int chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++)
@@ -431,8 +431,8 @@ public partial class IntuneUploadService
         var responseText = await response.Content.ReadAsStringAsync(ct);
         LogGraphFailureDiagnostics("CommitApp (PATCH)", request, response, sw, responseText);
 
-        // Gateway 5xx often means the backend completed but exceeded the sync timeout.
-        // Confirm by reading back the committed version before failing.
+        // A gateway 5xx often means the backend finished but exceeded the sync timeout;
+        // read the committed version back before calling it a failure.
         if ((int)response.StatusCode >= 500 && (int)response.StatusCode < 600)
         {
             await Task.Delay(TimeSpan.FromSeconds(30), ct);

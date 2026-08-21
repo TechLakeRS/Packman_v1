@@ -11,9 +11,8 @@ public partial class IntuneUploadService
     private const string GraphBeta = "https://graph.microsoft.com/beta";
 
     /// <summary>
-    /// Assigns the published app to the groups picked for this upload plus the ones
-    /// configured on the Settings page: any existing groups and, optionally, a freshly
-    /// created per-package group. Failures are logged as warnings and never fail the upload.
+    /// Assigns the published app to the groups picked for this upload plus the ones set on
+    /// the Settings page. Failures are logged as warnings and never fail the upload.
     /// </summary>
     private async Task AssignGroupsAsync(string appId, ApplicationInfo appInfo, AppSettings.GroupAssignmentConfig config,
                                          IEnumerable<AssignedGroup>? pickedGroups, UploadLogger log)
@@ -43,7 +42,7 @@ public partial class IntuneUploadService
             await AssignPerPackageGroupAsync(appId, appInfo, config.UninstallGroupNameTemplate, AssignmentIntent.Uninstall, log);
     }
 
-    /// <summary>Resolves (or creates) the per-package group named by the template and assigns it with the given intent.</summary>
+    /// <summary>Resolves or creates the per-package group and assigns it.</summary>
     private async Task AssignPerPackageGroupAsync(string appId, ApplicationInfo appInfo, string template, AssignmentIntent intent, UploadLogger log)
     {
         var name = GroupAssignmentNamer.Build(template, appInfo.Manufacturer, appInfo.Name, appInfo.Version);
@@ -52,7 +51,7 @@ public partial class IntuneUploadService
             log.Warning($"Per-package group name for the {intent} assignment resolved to empty - skipped");
             return;
         }
-        // Reuse a group with this name if one already exists, otherwise create it.
+        // Reuse an existing group with this name before creating one.
         var groupId = await ResolveGroupIdAsync(name, log) ?? await CreateSecurityGroupAsync(name, log);
         if (groupId != null)
             await CreateGroupAssignmentAsync(appId, groupId, intent, name, log);

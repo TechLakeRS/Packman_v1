@@ -18,7 +18,7 @@ public partial class IntuneUploadService
         {
             uploadLogger.Section("FILE SIGNING");
 
-            // Code signing disabled (no signer) or no usable certificate: skip the step.
+            // No signer configured, or no usable certificate.
             if (_signer == null || !_signer.IsCertificateAvailable())
             {
                 progress?.UpdateProgress(15, "Code signing disabled - skipping file signing");
@@ -101,8 +101,8 @@ public partial class IntuneUploadService
         using var process = new Process { StartInfo = processStartInfo };
         process.Start();
 
-        // Both pipes must be drained concurrently; awaiting them in sequence deadlocks
-        // as soon as the child fills the buffer of the stream we are not reading yet.
+        // Drain both pipes concurrently: in sequence this deadlocks as soon as the child
+        // fills the buffer of the stream we are not reading yet.
         var outputTask = process.StandardOutput.ReadToEndAsync(ct);
         var errorTask = process.StandardError.ReadToEndAsync(ct);
         await Task.WhenAll(outputTask, errorTask);
@@ -258,8 +258,7 @@ public partial class IntuneUploadService
                 formattedDetectionRules.Add(formattedRule);
         }
 
-        // A guessed rule ("%ProgramFiles%\<AppName>.exe") uploads happily and then reports
-        // "not installed" on every device forever, so refuse rather than invent one.
+        // A guessed rule uploads fine and then never detects the app, so refuse instead.
         if (formattedDetectionRules.Count == 0)
             throw new InvalidOperationException(
                 "No usable detection rule was supplied. Set a detection rule on the Upload step before publishing.");

@@ -17,7 +17,7 @@ public partial class ApplicationDetailView : UserControl
     /// <summary>Raised by the breadcrumb; the host returns to the list.</summary>
     public event Action? BackRequested;
 
-    /// <summary>Raised after a successful retire; the host returns to the list and refreshes.</summary>
+    /// <summary>Raised after a retire; the host returns to the list and refreshes.</summary>
     public event Action? Deleted;
 
     /// <summary>Raised by "Update version"; the host switches to the Create/Upgrade flow.</summary>
@@ -28,7 +28,7 @@ public partial class ApplicationDetailView : UserControl
         InitializeComponent();
     }
 
-    /// <summary>Shows the given app and kicks off the full detail load.</summary>
+    /// <summary>Shows the app and starts the detail load.</summary>
     public void Show(IntuneApplication app)
     {
         _vm = new ApplicationDetailViewModel(app);

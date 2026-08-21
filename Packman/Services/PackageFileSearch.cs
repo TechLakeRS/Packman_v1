@@ -3,19 +3,16 @@ using System.IO;
 
 namespace Packman.Services;
 
-/// <summary>One match: either a file whose name matched, or a matching line inside one.</summary>
+/// <summary>A matching file name, or a matching line inside one.</summary>
 public sealed record SearchHit(string Path, string Name, int Line, string Preview)
 {
     public string LineLabel => Line > 0 ? $"line {Line}" : "file name";
 }
 
-/// <summary>
-/// Finds text in the files of a built package, for the script editor's search box.
-/// Pure file-system work with no UI, so it runs off the UI thread and is testable.
-/// </summary>
+/// <summary>Backs the script editor's search box. No UI, so it runs off the UI thread.</summary>
 public static class PackageFileSearch
 {
-    /// <summary>Extensions the editor treats as text, and therefore searches line by line.</summary>
+    /// <summary>Extensions searched line by line.</summary>
     public static readonly IReadOnlySet<string> TextExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         ".ps1", ".psm1", ".psd1", ".txt", ".xml", ".json", ".cmd", ".bat",
@@ -31,7 +28,7 @@ public static class PackageFileSearch
     private const int MaxHits = 200;
     private const int MaxHitsPerFile = 5;
 
-    /// <summary>Matches file names first, then line contents of the text files under the folder.</summary>
+    /// <summary>File names first, then line contents.</summary>
     public static List<SearchHit> Search(string folder, string query, CancellationToken token)
     {
         var hits = new List<SearchHit>();

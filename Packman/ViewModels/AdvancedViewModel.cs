@@ -5,8 +5,8 @@ using System.Collections.ObjectModel;
 namespace Packman.ViewModels;
 
 /// <summary>
-/// Drives the Advanced screen's three directory tools: bulk-adding PCs to a group,
-/// looking up the groups a PC belongs to, and finding the apps that target a group.
+/// The Advanced screen's three directory tools: bulk-add PCs to a group, a PC's groups,
+/// and the apps targeting a group.
 /// </summary>
 public sealed class AdvancedViewModel : ObservableObject
 {
@@ -18,7 +18,7 @@ public sealed class AdvancedViewModel : ObservableObject
     public AsyncRelayCommand BulkAddCommand { get; }
     public RelayCommand ConnectCommand { get; }
 
-    /// <summary>Raised when the user asks to connect; the host switches to the Settings screen.</summary>
+    /// <summary>Raised on "connect"; the host switches to Settings.</summary>
     public event Action? ConnectRequested;
 
     public AdvancedViewModel()
@@ -30,7 +30,7 @@ public sealed class AdvancedViewModel : ObservableObject
     public bool IsSignedIn => _auth.IsSignedIn;
     public bool ShowConnectPrompt => !_auth.IsSignedIn;
 
-    /// <summary>Re-reads the sign-in state; called by the host each time the screen is shown.</summary>
+    /// <summary>Re-reads sign-in state. Called each time the screen is shown.</summary>
     public void Refresh()
     {
         OnPropertyChanged(nameof(IsSignedIn));
@@ -59,7 +59,7 @@ public sealed class AdvancedViewModel : ObservableObject
 
     private EntraGroup? _bulkGroup;
 
-    /// <summary>A typed name that matches a group exactly counts as picking it.</summary>
+    /// <summary>An exact typed name counts as picking the group.</summary>
     private void OnBulkGroupResults()
     {
         OnPropertyChanged(nameof(HasBulkGroupResults));
@@ -80,7 +80,7 @@ public sealed class AdvancedViewModel : ObservableObject
         BulkAddCommand.RaiseCanExecuteChanged();
     }
 
-    /// <summary>True once a group was picked from the list, so the name is known to exist.</summary>
+    /// <summary>True once a group was picked, so the name is known to exist.</summary>
     public bool IsBulkGroupConfirmed => _bulkGroup != null;
 
     public string BulkGroupCheck => _bulkGroup != null
@@ -177,8 +177,7 @@ public sealed class AdvancedViewModel : ObservableObject
                 var row = new BulkAddRow { PcName = name };
                 var addedHere = 0; string? error = null;
 
-                // A name can map to several device records (re-enrolled machines); all are added
-                // so the live one is definitely covered.
+                // Re-enrolled machines leave several records; add all so the live one is covered.
                 foreach (var device in devices)
                 {
                     try

@@ -3,12 +3,9 @@
                     xmlns:local="clr-namespace:Packman">
 
     <!-- ═══════════════ Type ═══════════════ -->
-    <!-- Windows 11 type ramp: Segoe UI Variable for UI, Cascadia for anything
-         that has to line up in columns, with the bundled Fonts/ faces last so
-         machines without either still render the design.
-         The pack URI has to lead: everything after the '#' is the fallback
-         list, and names missing from Fonts/ resolve against installed fonts.
-         A pack URI placed later in the list cannot parse — its own commas
+    <!-- Segoe UI Variable for UI, Cascadia where columns have to line up, bundled
+         Fonts/ faces last. The pack URI must lead: everything after the '#' is the
+         fallback list. A pack URI placed later cannot parse, as its own commas
          split it into junk family names. -->
     <FontFamily x:Key="UIFontFamily">pack://application:,,,/Fonts/#Segoe UI Variable Text, Segoe UI, Instrument Sans</FontFamily>
     <FontFamily x:Key="MonoFontFamily">pack://application:,,,/Fonts/#Cascadia Mono, Consolas, JetBrains Mono</FontFamily>
@@ -76,7 +73,7 @@
         <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
     </Style>
 
-    <!-- Uppercase letterspaced section label — the recurring rule-and-caption header. -->
+    <!-- Uppercase letterspaced section label: the recurring rule-and-caption header. -->
     <Style x:Key="SectionLabel" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
@@ -327,9 +324,8 @@
     <!-- Fluent field: rounded, with the accent underline growing along the
          bottom edge on focus. -->
     <Style x:Key="TextField" TargetType="{x:Type TextBox}">
-        <!-- The visible label sits in a separate TextBlock, so a screen reader has nothing
-             to announce on its own. Where a field carries a tooltip that becomes its name;
-             fields without one set AutomationProperties.Name at the use site. -->
+        <!-- The label is a sibling TextBlock, so there is nothing to announce here.
+             The tooltip becomes the name; fields without one set it at the use site. -->
         <Setter Property="AutomationProperties.Name"
                 Value="{Binding RelativeSource={RelativeSource Self}, Path=ToolTip}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
@@ -464,9 +460,8 @@
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource ControlBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
                         </Trigger>
-                        <!-- Subtle fill plus an accent underline, not an accent block:
-                             a filled segment competes with the one primary action on
-                             the screen for the same meaning. -->
+                        <!-- Fill plus an accent underline, not an accent block: a filled
+                             segment would compete with the primary action. -->
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource ControlHoverBrush}"/>
                             <Setter TargetName="mark" Property="Width" Value="18"/>
@@ -560,8 +555,7 @@
     </Style>
 
     <Style TargetType="{x:Type ComboBox}">
-        <!-- Same as TextField: the label is a sibling TextBlock, so the tooltip carries
-             the accessible name where there is one. -->
+        <!-- As TextField: the tooltip carries the accessible name. -->
         <Setter Property="AutomationProperties.Name"
                 Value="{Binding RelativeSource={RelativeSource Self}, Path=ToolTip}"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
@@ -595,10 +589,9 @@
                                     <Path Data="M4 8l6 6 6-6" Stroke="{DynamicResource Dim2Brush}" StrokeThickness="1.8"
                                           Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
-                                <!-- Style="{x:Null}" is load-bearing. This is the click target that
-                                     opens the drop-down, and with no style of its own it inherits
-                                     WPF UI's implicit ToggleButton style, which swallows the click
-                                     and leaves the whole ComboBox dead to the mouse. -->
+                                <!-- Style="{x:Null}" is load-bearing: without it this inherits WPF UI's
+                                 implicit ToggleButton style, which swallows the click and
+                                 kills the drop-down. -->
                                 <ToggleButton Style="{x:Null}" Grid.ColumnSpan="2" Background="Transparent" BorderThickness="0"
                                              IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ToggleButton.Template>
@@ -851,9 +844,8 @@
     </Style>
 
     <!-- ═══════════════ Progress ═══════════════ -->
-    <!-- A 4px rail with fully rounded ends. Without this the two progress bars
-         in the app fall through to the stock Windows template, which brings its
-         own blue with it. -->
+    <!-- 4px rail, rounded ends. Without it the progress bars fall through to
+         the stock Windows template and bring its blue with them. -->
     <Style TargetType="{x:Type ProgressBar}">
         <Setter Property="Height" Value="4"/>
         <Setter Property="Background" Value="{DynamicResource EdgeBrush}"/>

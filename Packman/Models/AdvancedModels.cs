@@ -3,7 +3,7 @@ namespace Packman.Models;
 /// <summary>An Entra (Azure AD) device record, resolved from a PC name.</summary>
 public class EntraDevice
 {
-    /// <summary>Directory object id — the id group membership is written against.</summary>
+    /// <summary>Directory object id; group membership is written against this.</summary>
     public string Id { get; set; } = "";
     public string DisplayName { get; set; } = "";
     public string OperatingSystem { get; set; } = "";
@@ -40,7 +40,7 @@ public class DeviceGroupMembership
     public string Id { get; set; } = "";
     public string DisplayName { get; set; } = "";
     public string Description { get; set; } = "";
-    /// <summary>Assigned or Dynamic — dynamic groups can't be edited by hand.</summary>
+    /// <summary>Assigned or Dynamic. Dynamic groups cannot be edited by hand.</summary>
     public string MembershipType { get; set; } = "";
 }
 

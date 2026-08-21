@@ -30,10 +30,9 @@ public partial class MainWindow : FluentWindow
     }
 
     /// <summary>
-    /// Gives the script editor a chance to save before the app goes away. Closing has to
-    /// be cancelled first because the prompt is awaited; the second pass runs straight
-    /// through. A failure here must not trap the user in an app that will not close, so
-    /// the save is reported and the close proceeds.
+    /// Lets the script editor save before the app closes. The prompt is awaited, so the
+    /// first close is cancelled and the second runs straight through. A failure here is
+    /// reported and the close still proceeds, rather than trapping the user.
     /// </summary>
     private void MainWindow_Closing(object sender, CancelEventArgs e)
     {
@@ -59,7 +58,7 @@ public partial class MainWindow : FluentWindow
         });
     }
 
-    /// <summary>Shows exactly one content page and collapses the rest. Null-safe for load-time calls.</summary>
+    /// <summary>Shows one page and collapses the rest. Null-safe during load.</summary>
     private void ShowOnly(UIElement? page, string? screenTitle = null)
     {
         foreach (var p in new UIElement?[] { CreatePackagePage, RemoteTestPage, SettingsPage, UploadIntunePage, ApplicationsPage, AppDetailPage, AdvancedPage })
@@ -68,10 +67,10 @@ public partial class MainWindow : FluentWindow
         if (screenTitle != null && ScreenTitleText != null) ScreenTitleText.Text = screenTitle;
     }
 
-    /// <summary>Switches to the Upload to Intune page (used by the wizard's cross-link).</summary>
+    /// <summary>Switches to the Upload to Intune page, for the wizard's cross-link.</summary>
     public void NavigateToUploadIntune() => UploadIntuneNavBtn.IsChecked = true;
 
-    /// <summary>A tool covers the wizard on the same page, so coming back here has to close it.</summary>
+    /// <summary>A tool covers the wizard, so returning here closes it.</summary>
     private void CreatePackageNavBtn_Checked(object sender, RoutedEventArgs e)
     {
         ShowOnly(CreatePackagePage, "Create Package");
@@ -98,15 +97,15 @@ public partial class MainWindow : FluentWindow
 
     private void SettingsNavBtn_Checked(object sender, RoutedEventArgs e) => ShowOnly(SettingsPage, "Settings");
 
-    /// <summary>The tool footer's action belongs to the tool page that is open.</summary>
+    /// <summary>The footer action belongs to whichever tool is open.</summary>
     private void ToolAction_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel { IsEditToolOpen: true }) EditStep.OpenInExternalEditor();
     }
 
     /// <summary>
-    /// The rail's Remote Test is a screen of its own, separate from the wizard's tool of the
-    /// same name: it starts with no package, so the user picks one built earlier.
+    /// Separate from the wizard's tool of the same name: this one starts with no package,
+    /// so the user picks one built earlier.
     /// </summary>
     private void RemoteTestNavBtn_Checked(object sender, RoutedEventArgs e)
     {

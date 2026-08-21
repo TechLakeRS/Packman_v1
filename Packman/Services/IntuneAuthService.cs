@@ -7,9 +7,8 @@ namespace Packman.Services;
 
 public class IntuneAuthService
 {
-    // Fallback only: well-known "Microsoft Graph Command Line Tools" public client
-    // (the same app Connect-MgGraph uses), used for interactive sign-in when no app
-    // registration Client ID is configured. Pre-provisioned in virtually every tenant.
+    // "Microsoft Graph Command Line Tools", the client Connect-MgGraph uses. Present in
+    // virtually every tenant, so it works when no Client ID is configured.
     private const string DefaultInteractiveClientId = "14d82eec-204b-4c2f-b7e8-296a70dab67e";
 
     private static readonly string[] InteractiveScopes =
@@ -17,7 +16,7 @@ public class IntuneAuthService
         "User.Read",
         "DeviceManagementApps.ReadWrite.All",
         "Group.Read.All",
-        // Advanced screen: resolve PC names and edit group membership.
+        // Advanced screen: PC lookup and group membership.
         "Device.Read.All",
         "GroupMember.ReadWrite.All",
     ];
@@ -30,7 +29,7 @@ public class IntuneAuthService
 
     public string? SignedInUser { get; private set; }
 
-    /// <summary>Raised whenever the sign-in state changes, so screens (e.g. the footer) can refresh.</summary>
+    /// <summary>Raised on sign-in state changes so screens can refresh.</summary>
     public event Action? StateChanged;
 
     public async Task SignInAsync(AuthMode mode, AppSettings.AuthConfig cfg, nint hwnd)
@@ -93,8 +92,7 @@ public class IntuneAuthService
             .WithCertificate(certificate)
             .Build();
 
-        // Acquire once now so a bad certificate or missing consent fails on the
-        // Settings page rather than at upload time.
+        // Acquire once so a bad cert or missing consent fails here, not at upload time.
         await _cca.AcquireTokenForClient(AppOnlyScopes).ExecuteAsync();
 
         _pca = null;
@@ -131,11 +129,7 @@ public class IntuneAuthService
 
     public bool IsSignedIn => _cca != null || (_pca != null && _account != null);
 
-    /// <summary>
-    /// Returns a Graph access token for the current sign-in (interactive user or
-    /// certificate-based app registration). Requires a prior successful SignInAsync;
-    /// throws otherwise so the upload flow can prompt to sign in.
-    /// </summary>
+    /// <summary>Graph access token for the current sign-in. Throws when not signed in.</summary>
     public async Task<string> GetAccessTokenAsync()
     {
         if (_cca != null)

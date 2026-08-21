@@ -10,9 +10,8 @@ public abstract class ApplicationBase
 }
 
 /// <summary>
-/// Lightweight model for the Applications list. Mirrors the reference suite: only the
-/// cheap fields returned by a single mobileApps query (plus categories) are carried —
-/// status/assignments live on <see cref="ApplicationDetail"/> and are fetched on demand.
+/// Row model for the Applications list: the fields one mobileApps query returns.
+/// Detail is fetched on demand into <see cref="ApplicationDetail"/>.
 /// </summary>
 public class IntuneApplication : ApplicationBase
 {
@@ -21,7 +20,7 @@ public class IntuneApplication : ApplicationBase
     public DateTime LastModified { get; set; }
     public string PublishingState { get; set; } = "";
 
-    /// <summary>True when the app isn't fully published — the list shows a warning pill.</summary>
+    /// <summary>Not fully published; the list shows a warning pill.</summary>
     public bool ShowStateWarning =>
         !string.IsNullOrEmpty(PublishingState) &&
         !PublishingState.Equals("published", StringComparison.OrdinalIgnoreCase);

@@ -8,8 +8,7 @@ namespace Packman.Helpers;
 /// <summary>Converts a "#rrggbb" string into a SolidColorBrush (per-app tile colour).</summary>
 public sealed class HexToBrushConverter : IValueConverter
 {
-    // The palette is tiny and rows re-run this on every recycle, so hand back one
-    // frozen brush per colour instead of a fresh unfrozen one per row.
+    // Cached and frozen: rows re-run this on every recycle.
     private static readonly Dictionary<string, SolidColorBrush> Cache = new();
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -31,10 +30,7 @@ public sealed class HexToBrushConverter : IValueConverter
         => Binding.DoNothing;
 }
 
-/// <summary>
-/// Two-way equality converter for segmented toggles: returns true when the bound
-/// string equals the ConverterParameter; on check, writes the parameter back.
-/// </summary>
+/// <summary>Two-way equality against ConverterParameter, for segmented toggles.</summary>
 public sealed class StringMatchConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -44,7 +40,7 @@ public sealed class StringMatchConverter : IValueConverter
         => value is true ? parameter : Binding.DoNothing;
 }
 
-/// <summary>Maps a count to a star GridLength, so a Grid can act as a proportional stacked bar.</summary>
+/// <summary>Maps a count to a star GridLength for proportional bars.</summary>
 public sealed class CountToStarConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

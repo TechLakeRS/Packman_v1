@@ -7,11 +7,7 @@ using System.Text.Json;
 
 namespace Packman.Services;
 
-/// <summary>
-/// Reads Win32 LOB applications from Microsoft Intune via Graph. Adapted from the
-/// EndpointPackagingSuite reference service: same Graph queries and parsing, but the
-/// token comes from Packman's existing sign-in (no DI / Serilog / memory cache).
-/// </summary>
+/// <summary>Reads Win32 LOB applications from Intune via Graph.</summary>
 public partial class IntuneService
 {
     private const string Base = "https://graph.microsoft.com/beta/deviceAppManagement/mobileApps";
@@ -20,8 +16,7 @@ public partial class IntuneService
 
     private readonly Func<Task<string>> _tokenProvider;
 
-    // Reads and the delete-invalidation can land on different threads, so the cache is
-    // swapped by reference rather than mutated in place.
+    // Swapped by reference, not mutated: reads and delete-invalidation can race.
     private volatile IReadOnlyList<IntuneApplication>? _listCache;
 
     public IntuneService(Func<Task<string>> tokenProvider)
@@ -51,7 +46,7 @@ public partial class IntuneService
             var response = await Http.SendAsync(request);
             var body = await response.Content.ReadAsStringAsync();
 
-            // The $expand=categories combination is occasionally rejected; retry without it.
+            // $expand=categories is occasionally rejected; retry without it.
             if (!response.IsSuccessStatusCode && url.Contains("&$expand=categories"))
             {
                 url = url.Replace("&$expand=categories", "");
@@ -172,7 +167,7 @@ public partial class IntuneService
                 }
             }
 
-            // Best-effort name resolution (requires directory read permission; ignored on failure).
+            // Needs directory read permission; ignored when it fails.
             await Task.WhenAll(needNames.Select(async item =>
             {
                 var name = await GetGroupNameAsync(item.groupId);
@@ -181,7 +176,7 @@ public partial class IntuneService
         }
         catch
         {
-            // Leave whatever was parsed; the detail screen tolerates an empty list.
+            // The detail screen tolerates an empty list.
         }
         return groups;
     }

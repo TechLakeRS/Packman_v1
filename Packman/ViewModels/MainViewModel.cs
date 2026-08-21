@@ -114,7 +114,7 @@ public sealed class MainViewModel : ObservableObject
     // ── Package state surfaced to the Generate screen ───────────────────
     public bool HasPackage => !string.IsNullOrEmpty(CreatePackage.CurrentPackagePath);
 
-    /// <summary>Trailing folder name, shown in the tool breadcrumb.</summary>
+    /// <summary>Trailing folder name, for the tool breadcrumb.</summary>
     public string PackageName
     {
         get
@@ -144,10 +144,10 @@ public sealed class MainViewModel : ObservableObject
 
     public bool IsLastStep => CurrentStepIndex == Steps.Count - 1;
 
-    /// <summary>The ↵ affordance is hidden while an upload is in flight.</summary>
+    /// <summary>The ↵ hint hides while an upload is in flight.</summary>
     public bool ShowPrimaryKeyHint => !Upload.IsRunning;
 
-    /// <summary>An upload in flight cannot be cancelled, so the action is replaced by a quiet status.</summary>
+    /// <summary>Swaps the primary action for a status line while an upload runs.</summary>
     public bool IsUploadRunning => Upload.IsRunning;
 
     public string StepPosition => $"step {CurrentStepIndex + 1} of {Steps.Count}";
@@ -210,7 +210,7 @@ public sealed class MainViewModel : ObservableObject
             if (e.PropertyName == nameof(UploadStepViewModel.IsPublishing))
                 PrimaryCommand.RaiseCanExecuteChanged();
 
-            // The publish button reads its label from the upload's own state.
+            // The publish button's label comes from the upload state.
             if (e.PropertyName is nameof(UploadStepViewModel.IsPublishing)
                               or nameof(UploadStepViewModel.IsRunning)
                               or nameof(UploadStepViewModel.IsComplete))
@@ -237,7 +237,7 @@ public sealed class MainViewModel : ObservableObject
     {
         if (CurrentStepIndex == GenerateStep)
         {
-            // Once a package exists the button advances rather than regenerating.
+            // With a package present the button advances instead of regenerating.
             if (HasPackage)
             {
                 CurrentStepIndex = UploadStep;
@@ -262,8 +262,7 @@ public sealed class MainViewModel : ObservableObject
 
     private async Task RunCreateAsync()
     {
-        // A package folder for this version already exists, so ask before replacing it
-        // rather than surfacing the collision as an error after the fact.
+        // Ask before replacing, rather than reporting the collision after the fact.
         var existing = CreatePackage.FindExistingPackage(_settingsService.Settings);
         var overwrite = false;
         if (existing != null)
@@ -292,7 +291,7 @@ public sealed class MainViewModel : ObservableObject
             return;
         }
 
-        // Carry upgraded metadata into the create model so the tools and publish work.
+        // Carry the upgraded metadata across so the tools and publish step work.
         var meta = Upgrade.LoadedMetadata;
         if (meta != null)
         {

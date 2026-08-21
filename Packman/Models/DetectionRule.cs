@@ -55,9 +55,9 @@ public class DetectionRule : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Detection method type matching Intune Graph API.
-    /// File: "exists", "doesNotExist", "string", "version", "sizeInMB", "modifiedDate"
-    /// Registry: "exists", "doesNotExist", "string", "integer", "version"
+    /// Graph detectionType.
+    /// File: exists, doesNotExist, string, version, sizeInMB, modifiedDate.
+    /// Registry: exists, doesNotExist, string, integer, version.
     /// </summary>
     public string DetectionType
     {
@@ -65,9 +65,7 @@ public class DetectionRule : INotifyPropertyChanged
         set { _detectionType = value ?? "exists"; OnPropertyChanged(nameof(DetectionType)); OnPropertyChanged(nameof(Title)); OnPropertyChanged(nameof(Description)); }
     }
 
-    /// <summary>
-    /// The comparison value used with detection type (version string, size, string value, etc.)
-    /// </summary>
+    /// <summary>Value compared against, per DetectionType.</summary>
     public string DetectionValue
     {
         get => _detectionValue;

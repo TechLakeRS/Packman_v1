@@ -57,8 +57,7 @@ public class PSADTGenerator
         return packagePath;
     }
 
-    // Returns the folder that directly contains Invoke-AppDeployToolkit.ps1.
-    // Accepts either the .ps1 file path or the folder holding it.
+    // Accepts either the .ps1 path or the folder holding it.
     private string ResolveTemplatePath()
     {
         var p = _templatePath?.Trim();
@@ -82,8 +81,7 @@ public class PSADTGenerator
         {
             Directory.CreateDirectory(packagePath);
             CopyDir(template, Path.Combine(packagePath, "Application"));
-            // Intune receives the .intunewin at upload, Icon the archived icon; both are
-            // created here so created and upgraded packages have the same layout.
+            // Created up front so new and upgraded packages share one layout.
             Directory.CreateDirectory(Path.Combine(packagePath, "Intune"));
             Directory.CreateDirectory(Path.Combine(packagePath, "Icon"));
         }, ct);

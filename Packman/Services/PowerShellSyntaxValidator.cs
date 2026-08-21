@@ -2,13 +2,10 @@ using System.Management.Automation.Language;
 
 namespace Packman.Services;
 
-/// <summary>A parse error in the 1-based line/column coordinates Monaco expects.</summary>
+/// <summary>A parse error in the 1-based coordinates Monaco expects.</summary>
 public record SyntaxError(int Line, int Column, int EndLine, int EndColumn, string Message);
 
-/// <summary>
-/// Reports PowerShell syntax errors using the parser that ships with the runtime.
-/// The script is only parsed — nothing in it is executed.
-/// </summary>
+/// <summary>Parses only; nothing in the script is executed.</summary>
 public static class PowerShellSyntaxValidator
 {
     public static List<SyntaxError> Validate(string script)
@@ -22,7 +19,7 @@ public static class PowerShellSyntaxValidator
             var endLine = e.Extent.EndLineNumber;
             var endColumn = e.Extent.EndColumnNumber;
 
-            // Some errors report a zero-width extent, which Monaco would draw as nothing.
+            // Monaco draws nothing for a zero-width extent.
             if (endLine == line && endColumn <= column) endColumn = column + 1;
 
             return new SyntaxError(line, column, endLine, endColumn, e.Message);

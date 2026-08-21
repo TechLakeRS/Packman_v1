@@ -5,9 +5,8 @@ using System.Collections.ObjectModel;
 namespace Packman.ViewModels;
 
 /// <summary>
-/// Drives the Applications library screen: loads the lightweight Win32 app list from
-/// Intune, then filters (search + category) and pages it client-side. Paging mirrors
-/// the reference suite (50 per page) so a 700-app tenant isn't one endless scroll.
+/// The Applications library screen: loads the Win32 app list, then filters and pages it
+/// client-side at 50 a page so a large tenant isn't one endless scroll.
 /// </summary>
 public sealed class ApplicationsViewModel : ObservableObject
 {
@@ -43,10 +42,10 @@ public sealed class ApplicationsViewModel : ObservableObject
     public RelayCommand SortByNameCommand { get; }
     public RelayCommand SortByUpdatedCommand { get; }
 
-    /// <summary>Raised when a row is activated; the host swaps in the detail screen.</summary>
+    /// <summary>Raised on row activation; the host swaps in the detail screen.</summary>
     public event Action<IntuneApplication>? OpenRequested;
 
-    /// <summary>Raised when the user asks to connect; the host switches to the Settings screen.</summary>
+    /// <summary>Raised on "connect"; the host switches to Settings.</summary>
     public event Action? ConnectRequested;
 
     private bool _loadedOnce;
@@ -158,7 +157,7 @@ public sealed class ApplicationsViewModel : ObservableObject
     private string _loadStatus = "";
     public string LoadStatus { get => _loadStatus; private set => Set(ref _loadStatus, value); }
 
-    /// <summary>Shown when nobody is signed in: prompts the user to connect on Settings first.</summary>
+    /// <summary>Shown when nobody is signed in.</summary>
     public bool ShowConnectPrompt => !IsLoading && !_auth.IsSignedIn;
 
     public bool ShowEmpty => !IsLoading && _auth.IsSignedIn && _all.Count == 0;
@@ -251,7 +250,7 @@ public sealed class ApplicationsViewModel : ObservableObject
                      .OrderBy(c => c))
             Categories.Add(c);
 
-        // Setting the field directly avoids a redundant ApplyFilters from the property setter.
+        // Field, not property: the setter would run ApplyFilters a second time.
         _selectedCategory = !string.IsNullOrEmpty(previous) && Categories.Contains(previous) ? previous : AllCategories;
         OnPropertyChanged(nameof(SelectedCategory));
     }

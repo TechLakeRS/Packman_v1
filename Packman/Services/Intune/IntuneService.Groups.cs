@@ -7,10 +7,7 @@ namespace Packman.Services;
 
 public partial class IntuneService
 {
-    /// <summary>
-    /// Searches Entra (Azure AD) security groups by display-name prefix for the
-    /// assignment picker. Requires the Group.Read.All scope on the signed-in token.
-    /// </summary>
+    /// <summary>Searches security groups by name prefix. Needs Group.Read.All.</summary>
     public async Task<List<EntraGroup>> SearchGroupsAsync(string query)
     {
         var results = new List<EntraGroup>();

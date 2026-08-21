@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Packman.Helpers;
 
-/// <summary>Null-safe accessors for Graph JSON, ported from the reference suite.</summary>
+/// <summary>Null-safe accessors for Graph JSON.</summary>
 public static class JsonExtensions
 {
     public static string GetSafeString(this JsonElement el, string prop)

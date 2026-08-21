@@ -22,8 +22,8 @@ public class GroupAssignmentNamerTests
 }
 
 /// <summary>
-/// The upload skips the assignment stage unless this says there is something to assign.
-/// A missing option here silently drops a configured feature, so each is covered.
+/// The upload skips assignment unless this says there is something to assign, so a
+/// missing option here silently drops a configured feature. Each is covered.
 /// </summary>
 public class GroupAssignmentConfigTests
 {
@@ -83,8 +83,7 @@ public class GroupAssignmentConfigTests
         var copy = original.Clone();
         copy.ExistingGroups.Clear();
 
-        // The upload clears this copy to hand the named groups to the picker instead;
-        // that must not empty the user's saved settings.
+        // The upload clears its copy; the saved settings must survive that.
         Assert.Single(original.ExistingGroups);
     }
 }

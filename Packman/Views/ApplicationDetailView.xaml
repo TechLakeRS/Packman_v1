@@ -666,7 +666,7 @@
                                TextWrapping="Wrap"/>
                 </StackPanel>
 
-                <!-- Sidebar: status, publishing, danger zone — visible on every tab -->
+                <!-- Sidebar: status, publishing, danger zone. Visible on every tab. -->
                 <StackPanel Grid.Column="2">
                     <Border Style="{StaticResource Card}">
                         <StackPanel>

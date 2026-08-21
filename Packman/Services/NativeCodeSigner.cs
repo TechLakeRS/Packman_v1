@@ -1,7 +1,3 @@
-// Native Authenticode signer that calls SignerSignEx2 (Mssign32.dll) directly.
-// No PowerShell, no temp PFX on disk. The signing certificate is loaded from the
-// Windows certificate store by thumbprint (configured on the Settings page).
-
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -11,8 +7,8 @@ using System.Security.Cryptography.X509Certificates;
 namespace Packman.Services;
 
 /// <summary>
-/// In-process Authenticode signer. The certificate comes from the Windows store
-/// (CurrentUser\My or LocalMachine\My) by thumbprint.
+/// Authenticode signer over SignerSignEx2: no PowerShell, no temp PFX on disk.
+/// The certificate comes from CurrentUser\My or LocalMachine\My by thumbprint.
 /// </summary>
 public class NativeCodeSigner
 {
@@ -41,7 +37,7 @@ public class NativeCodeSigner
                 var found = store.Certificates.Find(X509FindType.FindByThumbprint, _thumbprint, validOnly: false);
                 if (found.Count == 0) continue;
 
-                // Find hands back fresh contexts; only the one we return may stay alive.
+                // Find hands back fresh contexts; keep only the one we return.
                 for (int i = 1; i < found.Count; i++) found[i].Dispose();
                 return found[0];
             }
@@ -57,9 +53,7 @@ public class NativeCodeSigner
         return cert is { HasPrivateKey: true };
     }
 
-    /// <summary>
-    /// Signs a single file with SHA-256 Authenticode and an RFC 3161 timestamp.
-    /// </summary>
+    /// <summary>SHA-256 Authenticode with an RFC 3161 timestamp.</summary>
     public Task<SigningResult> SignFileAsync(string filePath, CancellationToken cancellationToken = default)
     {
         return Task.Run(() =>
@@ -213,8 +207,7 @@ public class NativeCodeSigner
         }
         finally
         {
-            // cert.Handle is handed to native code that outlives every managed read of
-            // `cert`, so without this the CERT_CONTEXT can be freed mid-call.
+            // Native code holds cert.Handle past our last managed read of cert.
             GC.KeepAlive(cert);
 
             if (pSignerContext != IntPtr.Zero) SignerFreeSignerContext(pSignerContext);

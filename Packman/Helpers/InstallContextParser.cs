@@ -4,16 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace Packman.Helpers;
 
-/// <summary>
-/// Determines the install context (User vs System) for a PSADT v4 package by reading
-/// RequireAdmin from the $adtSession hashtable in the deployment script.
-/// </summary>
+/// <summary>Reads RequireAdmin out of a package's $adtSession hashtable.</summary>
 public static class InstallContextParser
 {
-    /// <summary>
-    /// Returns "User" or "System" for the given package root. Falls back to "System",
-    /// which is what Intune runs unless the package says otherwise.
-    /// </summary>
+    /// <summary>"User" or "System"; defaults to "System".</summary>
     public static string ExtractFromPackage(string packagePath)
     {
         var scriptPath = Path.Combine(packagePath, "Application", PsadtLayout.ScriptName);

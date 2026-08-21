@@ -9,8 +9,8 @@ using System.Windows;
 namespace Packman.ViewModels;
 
 /// <summary>
-/// Drives the final wizard step: builds the .intunewin from the package produced by
-/// Create/Upgrade and uploads it to Intune using the interactive sign-in token.
+/// The final wizard step: builds the .intunewin from the package Create/Upgrade produced
+/// and uploads it to Intune.
 /// </summary>
 public class UploadStepViewModel : ObservableObject
 {
@@ -42,10 +42,10 @@ public class UploadStepViewModel : ObservableObject
     private string _newReturnCodeInput = "";
     private string _defaultsAppliedFor = "";
 
-    /// <summary>In-flight seeding of the default groups; awaited before publishing.</summary>
+    /// <summary>In-flight group seeding. Awaited before publishing.</summary>
     private Task? _seeding;
 
-    /// <summary>Cancels the upload in flight. Null when nothing is running.</summary>
+    /// <summary>Cancels the running upload. Null when idle.</summary>
     private CancellationTokenSource? _cts;
 
     private string _selectedDeployMode = DeployModeDefault;
@@ -110,7 +110,7 @@ public class UploadStepViewModel : ObservableObject
     }
     public bool IsNotPublishing => !_isPublishing;
 
-    /// <summary>True while a publish is in flight but not yet finished (drives the spinner).</summary>
+    /// <summary>Publish started but not finished. Drives the spinner.</summary>
     public bool IsRunning => _isPublishing && !_isComplete;
 
     private bool _isComplete;
@@ -137,7 +137,7 @@ public class UploadStepViewModel : ObservableObject
     private string _resultText = "";
     public string ResultText { get => _resultText; private set => Set(ref _resultText, value); }
 
-    /// <summary>Tenant label derived from the signed-in UPN domain (e.g. "contoso").</summary>
+    /// <summary>Tenant label taken from the signed-in UPN domain.</summary>
     public string TenantName
     {
         get
@@ -163,7 +163,7 @@ public class UploadStepViewModel : ObservableObject
             if (!Set(ref _selectedDetectionMethod, value)) return;
             if (IsMsiDetection && string.IsNullOrWhiteSpace(_detectionProductCode))
             {
-                // Pull the product code straight off the MSI staged in the package.
+                // Read the product code off the staged MSI.
                 _detectionProductCode = FindMsiProductCode();
                 OnPropertyChanged(nameof(DetectionProductCode));
             }
@@ -181,7 +181,7 @@ public class UploadStepViewModel : ObservableObject
     public bool IsRegistryDetection => _selectedDetectionMethod == DetectionMethod.RegistryKey;
     public bool IsMsiDetection => _selectedDetectionMethod == DetectionMethod.MsiProductCode;
 
-    /// <summary>True when MSI detection is selected but no product code could be read from the package.</summary>
+    /// <summary>MSI detection selected but no product code was found.</summary>
     public bool HasNoMsiProductCode => IsMsiDetection && string.IsNullOrWhiteSpace(_detectionProductCode);
 
     public string DetectionPath
@@ -246,7 +246,7 @@ public class UploadStepViewModel : ObservableObject
     public RelayCommand AddReturnCodeCommand { get; }
     public RelayCommand RestoreDefaultsCommand { get; }
 
-    /// <summary>Stops an upload in flight; the service removes the half-built app.</summary>
+    /// <summary>Stops an upload; the service removes the half-built app.</summary>
     public RelayCommand CancelUploadCommand { get; }
 
     private void CancelUpload()
@@ -255,7 +255,7 @@ public class UploadStepViewModel : ObservableObject
         _cts?.Cancel();
     }
 
-    /// <summary>Re-seeds the requirement fields and return codes from the saved Intune defaults.</summary>
+    /// <summary>Re-seeds requirements and return codes from the saved defaults.</summary>
     private void ApplyIntuneDefaults()
     {
         var defaults = _settingsService.Settings.IntuneDefaults;
@@ -280,14 +280,12 @@ public class UploadStepViewModel : ObservableObject
     }
 
     // ── Deploy mode ────────────────────────────────────────────────────
-    /// <summary>PSADT's own default; leaving it selected appends no -DeployMode switch.</summary>
+    /// <summary>PSADT's own default; appends no -DeployMode switch.</summary>
     public const string DeployModeDefault = "Auto";
 
     public List<string> DeployModes { get; } = new() { "Auto", "Interactive", "NonInteractive", "Silent" };
 
-    /// <summary>
-    /// PSADT deploy mode baked into the Intune install/uninstall command lines.
-    /// </summary>
+    /// <summary>Deploy mode baked into the install and uninstall command lines.</summary>
     public string SelectedDeployMode
     {
         get => _selectedDeployMode;
@@ -312,8 +310,8 @@ public class UploadStepViewModel : ObservableObject
     public string UninstallCommandPreview => WithDeployMode(_settingsService.Settings.IntuneDefaults.UninstallCommand);
 
     /// <summary>
-    /// Appends the chosen -DeployMode to a command line. Auto is PSADT's own default so
-    /// it is left off, and a command that already sets the switch is used as written.
+    /// Appends -DeployMode to a command line. Auto is the PSADT default so it is left off,
+    /// and a command that already sets the switch is used as written.
     /// </summary>
     private string WithDeployMode(string command)
     {
@@ -324,7 +322,7 @@ public class UploadStepViewModel : ObservableObject
     }
 
     // ── Assignment groups ──────────────────────────────────────────────
-    /// <summary>Seeded from Settings ▸ Group Assignment, then editable for this package.</summary>
+    /// <summary>Seeded from Settings, then editable for this package.</summary>
     public GroupPickerViewModel GroupPicker { get; } = new();
 
     // ── Review ─────────────────────────────────────────────────────────
@@ -338,12 +336,10 @@ public class UploadStepViewModel : ObservableObject
     public string ReviewSize { get => _reviewSize; set => Set(ref _reviewSize, value); }
 
     private string _intuneDisplayName = "";
-    /// <summary>Title the app gets in Intune; seeded from the package metadata and editable before upload.</summary>
+    /// <summary>Title in Intune. Seeded from the package metadata, editable before upload.</summary>
     public string IntuneDisplayName { get => _intuneDisplayName; set => Set(ref _intuneDisplayName, value); }
 
-    /// <summary>
-    /// Refreshes the displayed summary from the package produced earlier in the wizard.
-    /// </summary>
+    /// <summary>Refreshes the summary from the package produced earlier in the wizard.</summary>
     public void RefreshFromPackage()
     {
         OnPropertyChanged(nameof(IsSignedIn));
@@ -375,9 +371,7 @@ public class UploadStepViewModel : ObservableObject
         AppSummaryName = $"{appInfo.Manufacturer} {appInfo.Name}".Trim();
         AppSummaryDetail = $"v{appInfo.Version} · {appInfo.InstallContext} context · Win32";
 
-        // Seed the editable detection fields for a new package only - re-seeding would
-        // discard edits when stepping back from Review. Nothing is guessed: an MSI
-        // gives a real product code, anything else is left for the packager to fill in.
+        // New package only: re-seeding would discard edits made before stepping back.
         if (isNewPackage)
             SeedDetectionFromPackage(appInfo);
 
@@ -396,7 +390,7 @@ public class UploadStepViewModel : ObservableObject
         OnPropertyChanged(nameof(UninstallCommandPreview));
     }
 
-    /// <summary>Refreshes what the Review step shows without touching the edited fields.</summary>
+    /// <summary>Refreshes the Review step without touching the edited fields.</summary>
     public void RefreshReview()
     {
         OnPropertyChanged(nameof(IsSignedIn));
@@ -414,9 +408,8 @@ public class UploadStepViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Why the current detection settings cannot produce a usable rule, or null when
-    /// they can. Intune accepts an incomplete rule and then never detects the app, so
-    /// this is checked before the upload rather than after.
+    /// Why the detection settings can't produce a usable rule, or null when they can.
+    /// Intune accepts an incomplete rule and then never detects the app.
     /// </summary>
     public string? DescribeDetectionProblem() => SelectedDetectionMethod switch
     {
@@ -462,7 +455,7 @@ public class UploadStepViewModel : ObservableObject
             _ => new List<DetectionRule>()
         };
 
-    /// <summary>Reads the product code from the first MSI staged in the generated package, if there is one.</summary>
+    /// <summary>Product code of the first MSI staged in the package, if any.</summary>
     private string FindMsiProductCode()
     {
         if (_create.CurrentMsiInfo?.IsValid == true)
@@ -539,9 +532,8 @@ public class UploadStepViewModel : ObservableObject
             return;
         }
 
-        // Seeding runs in the background when the step opens; wait for it so a fast
-        // click cannot publish before the default groups have resolved. A seeding
-        // failure only means fewer groups, so it must not block the upload.
+        // Wait for the background seeding so a fast click can't publish before the default
+        // groups resolve. A failure there only means fewer groups, so it can't block.
         if (_seeding != null)
         {
             try { await _seeding; } catch { /* the picker already shows what resolved */ }
@@ -550,8 +542,8 @@ public class UploadStepViewModel : ObservableObject
         var appInfo = _create.BuildApplicationInfo();
         appInfo.DisplayName = IntuneDisplayName;
 
-        // The picker owns the named groups it already resolved, so drop those from the
-        // settings-driven path; everything else (both per-package options) still applies.
+        // The picker already resolved the named groups, so drop them here. Both
+        // per-package options still apply.
         var groupAssignment = settings.GroupAssignment.Clone();
         groupAssignment.ExistingGroups.Clear();
 
@@ -644,7 +636,7 @@ public class UploadStepViewModel : ObservableObject
         }
     }
 
-    /// <summary>Maps the upload service's 0–100 progress onto the five overlay steps.</summary>
+    /// <summary>Maps 0-100 progress onto the five overlay steps.</summary>
     private void OnUploadProgress(int pct)
     {
         // 0 Building · 1 Signing · 2 Uploading · 3 Creating Win32 app · 4 Assigning
@@ -662,10 +654,8 @@ public class UploadStepViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Pre-fills the detection fields with values actually read from the package. An MSI
-    /// carries its own product code, which detects reliably; for anything else only the
-    /// version is offered and the packager supplies the path, because a guessed
-    /// "%ProgramFiles%\{App}.exe" uploads fine and then never detects the app.
+    /// Pre-fills detection from what the package actually carries. An MSI has a product
+    /// code; anything else gets the version only, and the packager supplies the path.
     /// </summary>
     private void SeedDetectionFromPackage(ApplicationInfo appInfo)
     {

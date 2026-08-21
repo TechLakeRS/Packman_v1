@@ -4,10 +4,7 @@ using System.Text.Json;
 
 namespace Packman.Helpers;
 
-/// <summary>
-/// Records the Intune application id alongside a package folder so a later upgrade
-/// can write a supersedence relationship against the previous version.
-/// </summary>
+/// <summary>Stores the Intune app id next to a package, for supersedence on upgrade.</summary>
 public static class PackageMarker
 {
     private const string MarkerFileName = ".intune-appid.json";

@@ -11,8 +11,8 @@ public enum LogOperationType
 }
 
 /// <summary>
-/// Per-package logger for upload operations. Writes to
-/// %LocalAppData%\Packman\Logs\{Upload|Update}\{App}-{date}.log
+/// Per-package upload log, written to
+/// %LocalAppData%\Packman\Logs\{Upload|Update}\{App}-{date}.log.
 /// </summary>
 public class UploadLogger : IDisposable
 {

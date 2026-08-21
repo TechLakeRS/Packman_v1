@@ -20,9 +20,8 @@ public class SettingsService
         Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
     };
 
-    // Settings live under %LocalAppData% because the install directory is read-only
-    // for a machine-wide install. The path next to the executable is still read once,
-    // so an existing configuration carries over on first run.
+    // %LocalAppData%: the install directory is read-only for a machine-wide install.
+    // The old path next to the exe is still read once so settings carry over.
     private readonly string _path = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Packman", "appsettings.json");
@@ -34,7 +33,7 @@ public class SettingsService
 
     public AppSettings Settings => _settings ??= Load();
 
-    /// <summary>Set when the last load found an unreadable file; surfaced on the Settings page.</summary>
+    /// <summary>Set when the last load hit an unreadable file. Shown on the Settings page.</summary>
     public string? LoadError { get; private set; }
 
     private AppSettings Load()
@@ -51,7 +50,7 @@ public class SettingsService
         }
         catch (Exception ex)
         {
-            // Keep the unreadable file instead of silently replacing a whole configuration.
+            // Keep the bad file rather than silently replacing a whole configuration.
             LoadError = QuarantineCorruptFile(source, ex);
             return new AppSettings();
         }
@@ -71,10 +70,7 @@ public class SettingsService
         }
     }
 
-    /// <summary>
-    /// Moves a per-package group that was configured with the Uninstall intent onto the
-    /// dedicated uninstall group, which is where that intent lives now.
-    /// </summary>
+    /// <summary>Moves a per-package group with Uninstall intent onto the uninstall group.</summary>
     private static void Migrate(AppSettings settings)
     {
         var groups = settings.GroupAssignment;

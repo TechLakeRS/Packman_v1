@@ -51,7 +51,7 @@ public class CreatePackageViewModel : ObservableObject
         set => Set(ref _userInstall, value);
     }
 
-    /// <summary>Target architecture written to the PSADT script's AppArch field.</summary>
+    /// <summary>Written to the script's AppArch field.</summary>
     public string Architecture
     {
         get => _architecture;
@@ -89,8 +89,8 @@ public class CreatePackageViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Intune app id of the package this one supersedes (set when the package was
-    /// produced by Upgrade). Carried into the upload to write a supersedence relationship.
+    /// App id this package supersedes, set when it came from Upgrade. The upload writes
+    /// the supersedence relationship from it.
     /// </summary>
     public string PredecessorAppId
     {
@@ -162,8 +162,8 @@ public class CreatePackageViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Path of an already-built package for the current app and version, or null when
-    /// the version is free. Lets the caller offer to replace it instead of failing.
+    /// Path of an existing package for this app and version, or null. Lets the caller
+    /// offer to replace it rather than fail.
     /// </summary>
     public string? FindExistingPackage(AppSettings settings)
     {

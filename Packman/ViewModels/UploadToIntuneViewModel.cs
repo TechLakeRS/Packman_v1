@@ -8,16 +8,15 @@ using System.Windows;
 namespace Packman.ViewModels;
 
 /// <summary>
-/// Drives the standalone "Upload to Intune" page: pick a built PSADT package folder,
-/// review/edit its detection rules, choose Entra assignment groups, then publish to
-/// Intune while a four-step overlay tracks progress.
+/// The standalone "Upload to Intune" page: pick a built package, review its detection
+/// rules, choose assignment groups and publish.
 /// </summary>
 public sealed class UploadToIntuneViewModel : ObservableObject
 {
     private readonly SettingsService _settings = AppServices.Settings;
     private readonly IntuneAuthService _auth = AppServices.Auth;
 
-    /// <summary>Cancels the upload in flight. Null when nothing is running.</summary>
+    /// <summary>Cancels the running upload. Null when idle.</summary>
     private CancellationTokenSource? _cts;
 
     public UploadToIntuneViewModel()
@@ -42,7 +41,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     public bool IsNotSignedIn => !_auth.IsSignedIn;
     public string SignedInUser => _auth.SignedInUser ?? "";
 
-    /// <summary>Tenant label derived from the signed-in UPN domain (e.g. "contoso.com").</summary>
+    /// <summary>Tenant label taken from the signed-in UPN domain.</summary>
     public string TenantName
     {
         get
@@ -56,7 +55,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
         }
     }
 
-    /// <summary>Refreshes sign-in dependent text when the page is shown.</summary>
+    /// <summary>Refreshes sign-in dependent text.</summary>
     public void Refresh()
     {
         OnPropertyChanged(nameof(IsSignedIn));
@@ -102,12 +101,12 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     public string DisplayTitle => $"{Manufacturer} {AppName}".Trim();
 
     private string _intuneDisplayName = "";
-    /// <summary>Title the app gets in Intune; seeded from the package metadata and editable before upload.</summary>
+    /// <summary>Title in Intune. Seeded from the package metadata, editable before upload.</summary>
     public string IntuneDisplayName { get => _intuneDisplayName; set => Set(ref _intuneDisplayName, value); }
 
     /// <summary>
-    /// Validates a selected folder as a PSADT v4 package (root or its Application folder)
-    /// and pulls metadata, install context and an MSI detection rule from it.
+    /// Validates a folder as a v4 package and pulls metadata, install context and an
+    /// MSI detection rule out of it.
     /// </summary>
     public void ProcessSelectedFolder(string selectedPath)
     {
@@ -204,7 +203,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
         OnPropertyChanged(nameof(HasNoMsiProductCode));
     }
 
-    /// <summary>Product code of the MSI staged in the selected package, used to pre-fill MSI detection.</summary>
+    /// <summary>Product code of the staged MSI, used to pre-fill MSI detection.</summary>
     private string _msiProductCode = "";
 
     public List<string> DetectionMethods { get; } = DetectionMethod.All;
@@ -235,7 +234,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     public bool IsRegistryMethod => _newRuleMethod == DetectionMethod.RegistryKey;
     public bool IsMsiMethod => _newRuleMethod == DetectionMethod.MsiProductCode;
 
-    /// <summary>True when MSI detection is selected but no product code could be read from the package.</summary>
+    /// <summary>MSI detection selected but no product code was found.</summary>
     public bool HasNoMsiProductCode => IsMsiMethod && string.IsNullOrWhiteSpace(_msiProductCode);
 
     private string _newRulePath = "";
@@ -318,7 +317,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     }
 
     // ── Assignment groups ───────────────────────────────
-    /// <summary>Shared Entra group picker; each selected group carries its own intent.</summary>
+    /// <summary>Shared group picker; each group carries its own intent.</summary>
     public GroupPickerViewModel GroupPicker { get; } = new();
 
     // ── Publishing ──────────────────────────────────────
@@ -338,7 +337,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     }
     public bool IsNotPublishing => !_isPublishing;
 
-    /// <summary>True while a publish is in flight but not yet finished (drives the spinner).</summary>
+    /// <summary>Publish started but not finished. Drives the spinner.</summary>
     public bool IsRunning => _isPublishing && !_isComplete;
 
     private string _publishTitle = "";
@@ -466,7 +465,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
             PublishSteps[index].State = "done";
     }
 
-    /// <summary>Maps the upload service's 0–100 progress onto the first three overlay steps.</summary>
+    /// <summary>Maps 0-100 progress onto the first three overlay steps.</summary>
     private void OnUploadProgress(int pct)
     {
         if (pct < 30)
@@ -491,7 +490,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
         IsComplete = false;
         if (_succeeded)
         {
-            // Successful publish: clear the form for the next package.
+            // Clear the form for the next package.
             IsValidated = false;
             PackageRoot = "";
             PackageFolderName = "";
@@ -511,7 +510,7 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     public RelayCommand<DetectionRule> RemoveRuleCommand { get; }
     public AsyncRelayCommand UploadCommand { get; }
 
-    /// <summary>Stops an upload in flight; the service removes the half-built app.</summary>
+    /// <summary>Stops an upload; the service removes the half-built app.</summary>
     public RelayCommand CancelUploadCommand { get; }
     public RelayCommand DoneCommand { get; }
 

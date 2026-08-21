@@ -11,7 +11,7 @@ public partial class IntuneService
     private const string GraphBeta = "https://graph.microsoft.com/beta";
 
     // ── Detection rules ─────────────────────────────────
-    // Graph has no per-rule endpoint: the whole detectionRules array is PATCHed.
+    // No per-rule endpoint: the whole detectionRules array is PATCHed.
     public async Task UpdateDetectionRulesAsync(string appId, IEnumerable<DetectionRule> rules)
     {
         var payload = new Dictionary<string, object?>
@@ -128,7 +128,7 @@ public partial class IntuneService
         return members;
     }
 
-    /// <summary>Adds a directory object (device or user) to a group. Needs GroupMember.ReadWrite.All.</summary>
+    /// <summary>Adds a device or user to a group. Needs GroupMember.ReadWrite.All.</summary>
     public async Task AddGroupMemberAsync(string groupId, string directoryObjectId)
     {
         var payload = new Dictionary<string, string>
@@ -151,9 +151,8 @@ public partial class IntuneService
     }
 
     /// <summary>
-    /// Searches devices and users by display-name prefix for the add-member picker.
-    /// Each directory type is queried independently; one failing (missing scope) doesn't
-    /// hide results from the other.
+    /// Searches devices and users by name prefix for the add-member picker. Queried
+    /// independently so a missing scope on one doesn't hide the other's results.
     /// </summary>
     public async Task<List<GroupMember>> SearchDevicesAndUsersAsync(string query)
     {
@@ -187,7 +186,7 @@ public partial class IntuneService
         }
         catch
         {
-            // Missing directory scope — return what the other query found.
+            // Missing directory scope; return what the other query found.
         }
         return results;
     }

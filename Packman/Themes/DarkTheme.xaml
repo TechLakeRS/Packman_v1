@@ -107,7 +107,7 @@
     <SolidColorBrush x:Key="DimBrush" Color="{StaticResource DimColor}"/>
     <SolidColorBrush x:Key="Dim2Brush" Color="{StaticResource Dim2Color}"/>
     <SolidColorBrush x:Key="FaintBrush" Color="{StaticResource FaintColor}"/>
-    <!-- Dots, chevrons and state marks — never text, but they carry meaning,
+    <!-- Dots, chevrons and state marks. Not text, but they carry meaning,
          so they hold 3:1. -->
     <SolidColorBrush x:Key="MarkBrush" Color="{StaticResource MarkColor}"/>
 

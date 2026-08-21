@@ -42,10 +42,7 @@ public sealed class RelayCommand<T> : ICommand
         if (TryCoerce(parameter, out var value)) _execute(value);
     }
 
-    /// <summary>
-    /// Binding can hand over a null or mismatched parameter (an empty selection, a
-    /// disconnected item). That is a no-op, not an exception.
-    /// </summary>
+    /// <summary>Binding can pass null or a mismatched type. That is a no-op, not a throw.</summary>
     private static bool TryCoerce(object? p, out T value)
     {
         if (p is T typed) { value = typed; return true; }
@@ -68,10 +65,9 @@ public sealed class RelayCommand<T> : ICommand
 }
 
 /// <summary>
-/// Command for work that awaits. Commands are invoked by the framework, which discards
-/// the returned Task, so an "async void" handler would tear the process down on any
-/// unexpected throw. This awaits internally, reports the failure through
-/// <see cref="ErrorReporter"/>, and blocks re-entry while the work is in flight.
+/// Command for awaited work. The framework discards the returned Task, so this awaits
+/// internally, reports through <see cref="ErrorReporter"/> and blocks re-entry while
+/// the work is in flight.
 /// </summary>
 public sealed class AsyncRelayCommand : ICommand
 {
@@ -109,7 +105,7 @@ public sealed class AsyncRelayCommand : ICommand
         }
         catch (OperationCanceledException)
         {
-            // Cancelling is a normal outcome, not a fault.
+            // Cancelling is a normal outcome.
         }
         catch (Exception ex)
         {

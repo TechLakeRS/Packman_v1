@@ -54,9 +54,8 @@ public static class MetadataExtractor
     }
 
     /// <summary>
-    /// Extracts metadata from a PSADT v4 deployment script, which declares it as a
-    /// $adtSession = @{ AppVendor = 'value' } hashtable.
-    /// Returns keys: Vendor, AppName, Version, ScriptDate, ScriptAuthor.
+    /// Reads the $adtSession hashtable from a v4 script.
+    /// Keys: Vendor, AppName, Version, ScriptDate, ScriptAuthor.
     /// </summary>
     public static Dictionary<string, string> ExtractMetadataFromScript(string scriptPath)
     {

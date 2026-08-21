@@ -13,7 +13,7 @@ public enum AppTheme { System, Dark, Light }
 
 public class AppSettings
 {
-    // Dark stays the default so an existing install does not change appearance on upgrade.
+    // Dark by default: upgrades keep their existing look.
     public AppTheme Theme { get; set; } = AppTheme.Dark;
     public AuthMode AuthMode { get; set; } = AuthMode.Interactive;
     public AuthConfig Authentication { get; set; } = new();
@@ -48,28 +48,24 @@ public class AppSettings
 
     public class GroupAssignmentConfig
     {
-        // Create a brand-new install security group for each uploaded package.
+        // New install security group per uploaded package.
         public bool CreateGroupPerPackage { get; set; } = false;
-        // Name template for the per-package install group; tokens %vendor% %appName% %appVersion%.
+        // Tokens: %vendor% %appName% %appVersion%.
         public string GroupNameTemplate { get; set; } = "%vendor%_%appName%_%appVersion%_Install";
         public AssignmentIntent NewGroupIntent { get; set; } = AssignmentIntent.Required;
 
-        // Create a matching uninstall security group for each uploaded package.
+        // Matching uninstall group per uploaded package.
         public bool CreateUninstallGroupPerPackage { get; set; } = false;
         public string UninstallGroupNameTemplate { get; set; } = "%vendor%_%appName%_%appVersion%_Uninstall";
 
-        // Existing groups that are always assigned to every upload.
+        // Groups assigned to every upload.
         public List<ExistingGroupAssignment> ExistingGroups { get; set; } = new();
 
-        /// <summary>
-        /// True when this configuration would produce at least one assignment. The upload
-        /// skips the assignment stage otherwise; keeping the test here stops it from
-        /// falling behind when an option is added.
-        /// </summary>
+        /// <summary>True when this config produces at least one assignment.</summary>
         public bool HasAnyAssignment() =>
             CreateGroupPerPackage || CreateUninstallGroupPerPackage || ExistingGroups.Count > 0;
 
-        /// <summary>Copy used to drive one upload, so later edits to Settings cannot change it mid-run.</summary>
+        /// <summary>Snapshot for one upload, isolated from later Settings edits.</summary>
         public GroupAssignmentConfig Clone() => new()
         {
             CreateGroupPerPackage = CreateGroupPerPackage,
@@ -91,12 +87,12 @@ public class AppSettings
         public const string DefaultUninstallCommand = "Invoke-AppDeployToolkit.exe Uninstall";
         public const string DefaultDisplayNameTemplate = "%vendor% %appName% %appVersion%";
 
-        // Requirement rules pre-filled on the Create Package upload step.
+        // Pre-filled on the upload step.
         public RequirementInfo Requirements { get; set; } = new();
-        // Return codes sent with every uploaded Win32 app.
+        // Sent with every uploaded Win32 app.
         public List<ReturnCodeInfo> ReturnCodes { get; set; } = ReturnCodeInfo.Defaults();
 
-        // Command lines Intune runs to install and uninstall the package.
+        // Command lines Intune runs.
         public string InstallCommand { get; set; } = DefaultInstallCommand;
         public string UninstallCommand { get; set; } = DefaultUninstallCommand;
 
@@ -104,16 +100,15 @@ public class AppSettings
         public string PrivacyUrl { get; set; } = "";
         public string InformationUrl { get; set; } = "";
 
-        // Title template for the Intune app; tokens %vendor% %appName% %appVersion%.
+        // Tokens: %vendor% %appName% %appVersion%.
         public string DisplayNameTemplate { get; set; } = DefaultDisplayNameTemplate;
     }
 
     public class RemoteTestConfig
     {
-        // Test machines used before, most recent first; shown in the Remote Test picker.
+        // Most recent first.
         public List<string> RecentComputers { get; set; } = new();
-        // Delete the staged package from the target after the run. Off by default so a
-        // re-run only copies what changed.
+        // Off by default so a re-run only copies what changed.
         public bool CleanupAfterRun { get; set; } = false;
     }
 

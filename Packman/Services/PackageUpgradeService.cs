@@ -6,16 +6,14 @@ using System.Text.RegularExpressions;
 namespace Packman.Services;
 
 /// <summary>
-/// Upgrades an existing PSADT v4 package to a new version: copies the package forward,
-/// swaps in the new source file, and refreshes the script metadata. The output base path
-/// comes from the Settings page.
+/// Rolls a PSADT v4 package to a new version: copy forward, swap the source file,
+/// refresh the script metadata.
 /// </summary>
 public class PackageUpgradeService
 {
     private readonly string _baseOutputPath;
 
-    // No template path: an upgrade copies the existing v4 package forward rather than
-    // laying down a fresh template, so the packager's own script edits are preserved.
+    // No template: copying the package forward keeps the packager's script edits.
     public PackageUpgradeService(string baseOutputPath) => _baseOutputPath = baseOutputPath;
 
     public async Task<string> UpgradePackageAsync(

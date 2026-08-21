@@ -6,8 +6,8 @@ using Xunit;
 namespace Packman.Tests;
 
 /// <summary>
-/// PSADT scripts run under Windows PowerShell 5.1, which reads a BOM-less file as ANSI.
-/// Saving a script back must not change its encoding or a non-ASCII character breaks.
+/// PSADT runs under Windows PowerShell 5.1, which reads a BOM-less file as ANSI, so a
+/// save must not change the encoding.
 /// </summary>
 public sealed class TextFileIOTests : IDisposable
 {

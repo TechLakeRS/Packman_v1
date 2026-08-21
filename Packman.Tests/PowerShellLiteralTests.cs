@@ -4,8 +4,8 @@ using Xunit;
 namespace Packman.Tests;
 
 /// <summary>
-/// Metadata read from MSI tables and EXE version resources is written straight into the
-/// generated deployment script, so a vendor like "O'Reilly" must not break it.
+/// MSI and version-resource metadata goes straight into the generated script, so a
+/// vendor like "O'Reilly" has to survive the trip.
 /// </summary>
 public class PowerShellLiteralTests
 {
@@ -33,9 +33,8 @@ public class PowerShellLiteralTests
     [Fact]
     public void DoubleQuoted_escapes_the_backtick_first()
     {
-        // Order matters: escaping the quote first would produce `" and the later backtick
-        // pass would double that backtick, turning the escape into a literal.
-        // ` + "  ->  `` (literal backtick) + `" (literal quote)
+        // Escaping the quote first would emit `" and the backtick pass would then double
+        // it, turning the escape into a literal. ` + "  ->  `` + `"
         Assert.Equal("```\"", PowerShellLiteral.DoubleQuoted("`\""));
     }
 }

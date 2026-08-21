@@ -10,7 +10,7 @@ public partial class AdvancedView : UserControl
 {
     public AdvancedViewModel ViewModel { get; }
 
-    /// <summary>Raised when the user asks to connect; the host switches to the Settings screen.</summary>
+    /// <summary>Raised on "connect"; the host switches to Settings.</summary>
     public event Action? ConnectRequested;
 
     public AdvancedView()
@@ -21,7 +21,7 @@ public partial class AdvancedView : UserControl
         InitializeComponent();
     }
 
-    /// <summary>Re-reads the sign-in state. Called by the host when the screen is shown.</summary>
+    /// <summary>Re-reads sign-in state. Called each time the screen is shown.</summary>
     public void Refresh() => ViewModel.Refresh();
 
     private void BulkGroupResult_Click(object sender, RoutedEventArgs e)

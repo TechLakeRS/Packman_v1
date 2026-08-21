@@ -30,8 +30,7 @@
         </Grid.RowDefinitions>
 
         <!-- ═══════════ TITLE BAR ═══════════ -->
-        <!-- Sits on the Mica backdrop: no fill of its own, just the mark, the
-             app name and the current screen. -->
+        <!-- On the Mica backdrop, so no fill of its own. -->
         <ui:TitleBar Grid.Row="0" Height="44" Padding="16,0,0,0">
             <ui:TitleBar.Header>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -303,10 +302,10 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Step and tool content share the row; exactly one is visible.
-                                 StepEdit hosts a WebView2 (HWND-based, ignores WPF clipping) so it
-                                 must not live inside a ScrollViewer — it fills the viewport and the
-                                 editor scrolls internally; the others each get their own. -->
+                            <!-- Step and tool content share the row; one is visible at a time.
+                                 StepEdit hosts a WebView2, which is HWND-based and ignores WPF
+                                 clipping, so it fills the viewport and scrolls internally
+                                 instead of sitting in a ScrollViewer. -->
                             <Grid Grid.Row="1">
                                 <!-- The wizard steps go away entirely while a tool covers them; left
                                      visible they render and take clicks underneath the open tool. -->

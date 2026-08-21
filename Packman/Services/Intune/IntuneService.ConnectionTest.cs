@@ -19,10 +19,7 @@ public sealed class ConnectionTestResult
 
 public partial class IntuneService
 {
-    /// <summary>
-    /// Verifies the current sign-in really reaches Microsoft Graph and that the scopes
-    /// Packman relies on are consented, by probing one endpoint per required permission.
-    /// </summary>
+    /// <summary>Probes one endpoint per required scope to confirm sign-in and consent.</summary>
     public async Task<ConnectionTestResult> TestConnectionAsync()
     {
         try

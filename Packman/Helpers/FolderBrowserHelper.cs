@@ -2,15 +2,10 @@ using System.IO;
 
 namespace Packman.Helpers;
 
-/// <summary>
-/// Path helpers for locating PSADT v4 package files.
-/// </summary>
+/// <summary>Locates files in a PSADT v4 package.</summary>
 public static class FolderBrowserHelper
 {
-    /// <summary>
-    /// Validates that a folder looks like a PSADT v4 package (Application folder
-    /// with Invoke-AppDeployToolkit.exe + .ps1), or is itself the Application folder.
-    /// </summary>
+    /// <summary>True for a package root or its Application folder.</summary>
     public static bool ValidatePackageStructure(string packagePath)
     {
         if (string.IsNullOrEmpty(packagePath) || !Directory.Exists(packagePath))
@@ -30,9 +25,7 @@ public static class FolderBrowserHelper
         return File.Exists(v4Exe) && File.Exists(v4Ps1);
     }
 
-    /// <summary>
-    /// Gets the PSADT v4 executable path (Invoke-AppDeployToolkit.exe) from a folder.
-    /// </summary>
+    /// <summary>Path to Invoke-AppDeployToolkit.exe, or null.</summary>
     public static string? GetPSADTExecutablePath(string folderPath)
     {
         if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
@@ -42,7 +35,7 @@ public static class FolderBrowserHelper
         return File.Exists(v4Exe) ? v4Exe : null;
     }
 
-    /// <summary>Gets the PSADT v4 deployment script from a folder, or null when there isn't one.</summary>
+    /// <summary>Path to Invoke-AppDeployToolkit.ps1, or null.</summary>
     public static string? GetPSADTScriptPath(string folderPath)
     {
         if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
@@ -52,9 +45,7 @@ public static class FolderBrowserHelper
         return File.Exists(script) ? script : null;
     }
 
-    /// <summary>
-    /// Returns the package root, handling the case where the user selected the Application folder.
-    /// </summary>
+    /// <summary>Package root, whether the user picked it or its Application folder.</summary>
     public static string GetPackageRootPath(string selectedPath)
     {
         if (string.IsNullOrEmpty(selectedPath))

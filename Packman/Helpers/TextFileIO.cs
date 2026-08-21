@@ -4,13 +4,12 @@ using System.Text;
 namespace Packman.Helpers;
 
 /// <summary>
-/// Reads and writes script files without changing their encoding or line endings.
-/// PSADT scripts run under Windows PowerShell 5.1, which reads a BOM-less file as
-/// ANSI, so a saved-back BOM matters for any non-ASCII character in a script.
+/// Reads and writes script files without changing their encoding. PSADT runs under
+/// Windows PowerShell 5.1, which reads a BOM-less file as ANSI.
 /// </summary>
 public static class TextFileIO
 {
-    /// <summary>Extension of the transient file a save writes before swapping it in.</summary>
+    /// <summary>Extension of the temp file a save writes before swapping it in.</summary>
     public const string TempSuffix = ".packman.tmp";
 
     private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false);
@@ -25,7 +24,7 @@ public static class TextFileIO
         return new TextFile(content, encoding, content.Contains("\r\n") || !content.Contains('\n'));
     }
 
-    /// <summary>Writes through a temp file so a failed write cannot truncate the original.</summary>
+    /// <summary>Writes via a temp file so a failed write can't truncate the original.</summary>
     public static void Write(string path, string content, Encoding encoding)
     {
         var temp = path + TempSuffix;

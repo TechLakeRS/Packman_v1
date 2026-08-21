@@ -3,9 +3,8 @@ using System.IO;
 namespace Packman.Helpers;
 
 /// <summary>
-/// Best-effort lookup of an app's package folder on the configured network share.
-/// The generator lays packages out as {root}\{Vendor}_{AppName}\{version}; the Intune
-/// display name usually matches "{Vendor} {AppName}" or just "{AppName}".
+/// Finds an app's package folder on the share. Layout is
+/// {root}\{Vendor}_{AppName}\{version}; the Intune display name is matched against both.
 /// </summary>
 public static class PackageSourceLocator
 {
@@ -34,7 +33,7 @@ public static class PackageSourceLocator
         }
         catch
         {
-            return null;   // unreachable share, no permission — the page shows "not found"
+            return null;   // unreachable share or no permission; the page shows "not found"
         }
     }
 

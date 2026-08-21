@@ -12,10 +12,7 @@ public interface IUploadProgress
     void UpdateProgress(int percentage, string message);
 }
 
-/// <summary>
-/// Uploads a Win32 (PSADT) package to Microsoft Intune via Graph.
-/// Authentication is delegated to a token provider (Packman's interactive sign-in).
-/// </summary>
+/// <summary>Uploads a Win32 (PSADT) package to Intune via Graph.</summary>
 public partial class IntuneUploadService : IDisposable
 {
     private HttpClient? sharedHttpClient;
@@ -150,8 +147,7 @@ public partial class IntuneUploadService : IDisposable
             await CommitAppAsync(appId, contentVersionId, ct);
             uploadLogger.Success("Application published successfully");
 
-            // Past this point the app exists and is published, so a later failure
-            // (supersedence, assignment) must not roll it back.
+            // Published: a later supersedence or assignment failure must not roll it back.
             createdAppId = null;
 
             progress?.UpdateProgress(100, "Upload complete!");
@@ -188,15 +184,14 @@ public partial class IntuneUploadService : IDisposable
         }
         finally
         {
-            // The extracted payload is a full copy of the package; leaking one per
-            // failed attempt fills %TEMP% quickly.
+            // The payload is a full copy of the package; one per failed attempt fills %TEMP%.
             if (intuneWinInfo != null) CleanupTempFiles(intuneWinInfo);
         }
     }
 
     /// <summary>
-    /// Deletes the half-built app so a failed upload does not leave an unpublished
-    /// shell behind in the tenant. Best effort: the original failure is what matters.
+    /// Drops the half-built app so a failed upload leaves no shell in the tenant.
+    /// Best effort; the original failure is the one worth reporting.
     /// </summary>
     private async Task RollbackCreatedAppAsync(string? appId, UploadLogger uploadLogger)
     {
@@ -220,7 +215,7 @@ public partial class IntuneUploadService : IDisposable
 
     public void Dispose()
     {
-        // HttpClient is long-lived; nothing to dispose here.
+        // HttpClient is long-lived.
         GC.SuppressFinalize(this);
     }
 

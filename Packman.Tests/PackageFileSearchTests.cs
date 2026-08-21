@@ -50,7 +50,7 @@ public sealed class PackageFileSearchTests : IDisposable
     [Fact]
     public void Does_not_read_the_contents_of_binary_files()
     {
-        // .msi is not a text extension, so its bytes are never scanned for matches.
+        // .msi is not a text extension, so its bytes are never scanned.
         Assert.DoesNotContain(Search(""), h => h.Line > 0);
     }
 

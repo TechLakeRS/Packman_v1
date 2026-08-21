@@ -9,14 +9,11 @@ using System.Text.RegularExpressions;
 namespace Packman.Services;
 
 /// <summary>
-/// Deploys a PSADT v4 package to a test machine over WinRM (PowerShell remoting).
+/// Deploys a PSADT v4 package to a test machine over WinRM.
 ///
-/// WinRM is the transport only. The install itself always runs from a one-shot
-/// scheduled task, because a remote session runs as the connecting admin — not as
-/// NT AUTHORITY\SYSTEM, which is what the Intune Management Extension uses. The two
-/// identities differ in %TEMP%, HKCU and, most importantly, network identity (SYSTEM
-/// reaches shares as the machine account), so an install validated over a plain
-/// remote session is not the install Intune will run.
+/// WinRM is the transport only; the install runs from a one-shot scheduled task. A
+/// remote session runs as the connecting admin, not as SYSTEM, and the two differ in
+/// %TEMP%, HKCU and network identity, so it would not match what Intune does.
 /// </summary>
 public class RemoteTestService
 {
@@ -24,27 +21,26 @@ public class RemoteTestService
     private const string TaskName = "Packman_RemoteTest";
     private const string ExitCodeSentinel = "PACKMAN_EXIT_CODE:";
 
-    // SCHED_S_TASK_HAS_NOT_RUN — the task exists but has never produced a result.
+    // SCHED_S_TASK_HAS_NOT_RUN: registered but never produced a result.
     private const int NeverRan = 267011;
 
     /// <summary>The deployment verbs PSADT accepts.</summary>
     public static readonly IReadOnlySet<string> DeploymentTypes =
         new HashSet<string>(StringComparer.Ordinal) { "Install", "Uninstall", "Repair" };
 
-    /// <summary>Exit codes PSADT/MSI treat as success; 3010 and 1641 mean "reboot required".</summary>
+    /// <summary>PSADT/MSI success codes; 3010 and 1641 mean reboot required.</summary>
     public static bool IsSuccess(int exitCode) => exitCode is 0 or 3010 or 1641;
 
-    /// <summary>Computer names only — the value ends up in a UNC path and a remote script.</summary>
+    /// <summary>Computer names only: the value reaches a UNC path and a remote script.</summary>
     public static bool IsValidComputerName(string computerName) =>
         !string.IsNullOrWhiteSpace(computerName) &&
         Regex.IsMatch(computerName, @"^[A-Za-z0-9][A-Za-z0-9\.\-]{0,62}$");
 
     /// <summary>
-    /// Runs the deployment and returns the PSADT exit code. <paramref name="runAsUser"/>
-    /// selects the identity: false = NT AUTHORITY\SYSTEM (what Intune does), true = the
-    /// logged-on user's interactive session (their profile/HKCU, PSADT dialogs visible).
-    /// Throws PSRemotingTransportException when WinRM cannot be reached.
-    /// <paramref name="copyProgress"/> reports copy percentage (0-100), then null when done.
+    /// Runs the deployment and returns the PSADT exit code.
+    /// <paramref name="runAsUser"/>: false runs as SYSTEM (what Intune does), true runs in
+    /// the logged-on user's session. <paramref name="copyProgress"/> reports 0-100, then null.
+    /// Throws PSRemotingTransportException when WinRM is unreachable.
     /// </summary>
     public int Deploy(string computerName, string sourcePath, string deploymentType,
         bool cleanupAfterDeploy, bool runAsUser, Action<string> output,
@@ -53,7 +49,7 @@ public class RemoteTestService
         if (!IsValidComputerName(computerName))
             throw new ArgumentException($"'{computerName}' is not a valid computer name", nameof(computerName));
 
-        // Goes straight onto the remote command line, so only the three PSADT verbs pass.
+        // Reaches the remote command line, so only the three PSADT verbs pass.
         if (!DeploymentTypes.Contains(deploymentType))
             throw new ArgumentException($"'{deploymentType}' is not a valid deployment type", nameof(deploymentType));
 
@@ -85,8 +81,7 @@ public class RemoteTestService
             throw new FileNotFoundException($"{PsadtLayout.ScriptName} not found in package");
         }
 
-        // ICMP is only a hint - plenty of managed fleets block it while WinRM is open,
-        // so a failed ping is reported and the connection attempt still goes ahead.
+        // ICMP is a hint only: plenty of fleets block it while WinRM is open.
         output($"Checking connectivity to {computerName}...");
         using (var ping = new Ping())
         {
@@ -103,7 +98,7 @@ public class RemoteTestService
             }
         }
 
-        // Connect before the (expensive) copy so a target without WinRM fails fast.
+        // Connect before the copy so a target without WinRM fails fast.
         output($"Connecting to {computerName} via WinRM...");
         var connectionInfo = new WSManConnectionInfo { ComputerName = computerName };
         using var runspace = RunspaceFactory.CreateRunspace(connectionInfo);
@@ -122,9 +117,8 @@ public class RemoteTestService
             output($"[OK] Logged-on user: {loggedOnUser}");
         }
 
-        // Each package gets its own folder so packages don't mix and an unchanged
-        // re-run only copies what differs. Packages are laid out as
-        // ...\Manufacturer_AppName\Version, so combine both for the name.
+        // Layout is ...\Manufacturer_AppName\Version; combine both so packages don't mix
+        // and a re-run only copies what differs.
         var sourceDir = new DirectoryInfo(sourcePath);
         string packageName = SanitiseFolderName(sourceDir.Parent?.Parent != null
             ? $"{sourceDir.Parent.Name}_{sourceDir.Name}"
@@ -200,13 +194,12 @@ public class RemoteTestService
     }
 
     /// <summary>
-    /// Builds the remote script: register a one-shot task under the requested identity,
-    /// start it, tail its log back through the remoting pipeline, then report the exit
-    /// code via the sentinel. Only the principal differs between the two contexts.
+    /// Registers a one-shot task, starts it, tails its log back through the pipeline and
+    /// reports the exit code via the sentinel. Only the principal differs by context.
     /// </summary>
     private static string BuildTaskScript(bool runAsUser, string deployArgs, string logPath)
     {
-        // S-1-5-18 rather than 'NT AUTHORITY\SYSTEM' — the SID is locale-independent.
+        // S-1-5-18 rather than the account name: the SID is locale-independent.
         string principal = runAsUser
             ? """
               $user = (Get-CimInstance Win32_ComputerSystem).UserName
@@ -268,13 +261,12 @@ public class RemoteTestService
             .Replace("__SENTINEL__", ExitCodeSentinel);
     }
 
-    /// <summary>Both values land inside single-quoted PowerShell strings, where '' is the escape.</summary>
+    /// <summary>Both values land inside single-quoted PowerShell strings.</summary>
     private static string EscapeSingleQuoted(string value) => PowerShellLiteral.SingleQuoted(value);
 
     /// <summary>
-    /// The package folder name becomes part of a UNC path, a scheduled-task command line
-    /// and a robocopy /MIR destination, so anything that could redirect or break out of
-    /// those is replaced rather than escaped. /MIR deletes, so this must not be lenient.
+    /// The folder name reaches a UNC path, a task command line and a /MIR destination.
+    /// /MIR deletes, so anything that could redirect is replaced rather than escaped.
     /// </summary>
     private static string SanitiseFolderName(string name)
     {
@@ -288,11 +280,9 @@ public class RemoteTestService
 
     private static void CopyWithRobocopy(string source, string destination, Action<int?>? progress)
     {
-        // /MIR mirrors the source (skips unchanged files on re-run, purges stale ones),
-        // /MT:16 multithreaded, /J unbuffered I/O for large payloads, /NOOFFLOAD skips
-        // the ODX attempt (not usable over SMB), /R:2 /W:5 bounds the retry defaults
-        // (1 million retries / 30 s), /NP /NFL /NDL suppresses per-file output which
-        // otherwise slows robocopy down.
+        // /MIR mirrors, /MT:16 multithreaded, /J unbuffered, /NOOFFLOAD skips the ODX
+        // attempt (unusable over SMB), /R:2 /W:5 replaces the 1M-retry defaults, and
+        // /NP /NFL /NDL drops per-file output, which otherwise dominates the runtime.
         var psi = new ProcessStartInfo
         {
             FileName = "robocopy.exe",
@@ -305,8 +295,7 @@ public class RemoteTestService
             ?? throw new InvalidOperationException("Failed to start robocopy.exe");
         var outputTask = process.StandardOutput.ReadToEndAsync();
 
-        // Per-file output is suppressed, so progress is derived by polling the
-        // destination size against the total source size.
+        // Per-file output is off, so poll destination size against source size instead.
         if (progress != null)
         {
             long totalBytes = GetDirectorySize(source);
@@ -324,12 +313,12 @@ public class RemoteTestService
         process.WaitForExit();
         string result = outputTask.GetAwaiter().GetResult();
 
-        // Robocopy exit codes 0-7 indicate success (bitfield), 8+ indicate failure.
+        // Robocopy exit codes are a bitfield: 0-7 succeeded, 8+ failed.
         if (process.ExitCode >= 8)
             throw new IOException($"Robocopy failed with exit code {process.ExitCode}:\n{result}");
     }
 
-    // Size of all files under a directory; tolerates files appearing/disappearing mid-copy.
+    // Tolerates files appearing and disappearing mid-copy.
     private static long GetDirectorySize(string path)
     {
         try

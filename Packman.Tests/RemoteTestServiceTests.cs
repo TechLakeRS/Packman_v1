@@ -4,7 +4,7 @@ using Xunit;
 namespace Packman.Tests;
 
 /// <summary>
-/// The computer name reaches a UNC path and a remote command line, so the validator is
+/// The computer name reaches a UNC path and a remote command line, so this validator is
 /// the boundary that keeps injection out.
 /// </summary>
 public class RemoteTestServiceTests

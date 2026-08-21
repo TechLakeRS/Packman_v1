@@ -30,7 +30,7 @@ public partial class StepTest : UserControl
         if (e.Action == NotifyCollectionChangedAction.Add) ConsoleScroll.ScrollToEnd();
     }
 
-    /// <summary>Picks a package built earlier — the entry point when Remote Test is opened from the rail.</summary>
+    /// <summary>Picks a package built earlier, for Remote Test opened from the rail.</summary>
     private void BrowsePackage_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { Title = "Select the PSADT package folder to test" };

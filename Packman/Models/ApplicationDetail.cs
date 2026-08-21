@@ -1,9 +1,6 @@
 namespace Packman.Models;
 
-/// <summary>
-/// Full application details from Microsoft Graph, fetched when a row is opened.
-/// Ported from the reference suite and trimmed to the fields the detail screen shows.
-/// </summary>
+/// <summary>Full application details from Graph, fetched when a row is opened.</summary>
 public class ApplicationDetail : IntuneApplication
 {
     public string InstallContext { get; set; } = "System";
@@ -39,7 +36,7 @@ public class ApplicationDetail : IntuneApplication
     public string CreatedFormatted => CreatedDateTime != DateTime.MinValue ? CreatedDateTime.ToLocalTime().ToString("MMM d, yyyy") : "—";
     public string LastModifiedFormatted => LastModifiedDateTime != DateTime.MinValue ? LastModifiedDateTime.ToLocalTime().ToString("MMM d, yyyy") : "—";
 
-    /// <summary>Header subtitle: "Mozilla · v124.0.1 · System context · Win32".</summary>
+    /// <summary>Header subtitle, e.g. "Mozilla · v124.0.1 · System context · Win32".</summary>
     public string SubLine => $"{Publisher} · v{Version} · {InstallContext} context · Win32";
 
     public string StatusLabel => PublishingState?.ToLowerInvariant() switch
@@ -57,7 +54,7 @@ public class ApplicationDetail : IntuneApplication
         _ => "mut",
     };
 
-    /// <summary>App ID shortened for the sidebar (full value goes to the clipboard).</summary>
+    /// <summary>App id shortened for the sidebar; copy gives the full value.</summary>
     public string IdShort => Id.Length > 13 ? $"{Id[..8]}…{Id[^4..]}" : Id;
 
     // ── Requirements (Deployment tab tile strip) ──
@@ -80,7 +77,7 @@ public class AssignedGroup
     public string GroupName { get; set; } = "";
     public string AssignmentType { get; set; } = "";   // required | available | uninstall
 
-    // Badge/chip helpers (StatusBadgeTemplate binds StatusLabel + StatusKind).
+    // StatusBadgeTemplate binds StatusLabel + StatusKind.
     public string StatusLabel => AssignmentType?.ToLowerInvariant() switch
     {
         "required" => "Required",

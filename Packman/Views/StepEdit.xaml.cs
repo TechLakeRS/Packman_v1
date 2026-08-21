@@ -22,7 +22,7 @@ public partial class StepEdit : UserControl
     private static readonly IReadOnlySet<string> TextExtensions = PackageFileSearch.TextExtensions;
     private static readonly IReadOnlySet<string> PowerShellExtensions = PackageFileSearch.PowerShellExtensions;
 
-    /// <summary>Loaded once per process; the catalog CSV does not change while Packman runs.</summary>
+    /// <summary>Loaded once per process; the CSV doesn't change at runtime.</summary>
     private static List<PSADTFunction>? _catalog;
 
     private readonly ObservableCollection<OpenFile> _openFiles = new();
@@ -51,14 +51,14 @@ public partial class StepEdit : UserControl
     private string ApplicationFolder =>
         Path.Combine(VM?.CreatePackage.CurrentPackagePath ?? "", "Application");
 
-    /// <summary>True while any open file has edits that are not on disk.</summary>
+    /// <summary>True while any open file has unsaved edits.</summary>
     public bool HasUnsavedChanges => _openFiles.Any(f => f.IsDirty);
 
     // ═══════════ Lifetime ═══════════
 
     private void StepEdit_Loaded(object sender, RoutedEventArgs e)
     {
-        // Warm the WebView2 up front so the step does not stall the first time it is shown.
+        // Warm WebView2 up front, or the step stalls the first time it is shown.
         ErrorReporter.FireAndForget(InitializeEditorAsync);
     }
 
@@ -163,7 +163,7 @@ public partial class StepEdit : UserControl
     private void PostToEditor(object message) =>
         EditorWebView.CoreWebView2?.PostWebMessageAsJson(JsonSerializer.Serialize(message));
 
-    /// <summary>Reads a buffer straight out of Monaco; null when the editor no longer holds it.</summary>
+    /// <summary>Reads a buffer out of Monaco; null when it no longer holds one.</summary>
     private async Task<string?> GetBufferAsync(string path)
     {
         if (EditorWebView.CoreWebView2 == null) return null;
@@ -178,7 +178,7 @@ public partial class StepEdit : UserControl
         return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
     }
 
-    /// <summary>Keeps Monaco's canvas on the same colour as the card it sits in.</summary>
+    /// <summary>Keeps Monaco's canvas on the card colour.</summary>
     private void ApplyEditorTheme()
     {
         var color = (TryFindResource("CodeBgBrush") as SolidColorBrush)?.Color ?? Color.FromRgb(0x07, 0x08, 0x0B);
@@ -187,9 +187,8 @@ public partial class StepEdit : UserControl
     }
 
     /// <summary>
-    /// Parses a buffer and sends the syntax errors back to Monaco as markers. The parse
-    /// runs off the UI thread: it fires on every keystroke pause, and a large deployment
-    /// script is enough work to be felt as typing lag.
+    /// Parses a buffer and sends syntax errors back as Monaco markers. Off the UI thread:
+    /// it fires on every keystroke pause and a large script is enough to feel.
     /// </summary>
     private async Task ValidateAsync(string? path, string? content)
     {
@@ -269,7 +268,7 @@ public partial class StepEdit : UserControl
 
         if (isNewPackage)
         {
-            // Default to showing the main deployment script.
+            // Open the main deployment script by default.
             var script = Path.Combine(appFolder, "Invoke-AppDeployToolkit.ps1");
             if (File.Exists(script)) OpenFileInEditor(script);
         }
@@ -408,8 +407,8 @@ public partial class StepEdit : UserControl
         Dispatcher.InvokeAsync(() => { _watchTimer.Stop(); _watchTimer.Start(); });
 
     /// <summary>
-    /// Something changed under the package folder — refresh the tree and pull external
-    /// edits into any open file. Files with unsaved edits are left alone and flagged.
+    /// The package folder changed: refresh the tree and pull external edits into open
+    /// files. Files with unsaved edits are flagged and left alone.
     /// </summary>
     private async Task OnPackageChangedOnDiskAsync()
     {
@@ -455,7 +454,7 @@ public partial class StepEdit : UserControl
         Activate(file);
     }
 
-    /// <summary>Reads the file from disk and hands the text to Monaco.</summary>
+    /// <summary>Reads the file and hands the text to Monaco.</summary>
     private void ReadIntoEditor(OpenFile file)
     {
         var ext = Path.GetExtension(file.Path);
@@ -544,7 +543,7 @@ public partial class StepEdit : UserControl
             : errors == 0 ? "No problems"
             : errors == 1 ? "1 problem"
             : $"{errors} problems";
-        // Clearing lets the DynamicResource in XAML take the colour back on a theme change.
+        // Clearing hands the colour back to the DynamicResource on a theme change.
         if (errors > 0)
             StatusProblems.Foreground = new SolidColorBrush(Color.FromRgb(0xF4, 0x7A, 0x7A));
         else
@@ -568,7 +567,7 @@ public partial class StepEdit : UserControl
         _ => encoding.WebName.ToUpperInvariant()
     };
 
-    /// <summary>Writes the buffer back, keeping the file's original encoding.</summary>
+    /// <summary>Writes the buffer back in the file's original encoding.</summary>
     private async Task<bool> SaveAsync(OpenFile file)
     {
         if (file.IsReadOnly) return true;
@@ -607,10 +606,7 @@ public partial class StepEdit : UserControl
         return true;
     }
 
-    /// <summary>
-    /// Offers to save every file with pending edits. Returns false only when the user
-    /// cancels, which callers use to abort closing.
-    /// </summary>
+    /// <summary>Offers to save every dirty file. False means the user cancelled.</summary>
     public async Task<bool> PromptSaveAllAsync()
     {
         if (EditorWebView.CoreWebView2 == null) return true;
@@ -757,14 +753,13 @@ public partial class StepEdit : UserControl
 
     // ═══════════ External editor ═══════════
 
-    /// <summary>Opens the active file (or the deploy script) in VS Code / ISE.
-    /// Driven by the tool footer in the shell.</summary>
+    /// <summary>Opens the active file, or the deploy script, in VS Code or ISE.</summary>
     public void OpenInExternalEditor()
     {
         var appFolder = ApplicationFolder;
         var scriptPath = Path.Combine(appFolder, "Invoke-AppDeployToolkit.ps1");
 
-        // Prefer the file that is open in the editor, fall back to the script.
+        // Prefer the open file, fall back to the script.
         var target = _active?.Path;
         if (string.IsNullOrEmpty(target) || !File.Exists(target))
             target = scriptPath;
@@ -806,7 +801,7 @@ public partial class StepEdit : UserControl
 
     // ═══════════ Models ═══════════
 
-    /// <summary>A file with a live Monaco buffer, shown as a tab.</summary>
+    /// <summary>An open file with a live Monaco buffer, shown as a tab.</summary>
     public sealed class OpenFile : INotifyPropertyChanged
     {
         private bool _isDirty;

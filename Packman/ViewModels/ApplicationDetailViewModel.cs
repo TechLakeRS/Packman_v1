@@ -8,9 +8,8 @@ using System.IO;
 namespace Packman.ViewModels;
 
 /// <summary>
-/// Backs the Application detail screen: loads full metadata, assignments, detection
-/// rules and the install-status rollup for a single Intune app, and locates the
-/// package's source folder on the configured network share.
+/// The Application detail screen: metadata, assignments, detection rules and the
+/// install-status rollup for one app, plus its source folder on the share.
 /// </summary>
 public sealed class ApplicationDetailViewModel : ObservableObject
 {
@@ -18,7 +17,7 @@ public sealed class ApplicationDetailViewModel : ObservableObject
 
     public ApplicationDetailViewModel(IntuneApplication app)
     {
-        // Seed from the list item so the header renders immediately; LoadAsync fills the rest.
+        // Seed from the list row so the header renders now; LoadAsync fills the rest.
         Detail = new ApplicationDetail
         {
             Id = app.Id,
@@ -96,7 +95,7 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         : "No matching folder on the share — check the Intune Applications path in Settings";
     public bool SourceHintOk => HasSource;
 
-    /// <summary>Full path of the PSADT script inside the source package, when found.</summary>
+    /// <summary>Path to the PSADT script in the source package, when found.</summary>
     public string? SourceScriptPath { get; private set; }
 
     public ObservableCollection<SourceCheck> SourceChecks { get; } = new();
@@ -205,7 +204,7 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         return display;
     }
 
-    /// <summary>Cancel on a rule that was never saved removes it again.</summary>
+    /// <summary>Cancelling a never-saved rule removes it.</summary>
     public void DiscardNewRule(DetectionRuleDisplay display)
     {
         Detail.DetectionRules.Remove(display.Rule);
@@ -237,7 +236,7 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         Detail.DetectionRules.Remove(display.Rule);
         if (!await SaveDetectionRulesAsync())
         {
-            // PATCH failed — put the rule back so the UI matches Intune.
+            // PATCH failed; put the rule back so the UI matches Intune.
             Detail.DetectionRules.Add(display.Rule);
             RebuildDetection();
         }
@@ -362,7 +361,7 @@ public sealed class ApplicationDetailViewModel : ObservableObject
     private string _membersStatus = "";
     public string MembersStatus { get => _membersStatus; private set => Set(ref _membersStatus, value); }
 
-    /// <summary>True for real Entra groups; built-in targets (All Devices/Users) have no member list.</summary>
+    /// <summary>True for real groups; All Devices/Users have no member list.</summary>
     public bool FlyoutHasGroup => !string.IsNullOrEmpty(_flyoutGroup?.GroupId);
 
     public async Task OpenMembersAsync(AssignedGroup group)
@@ -478,7 +477,7 @@ public sealed class ApplicationDetailViewModel : ObservableObject
 
     /// <summary>
     /// Finds the package's version folder on the share and runs the integrity checks.
-    /// Share enumeration happens off the UI thread; failures just leave "not found".
+    /// Enumeration runs off the UI thread; failure leaves "not found".
     /// </summary>
     private async Task LocateSourceAsync()
     {
@@ -521,7 +520,7 @@ public sealed class ApplicationDetailViewModel : ObservableObject
         else
         {
             var size = new FileInfo(intunewin).Length;
-            // The Graph size is the committed upload; allow slack for encryption overhead.
+            // Graph reports the committed upload, so allow for encryption overhead.
             var matches = intuneSize <= 0 || Math.Abs(size - intuneSize) <= intuneSize * 0.1;
             checks.Add(new SourceCheck(Path.GetFileName(intunewin), matches
                 ? $"{FormatSize(size)} — matches the Intune upload"
@@ -567,9 +566,8 @@ public sealed class SourceCheck
 public sealed record Option(string Label, string Value);
 
 /// <summary>
-/// A detection rule rendered as the design's "type tag + summary" row, with inline
-/// editing state. ApplyEdit writes back into the underlying rule; the view model
-/// PATCHes the whole rule array afterwards.
+/// A detection rule as a "type tag + summary" row with inline edit state. ApplyEdit
+/// writes back to the rule; the view model PATCHes the whole array afterwards.
 /// </summary>
 public sealed class DetectionRuleDisplay : ObservableObject
 {
@@ -600,7 +598,7 @@ public sealed class DetectionRuleDisplay : ObservableObject
     public bool IsRegistry => Rule.Type == DetectionRuleType.Registry;
     public bool IsScript => Rule.Type == DetectionRuleType.Script;
     public bool IsFileOrRegistry => IsFile || IsRegistry;
-    /// <summary>Script rules carry base64 PowerShell — edited via the script file, not fields.</summary>
+    /// <summary>Script rules carry base64 PowerShell, edited as a file rather than fields.</summary>
     public bool CanEdit => !IsScript;
 
     public IReadOnlyList<Option> OperatorChoices => Operators;

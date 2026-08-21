@@ -7,16 +7,14 @@ using System.Text.Json;
 namespace Packman.Services;
 
 /// <summary>
-/// Directory lookups the Intune portal doesn't offer: resolving a list of PC names in
-/// one go, listing the groups a device belongs to, and finding every app that targets
-/// a group (Graph has no reverse index for that — the app list is scanned instead).
+/// Directory lookups the Intune portal doesn't offer: bulk PC name resolution, a device's
+/// groups, and every app targeting a group. Graph has no reverse index for the last one.
 /// </summary>
 public partial class IntuneService
 {
     /// <summary>
-    /// Resolves PC names to Entra device objects. Names are looked up in chunks so a long
-    /// paste doesn't blow the Graph filter length. A name can match more than one device
-    /// record (stale re-enrolments), so every match is returned.
+    /// Resolves PC names to Entra devices, in chunks to stay under the Graph filter length.
+    /// Stale re-enrolments mean one name can match several records, so all are returned.
     /// </summary>
     public async Task<Dictionary<string, List<EntraDevice>>> FindDevicesByNamesAsync(IReadOnlyList<string> names)
     {
@@ -45,9 +43,8 @@ public partial class IntuneService
     }
 
     /// <summary>
-    /// Adds a directory object to a group. Returns false when it was already a member —
-    /// Graph reports that as a 400 with an "already exist" reference error, which a bulk
-    /// run should treat as a skip rather than a failure.
+    /// Adds a directory object to a group; false when it was already a member. Graph
+    /// reports that as a 400 "already exist", which a bulk run skips rather than fails.
     /// </summary>
     public async Task<bool> TryAddGroupMemberAsync(string groupId, string directoryObjectId)
     {
@@ -84,7 +81,7 @@ public partial class IntuneService
             if (root.TryGetProperty("value", out var arr) && arr.ValueKind == JsonValueKind.Array)
                 foreach (var g in arr.EnumerateArray())
                 {
-                    // memberOf also returns directory roles; only groups are interesting here.
+                    // memberOf also returns directory roles.
                     if (g.GetSafeString("@odata.type") != "#microsoft.graph.group") continue;
                     groups.Add(new DeviceGroupMembership
                     {
@@ -101,9 +98,9 @@ public partial class IntuneService
     }
 
     /// <summary>
-    /// Finds every app assigned to a group. Graph can only be asked "which groups does this
-    /// app target", so the whole app list is walked with its assignments expanded and filtered
-    /// client-side; <paramref name="progress"/> reports apps scanned so far.
+    /// Finds every app assigned to a group. Graph only answers the reverse question, so the
+    /// app list is walked with assignments expanded and filtered here.
+    /// <paramref name="progress"/> reports apps scanned so far.
     /// </summary>
     public async Task<List<GroupAppAssignment>> GetGroupAppAssignmentsAsync(string groupId, IProgress<int>? progress = null)
     {
