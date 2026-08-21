@@ -171,16 +171,47 @@ network access.
 The .NET 10 SDK and the WebView2 Runtime from **Requirements** above still have to be
 installed on the machine; neither ships as a NuGet package.
 
-To add or update a package, do it somewhere with internet and then re-vendor:
+### Publishing offline
+
+`packages/` also carries the `win-x64` runtime packs, so both publish modes work with
+no network:
+
+```bash
+dotnet publish Packman/Packman.csproj -r win-x64 --self-contained false -c Release
+```
+
+```bash
+dotnet publish Packman/Packman.csproj -r win-x64 --self-contained true -c Release
+```
+
+Self-contained produces a ~170 MB folder that needs no .NET install on the target. It
+pulls in the ASP.NET Core runtime pack as well as the desktop one, because
+`System.Management.Automation` carries a framework reference to `Microsoft.AspNetCore.App`.
+
+Only `win-x64` is vendored. Another RID (`win-arm64`, `win-x86`) means re-vendoring
+with that RID in the restore command below.
+
+### Adding or updating a package
+
+Do it somewhere with internet, then re-vendor:
 
 ```powershell
-dotnet restore Packman.sln --source https://api.nuget.org/v3/index.json --packages .\obj\pkgstage
+$feed = "https://api.nuget.org/v3/index.json"
+dotnet restore Packman.sln --source $feed --packages .\obj\pkgstage
+dotnet restore Packman\Packman.csproj -r win-x64 --source $feed --packages .\obj\pkgstage
 Get-ChildItem .\obj\pkgstage -Recurse -Filter *.nupkg | Copy-Item -Destination .\packages
 ```
 
-`--source` bypasses the offline config for that one command. Commit the new `.nupkg`
-files together with the `.csproj` change, then check the result still restores offline
-with `dotnet restore Packman.sln --force`.
+`--source` bypasses the offline config for those commands. The second restore is what
+picks up the runtime packs — skip it and publishing breaks offline while building still
+works, which is an easy thing not to notice.
+
+Commit the new `.nupkg` files together with the `.csproj` change, then confirm the
+result still works with no network:
+
+```bash
+dotnet restore Packman.sln --force
+```
 
 ---
 
