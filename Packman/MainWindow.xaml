@@ -60,7 +60,7 @@
             <!-- Navigation pane: transparent so the backdrop carries it. -->
             <DockPanel Grid.Column="0" LastChildFill="False" Margin="0,0,0,10">
                 <Border DockPanel.Dock="Top" Height="32" Margin="12,0,12,10" CornerRadius="4"
-                        Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+                        Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource ControlStrokeBrush}" BorderThickness="1">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="11,0">
                         <Viewbox Width="14" Height="14">
                             <Path Data="{StaticResource IconSearch}" Stroke="{DynamicResource DimBrush}" StrokeThickness="1.6"

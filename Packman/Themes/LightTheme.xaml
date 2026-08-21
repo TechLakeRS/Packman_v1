@@ -20,8 +20,12 @@
     <Color x:Key="Line2Color">#0A000000</Color>
     <Color x:Key="Line3Color">#0D000000</Color>
     <Color x:Key="EdgeColor">#1A000000</Color>
-    <Color x:Key="Edge2Color">#26000000</Color>
-    <Color x:Key="FieldColor">#B3FFFFFF</Color>
+    <Color x:Key="Edge2Color">#99000000</Color>
+        <!-- Boundary of anything you can type in or click. Alpha chosen so the
+         composite clears 3:1 against both the card and the surface, which the
+         old hairline missed by a factor of two. -->
+    <Color x:Key="ControlStrokeColor">#73000000</Color>
+<Color x:Key="FieldColor">#B3FFFFFF</Color>
     <!-- Resting / hover surface for outlined controls. -->
     <Color x:Key="ControlColor">#B3FFFFFF</Color>
     <Color x:Key="ControlHoverColor">#80F9F9F9</Color>
@@ -32,14 +36,14 @@
     <!-- De-emphasis ramp, on the Fluent text alphas. Every step here carries
          text, so each one clears WCAG AA (4.5:1) once composited over the
          surface; MarkColor is the only value below that and is reserved for
-         non-text marks. -->
+         non-text marks — it still clears the 3:1 those need. -->
     <Color x:Key="MutedColor">#A6000000</Color>
     <Color x:Key="Muted2Color">#9E000000</Color>
     <Color x:Key="Muted3Color">#94000000</Color>
     <Color x:Key="DimColor">#8A000000</Color>
     <Color x:Key="Dim2Color">#8A000000</Color>
     <Color x:Key="FaintColor">#8A000000</Color>
-    <Color x:Key="MarkColor">#40000000</Color>
+    <Color x:Key="MarkColor">#80000000</Color>
 
     <!-- Success / caution / critical. Caution moves to hue 48: at its old
          #9D5D00 it was one degree off the brand amber, so a warning read as
@@ -91,6 +95,7 @@
     <SolidColorBrush x:Key="Line3Brush" Color="{StaticResource Line3Color}"/>
     <SolidColorBrush x:Key="EdgeBrush" Color="{StaticResource EdgeColor}"/>
     <SolidColorBrush x:Key="Edge2Brush" Color="{StaticResource Edge2Color}"/>
+    <SolidColorBrush x:Key="ControlStrokeBrush" Color="{StaticResource ControlStrokeColor}"/>
     <SolidColorBrush x:Key="FieldBrush" Color="{StaticResource FieldColor}"/>
     <SolidColorBrush x:Key="ControlBrush" Color="{StaticResource ControlColor}"/>
     <SolidColorBrush x:Key="ControlHoverBrush" Color="{StaticResource ControlHoverColor}"/>
@@ -104,7 +109,8 @@
     <SolidColorBrush x:Key="DimBrush" Color="{StaticResource DimColor}"/>
     <SolidColorBrush x:Key="Dim2Brush" Color="{StaticResource Dim2Color}"/>
     <SolidColorBrush x:Key="FaintBrush" Color="{StaticResource FaintColor}"/>
-    <!-- Dots, chevrons and idle rules only — never text. -->
+    <!-- Dots, chevrons and state marks — never text, but they carry meaning,
+         so they hold 3:1. -->
     <SolidColorBrush x:Key="MarkBrush" Color="{StaticResource MarkColor}"/>
 
     <SolidColorBrush x:Key="OkBrush" Color="{StaticResource OkColor}"/>

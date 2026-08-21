@@ -149,7 +149,7 @@
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Text2Brush}"/>
         <Setter Property="Background" Value="{DynamicResource ControlBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Edge2Brush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
@@ -214,7 +214,7 @@
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Width" Value="26"/>
         <Setter Property="Height" Value="26"/>
@@ -327,9 +327,14 @@
     <!-- Fluent field: rounded, with the accent underline growing along the
          bottom edge on focus. -->
     <Style x:Key="TextField" TargetType="{x:Type TextBox}">
+        <!-- The visible label sits in a separate TextBlock, so a screen reader has nothing
+             to announce on its own. Where a field carries a tooltip that becomes its name;
+             fields without one set AutomationProperties.Name at the use site. -->
+        <Setter Property="AutomationProperties.Name"
+                Value="{Binding RelativeSource={RelativeSource Self}, Path=ToolTip}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Background" Value="{DynamicResource FieldBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="CaretBrush" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="SelectionBrush" Value="{DynamicResource PrimaryDimBrush}"/>
@@ -477,7 +482,7 @@
 
     <!-- Wrapper that draws the 1px box around a segmented pair. -->
     <Style x:Key="SegmentGroup" TargetType="{x:Type Border}">
-        <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="5"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -555,11 +560,15 @@
     </Style>
 
     <Style TargetType="{x:Type ComboBox}">
+        <!-- Same as TextField: the label is a sibling TextBlock, so the tooltip carries
+             the accessible name where there is one. -->
+        <Setter Property="AutomationProperties.Name"
+                Value="{Binding RelativeSource={RelativeSource Self}, Path=ToolTip}"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Padding" Value="11,0"/>
@@ -600,7 +609,7 @@
                                Placement="Bottom" PopupAnimation="Fade">
                             <!-- FlyoutBrush, not CardBrush: this floats over arbitrary
                                  content, and the card layers are translucent. -->
-                            <Border Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource Edge2Brush}"
+                            <Border Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource ControlStrokeBrush}"
                                     BorderThickness="1" CornerRadius="8" Margin="0,2,0,0" Padding="0,4"
                                     MinWidth="{TemplateBinding ActualWidth}">
                                 <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto">
@@ -635,7 +644,7 @@
     <!-- Status badge (bind to an object exposing StatusKind + StatusLabel) -->
     <DataTemplate x:Key="StatusBadgeTemplate">
         <Border x:Name="bg" CornerRadius="4" Padding="7,4" Background="Transparent"
-                BorderThickness="1" BorderBrush="{DynamicResource EdgeBrush}">
+                BorderThickness="1" BorderBrush="{DynamicResource ControlStrokeBrush}">
             <TextBlock x:Name="lbl" Text="{Binding StatusLabel}" FontFamily="{StaticResource LabelFontFamily}"
                        FontSize="10" FontWeight="SemiBold"
                        Foreground="{DynamicResource Muted2Brush}" VerticalAlignment="Center"/>
