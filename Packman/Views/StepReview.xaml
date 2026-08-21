@@ -53,54 +53,6 @@
                 <ContentControl Style="{StaticResource DlRowMono}" Tag="Size" Content="{Binding Upload.ReviewSize}"/>
             </StackPanel>
 
-            <!-- Deployment -->
-            <DockPanel Margin="0,24,0,12">
-                <TextBlock DockPanel.Dock="Left" Text="DEPLOYMENT" Style="{StaticResource SectionLabel}"/>
-                <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
-            </DockPanel>
-            <StackPanel>
-                <ContentControl Style="{StaticResource DlRow}" Tag="Deploy mode" Content="{Binding Upload.SelectedDeployMode}"/>
-                <ContentControl Style="{StaticResource DlRowMono}" Tag="Install" Content="{Binding Upload.InstallCommandPreview}"/>
-                <ContentControl Style="{StaticResource DlRowMono}" Tag="Uninstall" Content="{Binding Upload.UninstallCommandPreview}"/>
-                <ContentControl Style="{StaticResource DlRowMono}" Tag="Detection" Content="{Binding Upload.DetectionSummary}"/>
-                <ContentControl Style="{StaticResource DlRow}" Tag="Minimum OS" Content="{Binding Upload.SelectedOperatingSystem}"/>
-            </StackPanel>
-
-            <!-- Assignment -->
-            <DockPanel Margin="0,24,0,12">
-                <TextBlock DockPanel.Dock="Left" Text="ASSIGNMENT" Style="{StaticResource SectionLabel}"/>
-                <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
-            </DockPanel>
-            <ItemsControl ItemsSource="{Binding Upload.GroupPicker.SelectedGroups}"
-                          Visibility="{Binding Upload.GroupPicker.HasGroups, Converter={StaticResource BoolToVis}}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="{DynamicResource PrimaryDimBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1"
-                                Padding="11,6" Margin="0,0,8,8" CornerRadius="4">
-                            <TextBlock Text="{Binding ChipText}" FontSize="12.5" Foreground="{DynamicResource InkBrush}"
-                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <TextBlock Text="No groups assigned - the app publishes unassigned."
-                       FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" Foreground="{DynamicResource DimBrush}"
-                       TextWrapping="Wrap">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Upload.GroupPicker.HasGroups}" Value="True">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-
             <!-- Sign-in state -->
             <Border BorderBrush="{DynamicResource WarnLineBrush}" BorderThickness="2,0,0,0" Background="{DynamicResource CardBrush}"
                     Padding="13,10" Margin="0,20,0,0"
@@ -124,47 +76,53 @@
         <StackPanel Grid.Column="2" VerticalAlignment="Top">
             <!-- Pre-flight, shown until publishing starts -->
             <StackPanel Visibility="{Binding Upload.IsNotPublishing, Converter={StaticResource BoolToVis}}">
-                <DockPanel Margin="0,0,0,14">
-                    <TextBlock DockPanel.Dock="Left" Text="WHAT HAPPENS ON UPLOAD" Style="{StaticResource SectionLabel}"/>
+                <!-- Deployment -->
+                <DockPanel Margin="0,0,0,12">
+                    <TextBlock DockPanel.Dock="Left" Text="DEPLOYMENT" Style="{StaticResource SectionLabel}"/>
                     <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
                 </DockPanel>
                 <StackPanel>
-                    <StackPanel.Resources>
-                        <Style TargetType="TextBlock" x:Key="Num">
-                            <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
-                            <Setter Property="FontSize" Value="10"/>
-                            <Setter Property="LineHeight" Value="19"/>
-                            <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
-                        </Style>
-                        <Style TargetType="TextBlock" x:Key="Body">
-                            <Setter Property="FontSize" Value="12"/>
-                            <Setter Property="LineHeight" Value="19"/>
-                            <Setter Property="TextWrapping" Value="Wrap"/>
-                            <Setter Property="Margin" Value="12,0,0,0"/>
-                            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,11">
-                        <TextBlock Text="01" Style="{StaticResource Num}"/>
-                        <TextBlock Text="Sign the PSADT script (if code signing is enabled in Settings)." Style="{StaticResource Body}"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,11">
-                        <TextBlock Text="02" Style="{StaticResource Num}"/>
-                        <TextBlock Text="Build the .intunewin with IntuneWinAppUtil." Style="{StaticResource Body}"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,11">
-                        <TextBlock Text="03" Style="{StaticResource Num}"/>
-                        <TextBlock Text="Register the Win32 app, upload content to Azure, and publish." Style="{StaticResource Body}"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,11">
-                        <TextBlock Text="04" Style="{StaticResource Num}"/>
-                        <TextBlock Text="Assign the groups listed above." Style="{StaticResource Body}"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="05" Style="{StaticResource Num}"/>
-                        <TextBlock Text="Write a supersedence relationship when this is an upgrade." Style="{StaticResource Body}"/>
-                    </StackPanel>
+                    <ContentControl Style="{StaticResource DlRow}" Tag="Deploy mode" Content="{Binding Upload.SelectedDeployMode}"/>
+                    <ContentControl Style="{StaticResource DlRowMono}" Tag="Install" Content="{Binding Upload.InstallCommandPreview}"/>
+                    <ContentControl Style="{StaticResource DlRowMono}" Tag="Uninstall" Content="{Binding Upload.UninstallCommandPreview}"/>
+                    <ContentControl Style="{StaticResource DlRowMono}" Tag="Detection" Content="{Binding Upload.DetectionSummary}"/>
+                    <ContentControl Style="{StaticResource DlRow}" Tag="Minimum OS" Content="{Binding Upload.SelectedOperatingSystem}"/>
                 </StackPanel>
+
+                <!-- Assignment -->
+                <DockPanel Margin="0,24,0,12">
+                    <TextBlock DockPanel.Dock="Left" Text="ASSIGNMENT" Style="{StaticResource SectionLabel}"/>
+                    <Border Style="{StaticResource Rule}" Margin="12,0,0,0"/>
+                </DockPanel>
+                <ItemsControl ItemsSource="{Binding Upload.GroupPicker.SelectedGroups}"
+                              Visibility="{Binding Upload.GroupPicker.HasGroups, Converter={StaticResource BoolToVis}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{DynamicResource PrimaryDimBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1"
+                                    Padding="11,6" Margin="0,0,8,8" CornerRadius="4">
+                                <TextBlock Text="{Binding ChipText}" FontSize="12.5" Foreground="{DynamicResource InkBrush}"
+                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="No groups assigned - the app publishes unassigned."
+                           FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" Foreground="{DynamicResource DimBrush}"
+                           TextWrapping="Wrap">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Upload.GroupPicker.HasGroups}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </StackPanel>
 
             <!-- Live publish state -->
