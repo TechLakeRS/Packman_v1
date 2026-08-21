@@ -8,6 +8,8 @@ package on your share, lets you edit the deploy script, test the install on a re
 the `.intunewin`, and publishes it to your tenant over Microsoft Graph — detection rules,
 requirements, return codes, group assignment, code signing and supersedence included.
 
+In a hurry? **[HOWTO.md](HOWTO.md)** is the five-step quick start; this file is the full reference.
+
 ---
 
 ## Contents
