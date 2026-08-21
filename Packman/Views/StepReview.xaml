@@ -101,7 +101,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="{DynamicResource PrimaryDimBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1"
+                            <Border Background="{DynamicResource PrimaryDimBrush}" BorderBrush="{DynamicResource AccentTextBrush}" BorderThickness="1"
                                     Padding="11,6" Margin="0,0,8,8" CornerRadius="4">
                                 <TextBlock Text="{Binding ChipText}" FontSize="12.5" Foreground="{DynamicResource InkBrush}"
                                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
@@ -160,7 +160,7 @@
                                 </Style>
                             </Grid.Style>
                             <Ellipse Width="30" Height="30" Stroke="{DynamicResource EdgeBrush}" StrokeThickness="2"/>
-                            <Path Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                            <Path Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                                   Data="M15,1 A14,14 0 0 1 29,15"/>
                         </Grid>
                         <Border BorderBrush="{DynamicResource OkBrush}" BorderThickness="1.5"
@@ -217,7 +217,7 @@
                                                     <Setter Property="BorderBrush" Value="{DynamicResource OkBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsWorking}" Value="True">
-                                                    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                                                     <Setter Property="Background" Value="{DynamicResource PrimarySoftBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsError}" Value="True">
@@ -242,7 +242,7 @@
                                                     <Setter Property="Foreground" Value="{DynamicResource FaintBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsWorking}" Value="True">
-                                                            <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsDone}" Value="True">
                                                             <Setter Property="Text" Value="&#x2713;"/>
@@ -282,7 +282,7 @@
                                                             <Setter Property="Foreground" Value="{DynamicResource OkBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsWorking}" Value="True">
-                                                            <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsError}" Value="True">
                                                             <Setter Property="Foreground" Value="{DynamicResource BadBrush}"/>
@@ -312,8 +312,15 @@
                     </TextBlock.Style>
                 </TextBlock>
 
+                <Button Style="{StaticResource GhostButton}" Content="CANCEL UPLOAD" HorizontalAlignment="Stretch" Margin="0,14,0,0"
+                        Command="{Binding Upload.CancelUploadCommand}"
+                        AutomationProperties.Name="Cancel upload"
+                        ToolTip="Stops the upload. Anything already created in Intune is removed."
+                        Visibility="{Binding Upload.IsRunning, Converter={StaticResource BoolToVis}}"/>
+
                 <Button Style="{StaticResource GhostButton}" Content="DONE" HorizontalAlignment="Stretch" Margin="0,14,0,0"
                         Command="{Binding Upload.DoneCommand}"
+                        AutomationProperties.Name="Done"
                         Visibility="{Binding Upload.IsComplete, Converter={StaticResource BoolToVis}}"/>
             </StackPanel>
         </StackPanel>

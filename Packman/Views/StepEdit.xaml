@@ -205,7 +205,7 @@
                                 <LineBreak/><LineBreak/>
                                 <Run Text="Use &quot;Open in VS Code&quot; to edit the script externally, or "/>
                                 <Hyperlink NavigateUri="https://developer.microsoft.com/microsoft-edge/webview2/"
-                                           RequestNavigate="Hyperlink_RequestNavigate" Foreground="{DynamicResource PrimaryBrush}">
+                                           RequestNavigate="Hyperlink_RequestNavigate" Foreground="{DynamicResource AccentTextBrush}">
                                     install the WebView2 Runtime</Hyperlink><Run Text="."/>
                             </TextBlock>
                         </Grid>

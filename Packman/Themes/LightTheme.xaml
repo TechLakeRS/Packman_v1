@@ -41,33 +41,40 @@
     <Color x:Key="FaintColor">#8A000000</Color>
     <Color x:Key="MarkColor">#40000000</Color>
 
-    <!-- Fluent light success / caution / critical. -->
+    <!-- Success / caution / critical. Caution moves to hue 48: at its old
+         #9D5D00 it was one degree off the brand amber, so a warning read as
+         brand chrome. -->
     <Color x:Key="OkColor">#0F7B0F</Color>
-    <Color x:Key="WarnColor">#9D5D00</Color>
+    <Color x:Key="WarnColor">#7A6100</Color>
     <Color x:Key="BadColor">#C42B1C</Color>
     <Color x:Key="DangerColor">#C42B1C</Color>
     <Color x:Key="OkSoftColor">#1F0F7B0F</Color>
     <Color x:Key="OkLineColor">#800F7B0F</Color>
-    <Color x:Key="WarnSoftColor">#1F9D5D00</Color>
-    <Color x:Key="WarnLineColor">#809D5D00</Color>
+    <Color x:Key="WarnSoftColor">#1F7A6100</Color>
+    <Color x:Key="WarnLineColor">#807A6100</Color>
     <Color x:Key="BadSoftColor">#1CC42B1C</Color>
     <Color x:Key="BadLineColor">#80C42B1C</Color>
 
-    <!-- Accent. PrimaryFgColor is what sits on top of a filled accent block. -->
-    <Color x:Key="PrimaryColor">#A2620B</Color>
-    <Color x:Key="Primary2Color">#834E08</Color>
-    <Color x:Key="PrimaryFgColor">#FFFFFF</Color>
-    <Color x:Key="PrimaryFaintColor">#14A2620B</Color>
-    <Color x:Key="PrimarySoftColor">#1FA2620B</Color>
-    <Color x:Key="PrimaryDimColor">#33A2620B</Color>
-    <Color x:Key="PrimaryLineColor">#80A2620B</Color>
-    <Color x:Key="PrimaryGlowColor">#66A2620B</Color>
+    <!-- Accent. The fill keeps the brand hue rather than dropping to a brown,
+         and is dark enough to clear 3:1 against the page so the control has a
+         visible boundary. PrimaryFgColor is what sits on top of it. -->
+    <Color x:Key="PrimaryColor">#C07C2E</Color>
+    <Color x:Key="Primary2Color">#A6621F</Color>
+    <Color x:Key="PrimaryFgColor">#1B1B1B</Color>
+    <Color x:Key="PrimaryFaintColor">#14C07C2E</Color>
+    <Color x:Key="PrimarySoftColor">#1FC07C2E</Color>
+    <Color x:Key="PrimaryDimColor">#33C07C2E</Color>
+    <Color x:Key="PrimaryLineColor">#80C07C2E</Color>
+    <Color x:Key="PrimaryGlowColor">#66C07C2E</Color>
+    <!-- Amber as text, an icon or a hairline. The fill above cannot carry text
+         on a white panel, so this darker step does that job. -->
+    <Color x:Key="AccentTextColor">#8F5608</Color>
 
     <Color x:Key="CodeBgColor">#F9F9F9</Color>
     <Color x:Key="CodeTxtColor">#DE000000</Color>
     <Color x:Key="CodeBarTxtColor">#A6000000</Color>
     <Color x:Key="CodeCommentColor">#8A000000</Color>
-    <Color x:Key="CodeKeywordColor">#A2620B</Color>
+    <Color x:Key="CodeKeywordColor">#8F5608</Color>
     <Color x:Key="CodeStringColor">#0F7B0F</Color>
 
     <!-- Brushes -->
@@ -119,6 +126,7 @@
     <SolidColorBrush x:Key="PrimaryDimBrush" Color="{StaticResource PrimaryDimColor}"/>
     <SolidColorBrush x:Key="PrimaryLineBrush" Color="{StaticResource PrimaryLineColor}"/>
     <SolidColorBrush x:Key="PrimaryGlowBrush" Color="{StaticResource PrimaryGlowColor}"/>
+    <SolidColorBrush x:Key="AccentTextBrush" Color="{StaticResource AccentTextColor}"/>
 
     <SolidColorBrush x:Key="CodeBgBrush" Color="{StaticResource CodeBgColor}"/>
     <SolidColorBrush x:Key="CodeTxtBrush" Color="{StaticResource CodeTxtColor}"/>

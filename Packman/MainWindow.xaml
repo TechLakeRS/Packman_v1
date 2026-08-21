@@ -37,7 +37,7 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <!-- Mark: an outlined square holding a live-state dot. -->
                     <Border Width="16" Height="16" CornerRadius="3"
-                            BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1.5">
+                            BorderBrush="{DynamicResource AccentTextBrush}" BorderThickness="1.5">
                         <Rectangle Width="5" Height="5" RadiusX="1" RadiusY="1" Fill="{DynamicResource OkBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
@@ -245,7 +245,7 @@
                                                                         <Setter Property="Foreground" Value="{DynamicResource Dim2Brush}"/>
                                                                         <Style.Triggers>
                                                                             <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                                                                                <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
                                                                             </DataTrigger>
                                                                             <DataTrigger Binding="{Binding IsDone}" Value="True">
                                                                                 <Setter Property="Text" Value="&#x2713;"/>

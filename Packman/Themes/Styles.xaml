@@ -22,7 +22,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Rectangle Margin="-3" RadiusX="6" RadiusY="6" SnapsToDevicePixels="True"
-                               Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2"/>
+                               Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="2"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -34,7 +34,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Rectangle Margin="1" RadiusX="5" RadiusY="5" SnapsToDevicePixels="True"
-                               Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2"/>
+                               Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="2"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -165,7 +165,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource ControlHoverBrush}"/>
-                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -228,7 +228,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource ControlHoverBrush}"/>
-                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -446,16 +446,26 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type RadioButton}">
-                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="3" Padding="{TemplateBinding Padding}">
-                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
-                    </Border>
+                    <Grid>
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <Border x:Name="mark" Height="2" Width="0" CornerRadius="1" Margin="0,0,0,4"
+                                HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                                Background="{DynamicResource PrimaryBrush}"/>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource ControlBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
                         </Trigger>
+                        <!-- Subtle fill plus an accent underline, not an accent block:
+                             a filled segment competes with the one primary action on
+                             the screen for the same meaning. -->
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource PrimaryBrush}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource PrimaryFgBrush}"/>
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource ControlHoverBrush}"/>
+                            <Setter TargetName="mark" Property="Width" Value="18"/>
+                            <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -494,7 +504,7 @@
                             <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -536,7 +546,7 @@
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource PrimaryDimBrush}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -604,7 +614,7 @@
                             <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Edge2Brush}"/>
                         </Trigger>
                         <Trigger Property="IsDropDownOpen" Value="True">
-                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -666,7 +676,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource PrimaryDimBrush}"/>
-                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -729,7 +739,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

@@ -21,7 +21,7 @@
 
             <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12">
                 <Run Text="Already have a built package?" Foreground="{DynamicResource Muted2Brush}"/>
-                <Hyperlink Click="UploadExisting_Click" Foreground="{DynamicResource PrimaryBrush}" TextDecorations="{x:Null}" FontWeight="SemiBold">
+                <Hyperlink Click="UploadExisting_Click" Foreground="{DynamicResource AccentTextBrush}" TextDecorations="{x:Null}" FontWeight="SemiBold">
                     Upload it directly →
                 </Hyperlink>
             </TextBlock>
@@ -53,7 +53,7 @@
 
                         <StackPanel Grid.Column="0" Grid.Row="0">
                             <TextBlock Style="{StaticResource FieldLabel}">
-                                <Run Text="Manufacturer"/><Run Text=" *" Foreground="{DynamicResource PrimaryBrush}"/>
+                                <Run Text="Manufacturer"/><Run Text=" *" Foreground="{DynamicResource AccentTextBrush}"/>
                             </TextBlock>
                             <TextBox x:Name="ManufacturerTextBox" Style="{StaticResource TextField}" Margin="0,6,0,0"
                                      local:PlaceholderText.Text="e.g. Mozilla"
@@ -62,7 +62,7 @@
 
                         <StackPanel Grid.Column="2" Grid.Row="0">
                             <TextBlock Style="{StaticResource FieldLabel}">
-                                <Run Text="Application Name"/><Run Text=" *" Foreground="{DynamicResource PrimaryBrush}"/>
+                                <Run Text="Application Name"/><Run Text=" *" Foreground="{DynamicResource AccentTextBrush}"/>
                             </TextBlock>
                             <TextBox x:Name="AppNameTextBox" Style="{StaticResource TextField}" Margin="0,6,0,0"
                                      local:PlaceholderText.Text="e.g. Firefox"
@@ -71,7 +71,7 @@
 
                         <StackPanel Grid.Column="0" Grid.Row="2">
                             <TextBlock Style="{StaticResource FieldLabel}">
-                                <Run Text="Version"/><Run Text=" *" Foreground="{DynamicResource PrimaryBrush}"/>
+                                <Run Text="Version"/><Run Text=" *" Foreground="{DynamicResource AccentTextBrush}"/>
                             </TextBlock>
                             <TextBox x:Name="VersionTextBox" Style="{StaticResource MonoField}" Margin="0,6,0,0"
                                      local:PlaceholderText.Text="e.g. 124.0.1"
@@ -91,7 +91,7 @@
                     <!-- Sources path: browse sits inside the field, hint sits under it -->
                     <StackPanel Margin="0,18,0,0">
                         <TextBlock Style="{StaticResource FieldLabel}">
-                            <Run Text="Sources Path"/><Run Text=" *" Foreground="{DynamicResource PrimaryBrush}"/>
+                            <Run Text="Sources Path"/><Run Text=" *" Foreground="{DynamicResource AccentTextBrush}"/>
                         </TextBlock>
                         <Grid Margin="0,6,0,0">
                             <TextBox x:Name="SourcesPathTextBox" Style="{StaticResource MonoField}" Padding="11,0,86,0"

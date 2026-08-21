@@ -41,27 +41,32 @@
     <Color x:Key="FaintColor">#8BFFFFFF</Color>
     <Color x:Key="MarkColor">#4DFFFFFF</Color>
 
-    <!-- Fluent dark success / caution / critical. -->
+    <!-- Success / caution / critical. Caution sits at hue 50 and critical at
+         355, both held clear of the amber accent at 33 so a state can never be
+         read as the brand. -->
     <Color x:Key="OkColor">#6CCB5F</Color>
-    <Color x:Key="WarnColor">#FCE100</Color>
-    <Color x:Key="BadColor">#FF99A4</Color>
-    <Color x:Key="DangerColor">#FF99A4</Color>
+    <Color x:Key="WarnColor">#E8CE4A</Color>
+    <Color x:Key="BadColor">#FF6470</Color>
+    <Color x:Key="DangerColor">#FF6470</Color>
     <Color x:Key="OkSoftColor">#1F6CCB5F</Color>
     <Color x:Key="OkLineColor">#6B6CCB5F</Color>
-    <Color x:Key="WarnSoftColor">#1FFCE100</Color>
-    <Color x:Key="WarnLineColor">#6BFCE100</Color>
-    <Color x:Key="BadSoftColor">#1CFF99A4</Color>
-    <Color x:Key="BadLineColor">#6BFF99A4</Color>
+    <Color x:Key="WarnSoftColor">#1FE8CE4A</Color>
+    <Color x:Key="WarnLineColor">#6BE8CE4A</Color>
+    <Color x:Key="BadSoftColor">#1CFF6470</Color>
+    <Color x:Key="BadLineColor">#6BFF6470</Color>
 
     <!-- Accent. PrimaryFgColor is what sits on top of a filled accent block. -->
     <Color x:Key="PrimaryColor">#E0A050</Color>
     <Color x:Key="Primary2Color">#C98A3C</Color>
-    <Color x:Key="PrimaryFgColor">#000000</Color>
+    <Color x:Key="PrimaryFgColor">#1B1B1B</Color>
     <Color x:Key="PrimaryFaintColor">#12E0A050</Color>
     <Color x:Key="PrimarySoftColor">#16E0A050</Color>
     <Color x:Key="PrimaryDimColor">#28E0A050</Color>
     <Color x:Key="PrimaryLineColor">#66E0A050</Color>
     <Color x:Key="PrimaryGlowColor">#75E0A050</Color>
+    <!-- Amber as text, an icon or a hairline rather than a fill. Same value as
+         the fill here; the light theme has to darken it to stay legible. -->
+    <Color x:Key="AccentTextColor">#E0A050</Color>
 
     <Color x:Key="CodeBgColor">#1B1B1B</Color>
     <Color x:Key="CodeTxtColor">#F0FFFFFF</Color>
@@ -119,6 +124,7 @@
     <SolidColorBrush x:Key="PrimaryDimBrush" Color="{StaticResource PrimaryDimColor}"/>
     <SolidColorBrush x:Key="PrimaryLineBrush" Color="{StaticResource PrimaryLineColor}"/>
     <SolidColorBrush x:Key="PrimaryGlowBrush" Color="{StaticResource PrimaryGlowColor}"/>
+    <SolidColorBrush x:Key="AccentTextBrush" Color="{StaticResource AccentTextColor}"/>
 
     <SolidColorBrush x:Key="CodeBgBrush" Color="{StaticResource CodeBgColor}"/>
     <SolidColorBrush x:Key="CodeTxtBrush" Color="{StaticResource CodeTxtColor}"/>

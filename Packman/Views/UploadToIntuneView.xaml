@@ -183,7 +183,7 @@
                                                 Command="{Binding AddRuleCommand}">
                                             <StackPanel Orientation="Horizontal">
                                                 <Viewbox Width="14" Height="14">
-                                                    <Path Data="{StaticResource IconPlus}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2.3" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                    <Path Data="{StaticResource IconPlus}" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="2.3" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                                 </Viewbox>
                                                 <TextBlock Text="Add detection rule" Margin="7,0,0,0" VerticalAlignment="Center"/>
                                             </StackPanel>
@@ -255,7 +255,7 @@
                                                     <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="4" Padding="12,9">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Width="14" Height="14" Margin="0,0,9,0">
-                                                                <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                                <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                                             </Viewbox>
                                                             <TextBlock Text="{Binding DisplayName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>
@@ -274,18 +274,18 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="{DynamicResource PrimaryDimBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1"
+                                        <Border Background="{DynamicResource PrimaryDimBrush}" BorderBrush="{DynamicResource AccentTextBrush}" BorderThickness="1"
                                                 CornerRadius="4" Padding="11,6" Margin="0,0,8,8">
                                             <StackPanel Orientation="Horizontal">
                                                 <Viewbox Width="13" Height="13" Margin="0,0,7,0">
-                                                    <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                    <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                                 </Viewbox>
                                                 <TextBlock Text="{Binding GroupName}" FontSize="12.5" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                                 <Button Margin="9,0,0,0" Cursor="Hand" Background="Transparent" BorderThickness="0" Padding="0"
                                                         Command="{Binding DataContext.GroupPicker.RemoveGroupCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}">
                                                     <Viewbox Width="11" Height="11">
-                                                        <Path Data="{StaticResource IconX}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                        <Path Data="{StaticResource IconX}" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="2.2" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                                     </Viewbox>
                                                 </Button>
                                             </StackPanel>
@@ -364,7 +364,7 @@
                             </Style>
                         </Grid.Style>
                         <Ellipse Width="44" Height="44" Stroke="{DynamicResource LineBrush}" StrokeThickness="4"/>
-                        <Path Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                        <Path Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                               Data="M22,2 A20,20 0 0 1 42,22"/>
                     </Grid>
                 </Viewbox>
@@ -403,7 +403,7 @@
                                         <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsWorking}" Value="True">
-                                                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                                                 <Setter Property="Background" Value="{DynamicResource PrimarySoftBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -450,7 +450,7 @@
                                                         <Setter Property="Foreground" Value="{DynamicResource OkBrush}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsWorking}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsError}" Value="True">
                                                         <Setter Property="Foreground" Value="{DynamicResource BadBrush}"/>

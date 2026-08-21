@@ -82,7 +82,7 @@
                     <StackPanel>
                         <Border Width="52" Height="52" CornerRadius="4" Background="{DynamicResource PrimaryDimBrush}" HorizontalAlignment="Center">
                             <Viewbox Width="24" Height="24">
-                                <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
                         </Border>
                         <TextBlock Text="Not connected to Microsoft Intune" Foreground="{DynamicResource InkBrush}" FontSize="14" FontWeight="Bold"

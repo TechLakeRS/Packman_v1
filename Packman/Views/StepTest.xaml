@@ -74,6 +74,12 @@
                     </Border>
                     <TextBlock Text="{Binding ContextHelpText}" Margin="0,9,0,0" FontSize="12" LineHeight="18"
                                TextWrapping="Wrap" Foreground="{DynamicResource Muted2Brush}"/>
+
+                    <CheckBox Content="Delete the staged package from the target after the run"
+                              Margin="0,16,0,0" FontSize="12"
+                              IsChecked="{Binding CleanupAfterRun, Mode=TwoWay}" IsEnabled="{Binding IsIdle}"
+                              AutomationProperties.Name="Delete the staged package from the target after the run"
+                              ToolTip="Off by default, so a re-run only copies the files that changed."/>
                 </StackPanel>
             </Border>
 

@@ -109,7 +109,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Viewbox Grid.Column="0" Width="15" Height="15" Margin="0,0,10,0" VerticalAlignment="Center">
-                    <Path Data="{StaticResource IconBulb}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    <Path Data="{StaticResource IconBulb}" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                 </Viewbox>
                 <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="12.5">
                     <Run Text="First-run setup" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"/>
@@ -194,7 +194,7 @@
                                         </Grid.ColumnDefinitions>
                                         <Border Grid.Column="0" Width="38" Height="38" CornerRadius="4" Background="{DynamicResource PrimaryDimBrush}" Margin="0,0,14,0">
                                             <Viewbox Width="16" Height="16">
-                                                <Path Data="{StaticResource IconGrid}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                <Path Data="{StaticResource IconGrid}" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                             </Viewbox>
                                         </Border>
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -249,7 +249,7 @@
                                     <StackPanel Grid.Column="0">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Tenant ID" Style="{StaticResource FieldLabel}"/>
-                                            <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
+                                            <TextBlock Text=" *" Foreground="{DynamicResource AccentTextBrush}" FontSize="12.5" FontWeight="Bold"/>
                                         </StackPanel>
                                         <Grid Margin="0,7,0,0">
                                             <TextBox Style="{StaticResource TextField}"
@@ -262,7 +262,7 @@
                                     <StackPanel Grid.Column="2">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Application (Client) ID" Style="{StaticResource FieldLabel}"/>
-                                            <TextBlock Text=" *" Foreground="{DynamicResource PrimaryBrush}" FontSize="12.5" FontWeight="Bold"/>
+                                            <TextBlock Text=" *" Foreground="{DynamicResource AccentTextBrush}" FontSize="12.5" FontWeight="Bold"/>
                                         </StackPanel>
                                         <Grid Margin="0,7,0,0">
                                             <TextBox Style="{StaticResource TextField}"
@@ -443,7 +443,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Width="42" Height="42" CornerRadius="4" Background="{DynamicResource PrimaryDimBrush}">
                                     <Viewbox Width="20" Height="20">
-                                        <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     </Viewbox>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="13,0,0,0" VerticalAlignment="Center">
@@ -677,7 +677,7 @@
                                     <Run Text=" %vendor%_%appName%_%appVersion%_Install" FontFamily="{StaticResource MonoFontFamily}" Foreground="{DynamicResource TextBrush}"/>
                                     <LineBreak/>
                                     <Run Text="Example: "/>
-                                    <Run Text="{Binding GroupNamePreview, Mode=OneWay}" Foreground="{DynamicResource PrimaryBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
+                                    <Run Text="{Binding GroupNamePreview, Mode=OneWay}" Foreground="{DynamicResource AccentTextBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
                                 </TextBlock>
 
                                 <!-- Assignment intent for the new group -->
@@ -737,7 +737,7 @@
                                     <Run Text="Always assigned with the Uninstall intent."/>
                                     <LineBreak/>
                                     <Run Text="Example: "/>
-                                    <Run Text="{Binding UninstallGroupNamePreview, Mode=OneWay}" Foreground="{DynamicResource PrimaryBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
+                                    <Run Text="{Binding UninstallGroupNamePreview, Mode=OneWay}" Foreground="{DynamicResource AccentTextBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
                                 </TextBlock>
                             </StackPanel>
 
@@ -848,7 +848,7 @@
                                 <Run Text="  ·  Still editable per upload."/>
                                 <LineBreak/>
                                 <Run Text="Example: "/>
-                                <Run Text="{Binding DisplayNamePreview, Mode=OneWay}" Foreground="{DynamicResource PrimaryBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
+                                <Run Text="{Binding DisplayNamePreview, Mode=OneWay}" Foreground="{DynamicResource AccentTextBrush}" FontFamily="{StaticResource MonoFontFamily}"/>
                             </TextBlock>
 
                             <Grid Margin="0,16,0,0">

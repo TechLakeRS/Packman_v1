@@ -393,7 +393,7 @@
                                                         <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
@@ -408,7 +408,7 @@
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <Border Grid.Column="0" Background="{DynamicResource PrimaryDimBrush}" CornerRadius="4" Padding="8,3" VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding TypeTag}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}"/>
+                                                            <TextBlock Text="{Binding TypeTag}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentTextBrush}"/>
                                                         </Border>
                                                         <TextBlock Grid.Column="1" Text="{Binding Summary}" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
                                                                    Foreground="{DynamicResource InkBrush}" Margin="11,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"/>
@@ -583,7 +583,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <Border Grid.Column="0" Width="36" Height="36" CornerRadius="4" Background="{DynamicResource PrimaryDimBrush}" VerticalAlignment="Center">
                                                         <Viewbox Width="17" Height="17">
-                                                            <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                                            <Path Data="{StaticResource IconGroup}" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                                         </Viewbox>
                                                     </Border>
                                                     <TextBlock Grid.Column="1" Text="{Binding GroupName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource InkBrush}"
