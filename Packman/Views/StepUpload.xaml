@@ -159,7 +159,9 @@
 
             <!-- Requirements -->
             <Border Height="1" Background="{DynamicResource Line3Brush}" Margin="0,22,0,0"/>
-            <ToggleButton x:Name="RequirementsToggle" Cursor="Hand" HorizontalAlignment="Left"
+            <!-- Style="{x:Null}": same reason as the ComboBox toggle in Styles.xaml -
+                 WPF UI's implicit ToggleButton style would eat the click. -->
+            <ToggleButton x:Name="RequirementsToggle" Style="{x:Null}" Cursor="Hand" HorizontalAlignment="Left"
                           Background="Transparent" BorderThickness="0" Margin="0,14,0,0">
                 <ToggleButton.Template>
                     <ControlTemplate TargetType="ToggleButton">

@@ -595,7 +595,11 @@
                                     <Path Data="M4 8l6 6 6-6" Stroke="{DynamicResource Dim2Brush}" StrokeThickness="1.8"
                                           Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                 </Viewbox>
-                                <ToggleButton Grid.ColumnSpan="2" Background="Transparent" BorderThickness="0"
+                                <!-- Style="{x:Null}" is load-bearing. This is the click target that
+                                     opens the drop-down, and with no style of its own it inherits
+                                     WPF UI's implicit ToggleButton style, which swallows the click
+                                     and leaves the whole ComboBox dead to the mouse. -->
+                                <ToggleButton Style="{x:Null}" Grid.ColumnSpan="2" Background="Transparent" BorderThickness="0"
                                              IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ToggleButton.Template>
                                         <ControlTemplate TargetType="{x:Type ToggleButton}">
