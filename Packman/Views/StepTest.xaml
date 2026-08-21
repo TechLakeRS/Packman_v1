@@ -140,7 +140,7 @@
                 </DockPanel>
 
                 <Border Background="{DynamicResource CodeBgBrush}" BorderBrush="{DynamicResource LineBrush}"
-                        BorderThickness="1" CornerRadius="0" Padding="14,12" MinHeight="380" MaxHeight="600">
+                        BorderThickness="1" CornerRadius="4" Padding="14,12" MinHeight="380" MaxHeight="600">
                     <ScrollViewer x:Name="ConsoleScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl ItemsSource="{Binding Lines}">
                             <ItemsControl.ItemTemplate>

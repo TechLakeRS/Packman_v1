@@ -18,6 +18,7 @@
     <!-- PowerShell remoting for the Remote Test tool. Pinned to the 7.5.x line: it is
          the last one that ships a net9.0 build (7.6.x is net10.0 only). -->
     <PackageReference Include="System.Management.Automation" Version="7.5.10" />
+    <PackageReference Include="WPF-UI" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>

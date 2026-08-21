@@ -1,10 +1,11 @@
 using System.ComponentModel;
 using System.Windows;
 using Packman.ViewModels;
+using Wpf.Ui.Controls;
 
 namespace Packman;
 
-public partial class MainWindow : Window
+public partial class MainWindow : FluentWindow
 {
     private bool _closeConfirmed;
 

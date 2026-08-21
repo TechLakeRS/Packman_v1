@@ -2,69 +2,77 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
-    <!-- Console palette. Surfaces run darkest (window) to lightest (panel);
-         the accent is the only saturated colour in normal use. -->
-    <Color x:Key="BgColor">#07080B</Color>
-    <Color x:Key="ShellColor">#0B0D12</Color>
-    <Color x:Key="CardColor">#0F1219</Color>
-    <Color x:Key="Card2Color">#0C0F15</Color>
-    <Color x:Key="RailColor">#0A0C11</Color>
-    <Color x:Key="LineColor">#1E2431</Color>
-    <Color x:Key="Line2Color">#161B24</Color>
-    <Color x:Key="Line3Color">#1A1F29</Color>
-    <Color x:Key="EdgeColor">#232936</Color>
-    <Color x:Key="Edge2Color">#2B3243</Color>
-    <Color x:Key="FieldColor">#0A0C11</Color>
+    <!-- Fluent dark. The window is Mica, so surfaces above it are translucent
+         white layers rather than opaque colours — that is what lets the desktop
+         tint bleed through. Only the wells (code, editor) stay solid. Amber
+         remains the accent. -->
+    <Color x:Key="BgColor">#1B1B1B</Color>
+    <Color x:Key="ShellColor">#202020</Color>
+    <!-- Content surface: nearly opaque so text on it stays readable over Mica. -->
+    <Color x:Key="SurfaceColor">#D9202020</Color>
+    <Color x:Key="PaneColor">#00000000</Color>
+    <Color x:Key="CardColor">#0FFFFFFF</Color>
+    <Color x:Key="Card2Color">#0AFFFFFF</Color>
+    <Color x:Key="RailColor">#0AFFFFFF</Color>
+    <Color x:Key="LineColor">#15FFFFFF</Color>
+    <Color x:Key="Line2Color">#0FFFFFFF</Color>
+    <Color x:Key="Line3Color">#12FFFFFF</Color>
+    <Color x:Key="EdgeColor">#1FFFFFFF</Color>
+    <Color x:Key="Edge2Color">#2EFFFFFF</Color>
+    <Color x:Key="FieldColor">#0FFFFFFF</Color>
     <!-- Resting / hover surface for outlined controls. -->
-    <Color x:Key="ControlColor">#161A23</Color>
-    <Color x:Key="ControlHoverColor">#1D222D</Color>
+    <Color x:Key="ControlColor">#0FFFFFFF</Color>
+    <Color x:Key="ControlHoverColor">#17FFFFFF</Color>
 
-    <Color x:Key="InkColor">#F2F4F8</Color>
-    <Color x:Key="TextColor">#E7EBF2</Color>
-    <Color x:Key="Text2Color">#B9C0CE</Color>
-    <!-- De-emphasis ramp. Every step here carries text, so each one clears
-         WCAG AA (4.5:1) against the panel; MarkColor is the only value below
-         that and is reserved for non-text marks. -->
-    <Color x:Key="MutedColor">#A0A9BC</Color>
-    <Color x:Key="Muted2Color">#919AAD</Color>
-    <Color x:Key="Muted3Color">#828B9E</Color>
-    <Color x:Key="DimColor">#7A8396</Color>
-    <Color x:Key="Dim2Color">#757E91</Color>
-    <Color x:Key="FaintColor">#757E91</Color>
-    <Color x:Key="MarkColor">#3F4655</Color>
+    <Color x:Key="InkColor">#FFFFFFFF</Color>
+    <Color x:Key="TextColor">#F0FFFFFF</Color>
+    <Color x:Key="Text2Color">#C8FFFFFF</Color>
+    <!-- De-emphasis ramp, on the Fluent text alphas. Every step here carries
+         text, so each one clears WCAG AA (4.5:1) once composited over the
+         surface; MarkColor is the only value below that and is reserved for
+         non-text marks. -->
+    <Color x:Key="MutedColor">#C8FFFFFF</Color>
+    <Color x:Key="Muted2Color">#B4FFFFFF</Color>
+    <Color x:Key="Muted3Color">#A0FFFFFF</Color>
+    <Color x:Key="DimColor">#8BFFFFFF</Color>
+    <Color x:Key="Dim2Color">#8BFFFFFF</Color>
+    <Color x:Key="FaintColor">#8BFFFFFF</Color>
+    <Color x:Key="MarkColor">#4DFFFFFF</Color>
 
-    <!-- oklch(0.78 0.16 148) / oklch(0.86 0.16 96) / oklch(0.66 0.19 27) -->
-    <Color x:Key="OkColor">#66D37A</Color>
-    <Color x:Key="WarnColor">#F0D03C</Color>
-    <Color x:Key="BadColor">#F0574E</Color>
-    <Color x:Key="DangerColor">#F0574E</Color>
-    <Color x:Key="OkSoftColor">#1F66D37A</Color>
-    <Color x:Key="OkLineColor">#6B66D37A</Color>
-    <Color x:Key="WarnSoftColor">#1FF0D03C</Color>
-    <Color x:Key="WarnLineColor">#6BF0D03C</Color>
-    <Color x:Key="BadSoftColor">#1CF0574E</Color>
-    <Color x:Key="BadLineColor">#6BF0574E</Color>
+    <!-- Fluent dark success / caution / critical. -->
+    <Color x:Key="OkColor">#6CCB5F</Color>
+    <Color x:Key="WarnColor">#FCE100</Color>
+    <Color x:Key="BadColor">#FF99A4</Color>
+    <Color x:Key="DangerColor">#FF99A4</Color>
+    <Color x:Key="OkSoftColor">#1F6CCB5F</Color>
+    <Color x:Key="OkLineColor">#6B6CCB5F</Color>
+    <Color x:Key="WarnSoftColor">#1FFCE100</Color>
+    <Color x:Key="WarnLineColor">#6BFCE100</Color>
+    <Color x:Key="BadSoftColor">#1CFF99A4</Color>
+    <Color x:Key="BadLineColor">#6BFF99A4</Color>
 
     <!-- Accent. PrimaryFgColor is what sits on top of a filled accent block. -->
     <Color x:Key="PrimaryColor">#E0A050</Color>
     <Color x:Key="Primary2Color">#C98A3C</Color>
-    <Color x:Key="PrimaryFgColor">#0B0D12</Color>
+    <Color x:Key="PrimaryFgColor">#000000</Color>
     <Color x:Key="PrimaryFaintColor">#12E0A050</Color>
-    <Color x:Key="PrimarySoftColor">#14E0A050</Color>
-    <Color x:Key="PrimaryDimColor">#24E0A050</Color>
+    <Color x:Key="PrimarySoftColor">#16E0A050</Color>
+    <Color x:Key="PrimaryDimColor">#28E0A050</Color>
     <Color x:Key="PrimaryLineColor">#66E0A050</Color>
     <Color x:Key="PrimaryGlowColor">#75E0A050</Color>
 
-    <Color x:Key="CodeBgColor">#07080B</Color>
-    <Color x:Key="CodeTxtColor">#E7EBF2</Color>
-    <Color x:Key="CodeBarTxtColor">#A0A9BC</Color>
-    <Color x:Key="CodeCommentColor">#7A8396</Color>
+    <Color x:Key="CodeBgColor">#1B1B1B</Color>
+    <Color x:Key="CodeTxtColor">#F0FFFFFF</Color>
+    <Color x:Key="CodeBarTxtColor">#C8FFFFFF</Color>
+    <Color x:Key="CodeCommentColor">#8BFFFFFF</Color>
     <Color x:Key="CodeKeywordColor">#E0A050</Color>
-    <Color x:Key="CodeStringColor">#66D37A</Color>
+    <Color x:Key="CodeStringColor">#6CCB5F</Color>
 
     <!-- Brushes -->
     <SolidColorBrush x:Key="BgBrush" Color="{StaticResource BgColor}"/>
     <SolidColorBrush x:Key="ShellBrush" Color="{StaticResource ShellColor}"/>
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
+    <SolidColorBrush x:Key="PaneBrush" Color="{StaticResource PaneColor}"/>
     <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}"/>
     <SolidColorBrush x:Key="Card2Brush" Color="{StaticResource Card2Color}"/>
     <SolidColorBrush x:Key="RailBrush" Color="{StaticResource RailColor}"/>
@@ -116,10 +124,12 @@
     <SolidColorBrush x:Key="CodeKeywordBrush" Color="{StaticResource CodeKeywordColor}"/>
     <SolidColorBrush x:Key="CodeStringBrush" Color="{StaticResource CodeStringColor}"/>
 
-    <!-- The logo mark and avatar are flat blocks in this design, but the keys
-         stay so existing view markup keeps resolving. -->
+    <!-- The logo mark is a flat block; the avatar keeps a soft Fluent gradient. -->
     <SolidColorBrush x:Key="LogoGradientBrush" Color="{StaticResource PrimaryColor}"/>
-    <SolidColorBrush x:Key="AvatarGradientBrush" Color="#171B24"/>
+    <LinearGradientBrush x:Key="AvatarGradientBrush" StartPoint="0,0" EndPoint="0.7,1">
+        <GradientStop Offset="0" Color="#4A4A4A"/>
+        <GradientStop Offset="1" Color="#2C2C2C"/>
+    </LinearGradientBrush>
 
     <sys:Boolean x:Key="IsDarkTheme">True</sys:Boolean>
 </ResourceDictionary>

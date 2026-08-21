@@ -80,7 +80,7 @@
                 <!-- Not connected -->
                 <Border Style="{StaticResource Card}" Padding="30,44" Visibility="{Binding ShowConnectPrompt, Converter={StaticResource BoolToVis}}">
                     <StackPanel>
-                        <Border Width="52" Height="52" CornerRadius="0" Background="{DynamicResource PrimaryDimBrush}" HorizontalAlignment="Center">
+                        <Border Width="52" Height="52" CornerRadius="4" Background="{DynamicResource PrimaryDimBrush}" HorizontalAlignment="Center">
                             <Viewbox Width="24" Height="24">
                                 <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Viewbox>
@@ -123,7 +123,7 @@
                                          Text="{Binding BulkGroupSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="0" Margin="0,8,0,0" MaxHeight="180"
+                                    CornerRadius="4" Margin="0,8,0,0" MaxHeight="180"
                                     Visibility="{Binding HasBulkGroupResults, Converter={StaticResource BoolToVis}}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding BulkGroupResults}">
@@ -171,7 +171,7 @@
 
                             <TextBlock Text="PC names" Style="{StaticResource FieldLabel}" Margin="0,16,0,5"/>
                             <!-- Plain TextBox in a card border: the TextField style is single-line (hidden scrollbars, centred content) -->
-                            <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0">
+                            <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="4">
                                 <TextBox Height="150" AcceptsReturn="True" TextWrapping="Wrap" Padding="12,10"
                                          Background="Transparent" BorderThickness="0"
                                          Foreground="{DynamicResource InkBrush}" CaretBrush="{DynamicResource InkBrush}"
@@ -196,7 +196,7 @@
 
                             <!-- Per-PC results -->
                             <Border Background="{DynamicResource Card2Brush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="0" Margin="0,12,0,0" MaxHeight="320"
+                                    CornerRadius="4" Margin="0,12,0,0" MaxHeight="320"
                                     Visibility="{Binding HasBulkRows, Converter={StaticResource BoolToVis}}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding BulkRows}">
@@ -261,7 +261,7 @@
                                          Text="{Binding DeviceSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="0" Margin="0,8,0,0" MaxHeight="200"
+                                    CornerRadius="4" Margin="0,8,0,0" MaxHeight="200"
                                     Visibility="{Binding HasDeviceResults, Converter={StaticResource BoolToVis}}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding DeviceResults}">
@@ -284,7 +284,7 @@
                                        Visibility="{Binding HasDeviceStatus, Converter={StaticResource BoolToVis}}"/>
 
                             <Border Background="{DynamicResource Card2Brush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="0" Margin="0,12,0,0"
+                                    CornerRadius="4" Margin="0,12,0,0"
                                     Visibility="{Binding HasDeviceGroups, Converter={StaticResource BoolToVis}}">
                                 <ItemsControl ItemsSource="{Binding DeviceGroups}">
                                     <ItemsControl.ItemTemplate>
@@ -300,7 +300,7 @@
                                                         <TextBlock Text="{Binding Description}" FontSize="11.5" Foreground="{DynamicResource MutedBrush}"
                                                                    TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
-                                                    <Border Grid.Column="1" CornerRadius="0" Padding="8,2" VerticalAlignment="Center"
+                                                    <Border Grid.Column="1" CornerRadius="4" Padding="8,2" VerticalAlignment="Center"
                                                             Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
                                                         <TextBlock Text="{Binding MembershipType}" FontSize="10.5" FontWeight="Bold"
                                                                    Foreground="{DynamicResource MutedBrush}"/>
@@ -332,7 +332,7 @@
                                          Text="{Binding AppGroupSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             </Grid>
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="0" Margin="0,8,0,0" MaxHeight="180"
+                                    CornerRadius="4" Margin="0,8,0,0" MaxHeight="180"
                                     Visibility="{Binding HasAppGroupResults, Converter={StaticResource BoolToVis}}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding AppGroupResults}">
@@ -352,7 +352,7 @@
                                        Visibility="{Binding HasAppScanStatus, Converter={StaticResource BoolToVis}}"/>
 
                             <Border Background="{DynamicResource Card2Brush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                                    CornerRadius="0" Margin="0,12,0,0"
+                                    CornerRadius="4" Margin="0,12,0,0"
                                     Visibility="{Binding HasGroupApps, Converter={StaticResource BoolToVis}}">
                                 <ItemsControl ItemsSource="{Binding GroupApps}">
                                     <ItemsControl.ItemTemplate>

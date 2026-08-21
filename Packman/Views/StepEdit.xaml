@@ -20,7 +20,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="0">
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="4">
                             <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -30,7 +30,7 @@
 
         <!-- One tab per open file; the active one is lifted out of the bar. -->
         <DataTemplate x:Key="FileTabTemplate">
-            <Border x:Name="TabBorder" CornerRadius="0" Margin="0,0,4,0" Background="Transparent">
+            <Border x:Name="TabBorder" CornerRadius="4" Margin="0,0,4,0" Background="Transparent">
                 <StackPanel Orientation="Horizontal">
                     <Button Style="{StaticResource FlatTabButton}" Padding="9,3" Height="24"
                             Click="Tab_Click" Tag="{Binding}" ToolTip="{Binding Path}">
@@ -76,7 +76,7 @@
             </Grid.RowDefinitions>
             <!-- No package yet -->
             <Border x:Name="EmptyState" Grid.Row="0" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                    CornerRadius="0" Padding="20" Visibility="Collapsed" VerticalAlignment="Top">
+                    CornerRadius="4" Padding="20" Visibility="Collapsed" VerticalAlignment="Top">
                 <TextBlock Text="No package generated yet. Go back to the Generate step to create the package first."
                            FontSize="12.5" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"/>
             </Border>
@@ -92,7 +92,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Collapsed rail -->
-                <Border x:Name="TreeRail" Grid.Column="0" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="4">
+                <Border x:Name="TreeRail" Grid.Column="0" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="4" Padding="4">
                     <Button Style="{StaticResource IconButton}" Width="32" Height="32" Background="Transparent" BorderThickness="0"
                             VerticalAlignment="Top" ToolTip="Show files" Click="ToggleTree_Click">
                         <Viewbox Width="15" Height="15">
@@ -102,7 +102,7 @@
                 </Border>
 
                 <!-- Tree -->
-                <Border x:Name="TreePanel" Grid.Column="0" Width="270" Visibility="Collapsed" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0" Padding="8">
+                <Border x:Name="TreePanel" Grid.Column="0" Width="270" Visibility="Collapsed" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="4" Padding="8">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -155,7 +155,7 @@
                 </Border>
 
                 <!-- Code editor (Monaco in WebView2) -->
-                <Border Grid.Column="2" Background="{DynamicResource CodeBgBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0">
+                <Border Grid.Column="2" Background="{DynamicResource CodeBgBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="4">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -223,7 +223,7 @@
                                     <TextBlock x:Name="StatusEol" Text="CRLF" FontSize="11" Foreground="{DynamicResource CodeBarTxtBrush}"/>
                                     <TextBlock x:Name="StatusEncoding" Text="UTF-8" Margin="12,0,0,0" FontSize="11" Foreground="{DynamicResource CodeBarTxtBrush}"/>
                                     <TextBlock x:Name="StatusLanguage" Text="PowerShell" Margin="12,0,0,0" FontSize="11" Foreground="{DynamicResource CodeBarTxtBrush}"/>
-                                    <Border Background="#2E3B67F5" BorderBrush="#733B67F5" BorderThickness="1" CornerRadius="0" Padding="7,1" Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <Border Background="#2E3B67F5" BorderBrush="#733B67F5" BorderThickness="1" CornerRadius="4" Padding="7,1" Margin="12,0,0,0" VerticalAlignment="Center">
                                         <TextBlock Text="PSADT INTELLISENSE" FontSize="10" FontWeight="Bold" Foreground="#8FA9F9"/>
                                     </Border>
                                 </StackPanel>

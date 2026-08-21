@@ -147,7 +147,7 @@
 
                             <!-- Auth mode tab bar (Interactive | App Registration) -->
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                    BorderThickness="1" CornerRadius="0" Padding="4">
+                                    BorderThickness="1" CornerRadius="4" Padding="4">
                                 <UniformGrid Rows="1">
                                     <RadioButton Style="{StaticResource ModeToggle}" GroupName="AuthModeGroup"
                                                  IsChecked="{Binding IsInteractive}">
@@ -184,7 +184,7 @@
 
                                 <!-- Browser sign-in row -->
                                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="0" Padding="16,14" Margin="0,14,0,0">
+                                        BorderThickness="1" CornerRadius="4" Padding="16,14" Margin="0,14,0,0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -192,7 +192,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="0" Background="{DynamicResource PrimaryDimBrush}" Margin="0,0,14,0">
+                                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="4" Background="{DynamicResource PrimaryDimBrush}" Margin="0,0,14,0">
                                             <Viewbox Width="16" Height="16">
                                                 <Path Data="{StaticResource IconGrid}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                             </Viewbox>
@@ -275,7 +275,7 @@
                                 <!-- Certificate source -->
                                 <TextBlock Text="Certificate" Style="{StaticResource FieldLabel}" Margin="0,18,0,7"/>
                                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="0" Padding="4" HorizontalAlignment="Left">
+                                        BorderThickness="1" CornerRadius="4" Padding="4" HorizontalAlignment="Left">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="AuthCertSource"
                                                      IsChecked="{Binding AuthUseStoreCert}">
@@ -331,7 +331,7 @@
 
                             <!-- Connection test (both auth modes) -->
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                    BorderThickness="1" CornerRadius="0" Padding="16,14" Margin="0,16,0,0">
+                                    BorderThickness="1" CornerRadius="4" Padding="16,14" Margin="0,16,0,0">
                                 <StackPanel>
                                     <Grid>
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left">
@@ -413,7 +413,7 @@
 
                             <!-- Theme (System | Dark | Light) -->
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                    BorderThickness="1" CornerRadius="0" Padding="4" HorizontalAlignment="Left">
+                                    BorderThickness="1" CornerRadius="4" Padding="4" HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <RadioButton Style="{StaticResource ModeToggle}" GroupName="ThemeGroup"
                                                  Content="System" IsChecked="{Binding IsThemeSystem}"/>
@@ -441,7 +441,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="42" Height="42" CornerRadius="0" Background="{DynamicResource PrimaryDimBrush}">
+                                <Border Grid.Column="0" Width="42" Height="42" CornerRadius="4" Background="{DynamicResource PrimaryDimBrush}">
                                     <Viewbox Width="20" Height="20">
                                         <Path Data="{StaticResource IconShield}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.9" Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     </Viewbox>
@@ -452,7 +452,7 @@
                                 </StackPanel>
                                 <!-- Enable / Disable toggle -->
                                 <Border Grid.Column="2" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="0" Padding="4" VerticalAlignment="Center">
+                                        BorderThickness="1" CornerRadius="4" Padding="4" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="CodeSignEnable"
                                                      IsChecked="{Binding CodeSigningDisabled}">
@@ -476,7 +476,7 @@
 
                                 <!-- Cert source toggle -->
                                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="0" Padding="4" HorizontalAlignment="Left" Margin="0,0,0,14">
+                                        BorderThickness="1" CornerRadius="4" Padding="4" HorizontalAlignment="Left" Margin="0,0,0,14">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="CodeSignCertSource"
                                                      IsChecked="{Binding CodeSignUseStoreCert}">
@@ -646,7 +646,7 @@
                                 </StackPanel>
                                 <!-- On / Off toggle -->
                                 <Border Grid.Column="1" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="0" Padding="4" VerticalAlignment="Center">
+                                        BorderThickness="1" CornerRadius="4" Padding="4" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="GroupPerPackage"
                                                      IsChecked="{Binding CreateGroupPerPackageDisabled}">
@@ -683,7 +683,7 @@
                                 <!-- Assignment intent for the new group -->
                                 <TextBlock Text="Assignment type" Style="{StaticResource FieldLabel}" Margin="0,14,0,7"/>
                                 <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="0" Padding="4" HorizontalAlignment="Left">
+                                        BorderThickness="1" CornerRadius="4" Padding="4" HorizontalAlignment="Left">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="NewGroupIntent"
                                                      IsChecked="{Binding NewGroupAvailable}">
@@ -712,7 +712,7 @@
                                 </StackPanel>
                                 <!-- On / Off toggle -->
                                 <Border Grid.Column="1" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                        BorderThickness="1" CornerRadius="0" Padding="4" VerticalAlignment="Center">
+                                        BorderThickness="1" CornerRadius="4" Padding="4" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Style="{StaticResource ContextToggle}" GroupName="UninstallGroupPerPackage"
                                                      IsChecked="{Binding CreateUninstallGroupPerPackageDisabled}">
@@ -775,7 +775,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                                BorderThickness="1" CornerRadius="0" Padding="14,10" Margin="0,0,0,8">
+                                                BorderThickness="1" CornerRadius="4" Padding="14,10" Margin="0,0,0,8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -786,7 +786,7 @@
                                                            FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
                                                 <!-- Intent toggle -->
                                                 <Border Grid.Column="1" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                                        BorderThickness="1" CornerRadius="0" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                        BorderThickness="1" CornerRadius="4" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
                                                     <StackPanel Orientation="Horizontal">
                                                         <RadioButton Style="{StaticResource ContextToggle}"
                                                                      IsChecked="{Binding IsAvailable}">
@@ -998,7 +998,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                                BorderThickness="1" CornerRadius="0" Padding="14,10" Margin="0,0,0,8">
+                                                BorderThickness="1" CornerRadius="4" Padding="14,10" Margin="0,0,0,8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -1014,7 +1014,7 @@
                                                 </StackPanel>
                                                 <!-- Outcome toggle -->
                                                 <Border Grid.Column="1" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}"
-                                                        BorderThickness="1" CornerRadius="0" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                        BorderThickness="1" CornerRadius="4" Padding="3" Margin="0,0,10,0" VerticalAlignment="Center">
                                                     <StackPanel Orientation="Horizontal">
                                                         <RadioButton Style="{StaticResource ContextToggle}" IsChecked="{Binding IsSuccess}">
                                                             <TextBlock Text="Success" VerticalAlignment="Center"/>
