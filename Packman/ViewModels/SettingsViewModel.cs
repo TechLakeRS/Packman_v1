@@ -1,4 +1,4 @@
-using Microsoft.Identity.Client;
+﻿using Microsoft.Identity.Client;
 using Packman.Helpers;
 using Packman.Models;
 using Packman.Services;
@@ -102,6 +102,28 @@ public sealed class SettingsViewModel : ObservableObject
         set { if (Set(ref _isInteractive, value)) OnPropertyChanged(nameof(IsAppRegistration)); }
     }
     public bool IsAppRegistration { get => !_isInteractive; set => IsInteractive = !value; }
+
+    // ── Appearance ─────────────────────────────────────────────────────
+    // Applied and persisted the moment it changes: a theme you had to press Save
+    // to keep would silently revert on the next launch.
+    private AppTheme _theme = AppTheme.Dark;
+    public AppTheme Theme
+    {
+        get => _theme;
+        set
+        {
+            if (!Set(ref _theme, value)) return;
+            OnPropertyChanged(nameof(IsThemeSystem));
+            OnPropertyChanged(nameof(IsThemeDark));
+            OnPropertyChanged(nameof(IsThemeLight));
+            _svc.Settings.Theme = value;
+            ThemeService.Apply(value);
+            _svc.Save();
+        }
+    }
+    public bool IsThemeSystem { get => _theme == AppTheme.System; set { if (value) Theme = AppTheme.System; } }
+    public bool IsThemeDark   { get => _theme == AppTheme.Dark;   set { if (value) Theme = AppTheme.Dark; } }
+    public bool IsThemeLight  { get => _theme == AppTheme.Light;  set { if (value) Theme = AppTheme.Light; } }
 
     // ── App Registration fields ────────────────────────────────────────
     private string _tenantId = "";
@@ -316,6 +338,7 @@ public sealed class SettingsViewModel : ObservableObject
     private void LoadFromSettings()
     {
         var s = _svc.Settings;
+        _theme = s.Theme;
         IsInteractive = s.AuthMode == AuthMode.Interactive;
         TenantId = s.Authentication.TenantId;
         ClientId = s.Authentication.ClientId;

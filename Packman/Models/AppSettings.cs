@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Packman.Models;
 
@@ -8,8 +8,13 @@ public enum AuthMode { Interactive, AppRegistration }
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum AssignmentIntent { Available, Required, Uninstall }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum AppTheme { System, Dark, Light }
+
 public class AppSettings
 {
+    // Dark stays the default so an existing install does not change appearance on upgrade.
+    public AppTheme Theme { get; set; } = AppTheme.Dark;
     public AuthMode AuthMode { get; set; } = AuthMode.Interactive;
     public AuthConfig Authentication { get; set; } = new();
     public CodeSigningConfig CodeSigning { get; set; } = new();

@@ -8,6 +8,32 @@
     <FontFamily x:Key="MonoFontFamily">pack://application:,,,/Fonts/#JetBrains Mono, Cascadia Mono, Consolas</FontFamily>
     <FontFamily x:Key="LabelFontFamily">pack://application:,,,/Fonts/#Martian Mono, Cascadia Mono, Consolas</FontFamily>
 
+    <!-- ═══════════════ Focus ═══════════════ -->
+    <!-- Keyboard focus is an accent hairline. Drawn as an adorner so it never
+         shifts layout, and WPF only shows it when the last input was the keyboard. -->
+    <Style x:Key="FocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="-2" SnapsToDevicePixels="True"
+                               Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Inset variant for full-bleed rows, where an outside ring would clip. -->
+    <Style x:Key="FocusVisualInset">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="1" SnapsToDevicePixels="True"
+                               Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ═══════════════ Card ═══════════════ -->
     <!-- Panels are flat: a 1px edge does the separating, never a shadow. -->
     <Style x:Key="Card" TargetType="{x:Type Border}">
@@ -79,6 +105,7 @@
     <!-- ═══════════════ Buttons ═══════════════ -->
     <!-- Button text is uppercase Martian Mono throughout this design. -->
     <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryFgBrush}"/>
         <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
@@ -110,6 +137,7 @@
 
     <!-- Ghost (outlined) -->
     <Style x:Key="GhostButton" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Text2Brush}"/>
         <Setter Property="Background" Value="{DynamicResource ControlBrush}"/>
@@ -142,6 +170,7 @@
 
     <!-- Top-bar text action (DOCS / ALERTS) -->
     <Style x:Key="BarButton" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -168,6 +197,11 @@
 
     <!-- Icon button (26×26, square) -->
     <Style x:Key="IconButton" TargetType="{x:Type Button}">
+        <!-- Icon-only: the tooltip is the accessible name, so screen readers
+             announce these instead of reading an empty button. -->
+        <Setter Property="AutomationProperties.Name"
+                Value="{Binding RelativeSource={RelativeSource Self}, Path=ToolTip}"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -198,6 +232,7 @@
 
     <!-- Skip (ghost text) -->
     <Style x:Key="SkipButton" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
@@ -233,6 +268,7 @@
 
     <!-- Optional-tool card: a panel whose left edge lights up on hover. -->
     <Style x:Key="ToolCard" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
@@ -328,6 +364,7 @@
     <!-- ═══════════════ Sidebar nav item ═══════════════ -->
     <!-- Active state is a 2px accent edge plus a faint accent wash, never a fill. -->
     <Style x:Key="NavItem" TargetType="{x:Type RadioButton}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisualInset}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
@@ -359,17 +396,10 @@
         </Setter>
     </Style>
 
-    <!-- Nav row number (01, 02 …) -->
-    <Style x:Key="NavNumber" TargetType="{x:Type TextBlock}">
-        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
-        <Setter Property="Foreground" Value="{DynamicResource FaintBrush}"/>
-        <Setter Property="FontSize" Value="10"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-    </Style>
-
     <!-- ═══════════════ Segmented toggles ═══════════════ -->
     <!-- Checked segment is a solid accent block with dark text. -->
     <Style x:Key="ModeToggle" TargetType="{x:Type RadioButton}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
@@ -409,6 +439,7 @@
 
     <!-- ═══════════════ Tabs ═══════════════ -->
     <Style x:Key="PageTab" TargetType="{x:Type RadioButton}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="FontSize" Value="12.5"/>
@@ -474,6 +505,7 @@
     </Style>
 
     <Style TargetType="{x:Type ComboBox}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
@@ -573,6 +605,7 @@
 
     <!-- Filter pill -->
     <Style x:Key="FilterPill" TargetType="{x:Type RadioButton}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
         <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted3Brush}"/>
@@ -584,7 +617,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type RadioButton}">
                     <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="1" CornerRadius="2" Padding="10,7">
+                            BorderThickness="1" CornerRadius="0" Padding="10,7">
                         <ContentPresenter VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -609,6 +642,11 @@
 
     <!-- Row action button (⋯) -->
     <Style x:Key="RowIconButton" TargetType="{x:Type Button}">
+        <!-- Icon-only: the tooltip is the accessible name, so screen readers
+             announce these instead of reading an empty button. -->
+        <Setter Property="AutomationProperties.Name"
+                Value="{Binding RelativeSource={RelativeSource Self}, Path=ToolTip}"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource Muted2Brush}"/>
         <Setter Property="Width" Value="26"/>
@@ -633,6 +671,7 @@
 
     <!-- Breadcrumb back -->
     <Style x:Key="Breadcrumb" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource DimBrush}"/>
