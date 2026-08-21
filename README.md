@@ -158,6 +158,28 @@ Or open `Packman.sln` in Visual Studio 2022 and run. Tests:
 dotnet test Packman.sln
 ```
 
+## Offline builds
+
+`NuGet.config` at the repo root points restore at `packages/`, a folder of `.nupkg`
+files checked into the repo — the full dependency closure of both projects, transitive
+packages included. The config opens with `<clear />`, so restore ignores nuget.org and
+any feed configured on the machine. A fresh clone builds, tests and runs with no
+network access.
+
+The .NET 10 SDK and the WebView2 Runtime from **Requirements** above still have to be
+installed on the machine; neither ships as a NuGet package.
+
+To add or update a package, do it somewhere with internet and then re-vendor:
+
+```powershell
+dotnet restore Packman.sln --source https://api.nuget.org/v3/index.json --packages .\obj\pkgstage
+Get-ChildItem .\obj\pkgstage -Recurse -Filter *.nupkg | Copy-Item -Destination .\packages
+```
+
+`--source` bypasses the offline config for that one command. Commit the new `.nupkg`
+files together with the `.csproj` change, then check the result still restores offline
+with `dotnet restore Packman.sln --force`.
+
 ---
 
 ## First-run setup — the Settings page
