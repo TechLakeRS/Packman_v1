@@ -146,6 +146,10 @@ public partial class StepEdit : UserControl
                 if (_active != null) await SaveAsync(_active);
                 break;
 
+            case "validate":
+                Validate(root.GetProperty("path").GetString(), root.GetProperty("content").GetString());
+                break;
+
             case "cursor":
                 var selected = root.GetProperty("selected").GetInt32();
                 StatusPosition.Text = $"Ln {root.GetProperty("line").GetInt32()}, Col {root.GetProperty("column").GetInt32()}";
@@ -178,6 +182,32 @@ public partial class StepEdit : UserControl
         var color = (TryFindResource("CodeBgBrush") as SolidColorBrush)?.Color ?? Color.FromRgb(0x07, 0x08, 0x0B);
         EditorWebView.DefaultBackgroundColor = System.Drawing.Color.FromArgb(color.R, color.G, color.B);
         if (_editorReady) PostToEditor(new { type = "theme", background = CodeBackgroundHex() });
+    }
+
+    /// <summary>Parses a buffer and sends the syntax errors back to Monaco as markers.</summary>
+    private void Validate(string? path, string? content)
+    {
+        if (path is null || content is null) return;
+
+        var errors = PowerShellSyntaxValidator.Validate(content);
+        PostToEditor(new
+        {
+            type = "markers",
+            path,
+            markers = errors.Select(e => new
+            {
+                line = e.Line,
+                column = e.Column,
+                endLine = e.EndLine,
+                endColumn = e.EndColumn,
+                message = e.Message
+            })
+        });
+
+        var file = _openFiles.FirstOrDefault(f => f.Path == path);
+        if (file == null) return;
+        file.ErrorCount = errors.Count;
+        if (file == _active) UpdateStatusBar();
     }
 
     private static object BuildCatalogPayload()
@@ -502,6 +532,17 @@ public partial class StepEdit : UserControl
         StatusEol.Text = _active is null ? "" : _active.Crlf ? "CRLF" : "LF";
         StatusEncoding.Text = _active?.EncodingLabel ?? "";
         StatusLanguage.Text = _active is null ? "" : _active.IsPowerShell ? "PowerShell" : "Plain Text";
+
+        var errors = _active?.IsPowerShell == true ? _active.ErrorCount : 0;
+        StatusProblems.Text = _active?.IsPowerShell != true ? ""
+            : errors == 0 ? "No problems"
+            : errors == 1 ? "1 problem"
+            : $"{errors} problems";
+        // Clearing lets the DynamicResource in XAML take the colour back on a theme change.
+        if (errors > 0)
+            StatusProblems.Foreground = new SolidColorBrush(Color.FromRgb(0xF4, 0x7A, 0x7A));
+        else
+            StatusProblems.ClearValue(TextBlock.ForegroundProperty);
     }
 
     private void UpdateActionState()
@@ -821,6 +862,7 @@ public partial class StepEdit : UserControl
         public bool IsReadOnly { get; set; }
         public bool ChangedOnDisk { get; set; }
         public DateTime LastWriteUtc { get; set; }
+        public int ErrorCount { get; set; }
 
         public bool IsDirty { get => _isDirty; set => Set(ref _isDirty, value); }
         public bool IsActive { get => _isActive; set => Set(ref _isActive, value); }

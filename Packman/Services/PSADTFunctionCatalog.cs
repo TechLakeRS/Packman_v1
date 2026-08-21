@@ -271,8 +271,12 @@ public static class PSADTFunctionCatalog
         "MSI/MSP Tools",
         "System Checks",
         "Advanced",
-        "Info & Utility"
+        "Info & Utility",
+        OtherCategory
     };
+
+    /// <summary>Catches functions a PSADT upgrade adds before CategoryMap knows about them.</summary>
+    public const string OtherCategory = "Other";
 
     /// <summary>
     /// Loads functions from the detailed CSV (PSADT_v4_Functions.csv) with per-parameter rows.
@@ -304,8 +308,11 @@ public static class PSADTFunctionCatalog
 
         return functions.Values
             .Where(f => !TemplateExclusions.Contains(f.Name) && !InternalExclusions.Contains(f.Name))
-            .Where(f => CategoryMap.ContainsKey(f.Name))
-            .Select(f => { f.Category = CategoryMap[f.Name]; return f; })
+            .Select(f =>
+            {
+                f.Category = CategoryMap.TryGetValue(f.Name, out var category) ? category : OtherCategory;
+                return f;
+            })
             .OrderBy(f => Array.IndexOf(CategoryOrder, f.Category))
             .ThenBy(f => f.Name)
             .ToList();
