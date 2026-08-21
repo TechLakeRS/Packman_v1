@@ -141,12 +141,8 @@
     <SolidColorBrush x:Key="CodeKeywordBrush" Color="{StaticResource CodeKeywordColor}"/>
     <SolidColorBrush x:Key="CodeStringBrush" Color="{StaticResource CodeStringColor}"/>
 
-    <!-- The logo mark is a flat block; the avatar keeps a soft Fluent gradient. -->
+    <!-- The logo mark is a flat block. -->
     <SolidColorBrush x:Key="LogoGradientBrush" Color="{StaticResource PrimaryColor}"/>
-    <LinearGradientBrush x:Key="AvatarGradientBrush" StartPoint="0,0" EndPoint="0.7,1">
-        <GradientStop Offset="0" Color="#E1E1E1"/>
-        <GradientStop Offset="1" Color="#C6C6C6"/>
-    </LinearGradientBrush>
 
     <sys:Boolean x:Key="IsDarkTheme">False</sys:Boolean>
 </ResourceDictionary>

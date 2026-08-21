@@ -30,6 +30,7 @@ In a hurry? **[HOWTO.md](HOWTO.md)** is the five-step quick start; this file is 
 - [What Packman cannot do](#what-packman-cannot-do)
 - [Troubleshooting](#troubleshooting)
 - [Project layout](#project-layout)
+- [License](#license)
 
 ---
 
@@ -154,19 +155,15 @@ dotnet build Packman.sln
 dotnet run --project Packman/Packman.csproj
 ```
 
-Or open `Packman.sln` in Visual Studio 2022 and run. Tests:
-
-```bash
-dotnet test Packman.sln
-```
+Or open `Packman.sln` in Visual Studio 2022 and run.
 
 ## Offline builds
 
 `NuGet.config` at the repo root points restore at `packages/`, a folder of `.nupkg`
-files checked into the repo — the full dependency closure of both projects, transitive
+files checked into the repo — the project's full dependency closure, transitive
 packages included. The config opens with `<clear />`, so restore ignores nuget.org and
-any feed configured on the machine. A fresh clone builds, tests and runs with no
-network access.
+any feed configured on the machine. A fresh clone builds and runs with no network
+access.
 
 The .NET 10 SDK and the WebView2 Runtime from **Requirements** above still have to be
 installed on the machine; neither ships as a NuGet package.
@@ -726,5 +723,11 @@ Packman/
   MonacoEditor/   the editor host page and Monaco assets
   PSADT/          bundled PSADT v4 template (script only)
   PSADT_v4_Functions*.csv   function catalog behind the editor's IntelliSense
-Packman.Tests/    xUnit tests for the helpers and services with logic worth pinning
+packages/         vendored .nupkg files for offline restore
 ```
+
+---
+
+## License
+
+[Apache License 2.0](LICENSE) — Copyright 2026 TechLakeRS.

@@ -25,8 +25,5 @@ obj/
 .DS_Store
 Thumbs.db
 
-# design canvas build output
-design/packman-redesign.html
-
 # Reference material, not part of the build
 *.zip

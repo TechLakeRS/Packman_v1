@@ -136,19 +136,6 @@
                                Foreground="{DynamicResource FaintBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
 
-                <Border DockPanel.Dock="Bottom" Margin="16,0" Height="46">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="30" Height="30" CornerRadius="15" Background="{DynamicResource AvatarGradientBrush}">
-                            <TextBlock Text="AS" FontSize="12" Foreground="{DynamicResource InkBrush}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="admin.sarker" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}"/>
-                            <TextBlock Text="contoso.com" FontSize="12" Foreground="{DynamicResource DimBrush}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
                 <RadioButton x:Name="SettingsNavBtn" DockPanel.Dock="Bottom" Style="{StaticResource NavItem}" GroupName="Nav"
                              Checked="SettingsNavBtn_Checked">
                     <StackPanel Orientation="Horizontal">
