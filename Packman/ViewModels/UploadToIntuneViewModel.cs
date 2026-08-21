@@ -17,11 +17,15 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     private readonly SettingsService _settings = AppServices.Settings;
     private readonly IntuneAuthService _auth = AppServices.Auth;
 
+    /// <summary>Cancels the upload in flight. Null when nothing is running.</summary>
+    private CancellationTokenSource? _cts;
+
     public UploadToIntuneViewModel()
     {
         AddRuleCommand = new RelayCommand(AddDetectionRule, () => CanAddRule);
         RemoveRuleCommand = new RelayCommand<DetectionRule>(r => { if (r != null) DetectionRules.Remove(r); });
-        UploadCommand = new RelayCommand(async () => await UploadAsync(), () => UploadEnabled);
+        UploadCommand = new AsyncRelayCommand(UploadAsync, () => UploadEnabled);
+        CancelUploadCommand = new RelayCommand(() => _cts?.Cancel(), () => IsRunning);
         DoneCommand = new RelayCommand(ResetAfterPublish);
 
         PublishSteps = new ObservableCollection<PublishStepViewModel>
@@ -324,7 +328,13 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     public bool IsPublishing
     {
         get => _isPublishing;
-        private set { if (Set(ref _isPublishing, value)) { OnPropertyChanged(nameof(IsNotPublishing)); OnPropertyChanged(nameof(IsRunning)); } }
+        private set
+        {
+            if (!Set(ref _isPublishing, value)) return;
+            OnPropertyChanged(nameof(IsNotPublishing));
+            OnPropertyChanged(nameof(IsRunning));
+            CancelUploadCommand.RaiseCanExecuteChanged();
+        }
     }
     public bool IsNotPublishing => !_isPublishing;
 
@@ -341,7 +351,14 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     public bool IsComplete
     {
         get => _isComplete;
-        private set { if (Set(ref _isComplete, value)) { OnPropertyChanged(nameof(IsRunning)); OnPropertyChanged(nameof(IsSucceeded)); OnPropertyChanged(nameof(IsFailed)); } }
+        private set
+        {
+            if (!Set(ref _isComplete, value)) return;
+            OnPropertyChanged(nameof(IsRunning));
+            OnPropertyChanged(nameof(IsSucceeded));
+            OnPropertyChanged(nameof(IsFailed));
+            CancelUploadCommand.RaiseCanExecuteChanged();
+        }
     }
 
     private bool _succeeded;
@@ -384,10 +401,15 @@ public sealed class UploadToIntuneViewModel : ObservableObject
 
         var progress = new StepProgress(this);
 
+        _cts?.Dispose();
+        _cts = new CancellationTokenSource();
+
         try
         {
             using var uploadService = new IntuneUploadService(
                 _auth.GetAccessTokenAsync, signer, settings.NetworkPaths.IntuneWinAppUtil);
+
+            var groups = GroupPicker.AssignableGroups;
 
             var appId = await Task.Run(() => uploadService.UploadWin32ApplicationAsync(
                 appInfo,
@@ -402,20 +424,24 @@ public sealed class UploadToIntuneViewModel : ObservableObject
                 requirements: settings.IntuneDefaults.Requirements,
                 returnCodes: settings.IntuneDefaults.ReturnCodes,
                 privacyUrl: settings.IntuneDefaults.PrivacyUrl,
-                informationUrl: settings.IntuneDefaults.InformationUrl));
+                informationUrl: settings.IntuneDefaults.InformationUrl,
+                pickedGroups: groups,
+                ct: _cts!.Token));
 
-            MarkDone(0); MarkDone(1); MarkDone(2);
-
-            PublishSteps[3].State = "working";
-            var groups = GroupPicker.AssignableGroups;
-            if (groups.Count > 0)
-                await uploadService.AssignAppToGroupsAsync(appId, groups);
-            PublishSteps[3].State = "done";
+            MarkDone(0); MarkDone(1); MarkDone(2); MarkDone(3);
 
             ResultText = groups.Count > 0
                 ? $"Published and assigned to {groups.Count} group(s). App ID {appId}"
                 : $"Published successfully. App ID {appId}";
             _succeeded = true;
+            IsComplete = true;
+        }
+        catch (OperationCanceledException)
+        {
+            var cancelled = PublishSteps.FirstOrDefault(s => s.State == "working");
+            if (cancelled != null) cancelled.State = "error";
+            ResultText = "Upload cancelled.";
+            _succeeded = false;
             IsComplete = true;
         }
         catch (Exception ex)
@@ -428,6 +454,8 @@ public sealed class UploadToIntuneViewModel : ObservableObject
         }
         finally
         {
+            _cts?.Dispose();
+            _cts = null;
             UploadCommand.RaiseCanExecuteChanged();
         }
     }
@@ -481,7 +509,10 @@ public sealed class UploadToIntuneViewModel : ObservableObject
     // ── Commands ────────────────────────────────────────
     public RelayCommand AddRuleCommand { get; }
     public RelayCommand<DetectionRule> RemoveRuleCommand { get; }
-    public RelayCommand UploadCommand { get; }
+    public AsyncRelayCommand UploadCommand { get; }
+
+    /// <summary>Stops an upload in flight; the service removes the half-built app.</summary>
+    public RelayCommand CancelUploadCommand { get; }
     public RelayCommand DoneCommand { get; }
 
     // ── Helpers ─────────────────────────────────────────

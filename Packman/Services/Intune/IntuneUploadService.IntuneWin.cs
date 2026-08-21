@@ -1,3 +1,4 @@
+using Packman.Helpers;
 using Packman.Models;
 using System.Diagnostics;
 using System.IO;
@@ -11,7 +12,7 @@ namespace Packman.Services;
 
 public partial class IntuneUploadService
 {
-    private async Task SignApplicationFilesAsync(string packagePath, IUploadProgress? progress, UploadLogger uploadLogger)
+    private async Task SignApplicationFilesAsync(string packagePath, IUploadProgress? progress, UploadLogger uploadLogger, CancellationToken ct)
     {
         try
         {
@@ -36,7 +37,7 @@ public partial class IntuneUploadService
             progress?.UpdateProgress(10, $"Signing {scriptName}...");
             uploadLogger.Info($"Signing {scriptName} (SHA-256 + RFC 3161)");
 
-            var result = await _signer.SignFileAsync(scriptPath);
+            var result = await _signer.SignFileAsync(scriptPath, ct);
             if (result.Success)
             {
                 progress?.UpdateProgress(15, $"{scriptName} signed successfully");
@@ -47,6 +48,10 @@ public partial class IntuneUploadService
                 uploadLogger.Warning($"Failed to sign {scriptName}: {result.ErrorMessage}");
             }
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             uploadLogger.Error("File signing failed", ex);
@@ -56,39 +61,28 @@ public partial class IntuneUploadService
 
     private static string? FindPSADTScript(string packagePath)
     {
-        var path = Path.Combine(packagePath, "Application", "Invoke-AppDeployToolkit.ps1");
+        var path = Path.Combine(packagePath, "Application", PsadtLayout.ScriptName);
         if (File.Exists(path)) return path;
 
-        path = Path.Combine(packagePath, "Invoke-AppDeployToolkit.ps1");
-        if (File.Exists(path)) return path;
-
-        path = Path.Combine(packagePath, "Application", "Deploy-Application.ps1");
-        if (File.Exists(path)) return path;
-
-        path = Path.Combine(packagePath, "Deploy-Application.ps1");
-        if (File.Exists(path)) return path;
-
-        return null;
+        path = Path.Combine(packagePath, PsadtLayout.ScriptName);
+        return File.Exists(path) ? path : null;
     }
 
-    private async Task CreateIntuneWinFileAsync(string packagePath)
+    private async Task CreateIntuneWinFileAsync(string packagePath, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(_converterPath) || !File.Exists(_converterPath))
             throw new FileNotFoundException($"IntuneWinAppUtil.exe not found at: '{_converterPath}'. Set the IntuneWinAppUtil path on the Settings page.");
 
         var applicationFolder = Path.Combine(packagePath, "Application");
-        var setupFile = Path.Combine(applicationFolder, "Invoke-AppDeployToolkit.exe");
-        if (!File.Exists(setupFile))
-            setupFile = Path.Combine(applicationFolder, "Deploy-Application.exe");
-        if (!File.Exists(setupFile))
-            setupFile = Path.Combine(applicationFolder, "Deploy-Application.ps1");
+        var setupFile = Path.Combine(applicationFolder, PsadtLayout.SetupFileName);
         var outputFolder = Path.Combine(packagePath, "Intune");
 
         if (!Directory.Exists(applicationFolder))
             throw new DirectoryNotFoundException($"Application folder not found: {applicationFolder}");
 
         if (!File.Exists(setupFile))
-            throw new FileNotFoundException($"PSADT executable not found in: {applicationFolder}. Expected Invoke-AppDeployToolkit.exe (v4) or Deploy-Application.exe (v3).");
+            throw new FileNotFoundException(
+                $"{PsadtLayout.SetupFileName} not found in: {applicationFolder}. Packman builds PSADT v4 packages; check the PSADT Template Path on the Settings page.");
 
         Directory.CreateDirectory(outputFolder);
 
@@ -107,13 +101,16 @@ public partial class IntuneUploadService
         using var process = new Process { StartInfo = processStartInfo };
         process.Start();
 
-        var output = await process.StandardOutput.ReadToEndAsync();
-        var error = await process.StandardError.ReadToEndAsync();
-        await process.WaitForExitAsync();
+        // Both pipes must be drained concurrently; awaiting them in sequence deadlocks
+        // as soon as the child fills the buffer of the stream we are not reading yet.
+        var outputTask = process.StandardOutput.ReadToEndAsync(ct);
+        var errorTask = process.StandardError.ReadToEndAsync(ct);
+        await Task.WhenAll(outputTask, errorTask);
+        await process.WaitForExitAsync(ct);
 
         if (process.ExitCode != 0)
         {
-            var errorMessage = string.IsNullOrWhiteSpace(error) ? output : error;
+            var errorMessage = string.IsNullOrWhiteSpace(errorTask.Result) ? outputTask.Result : errorTask.Result;
             throw new Exception($"IntuneWinAppUtil failed with exit code {process.ExitCode}: {errorMessage}");
         }
 
@@ -250,7 +247,8 @@ public partial class IntuneUploadService
         RequirementInfo? requirements = null,
         List<ReturnCodeInfo>? returnCodes = null,
         string? privacyUrl = null,
-        string? informationUrl = null)
+        string? informationUrl = null,
+        CancellationToken ct = default)
     {
         var formattedDetectionRules = new List<Dictionary<string, object>>();
         foreach (var rule in detectionRules)
@@ -260,17 +258,11 @@ public partial class IntuneUploadService
                 formattedDetectionRules.Add(formattedRule);
         }
 
+        // A guessed rule ("%ProgramFiles%\<AppName>.exe") uploads happily and then reports
+        // "not installed" on every device forever, so refuse rather than invent one.
         if (formattedDetectionRules.Count == 0)
-        {
-            formattedDetectionRules.Add(new Dictionary<string, object>
-            {
-                ["@odata.type"] = "#microsoft.graph.win32LobAppFileSystemDetection",
-                ["path"] = "%ProgramFiles%",
-                ["fileOrFolderName"] = $"{appInfo.Name}.exe",
-                ["check32BitOn64System"] = true,
-                ["detectionType"] = "exists"
-            });
-        }
+            throw new InvalidOperationException(
+                "No usable detection rule was supplied. Set a detection rule on the Upload step before publishing.");
 
         var createAppPayload = new Dictionary<string, object>
         {
@@ -287,7 +279,7 @@ public partial class IntuneUploadService
                 [(requirements ?? new RequirementInfo()).OperatingSystemFlag] = true
             },
             ["fileName"] = intuneWinInfo.FileName,
-            ["setupFilePath"] = "Invoke-AppDeployToolkit.exe",
+            ["setupFilePath"] = PsadtLayout.SetupFileName,
             ["installExperience"] = new Dictionary<string, object>
             {
                 ["runAsAccount"] = installContext,
@@ -329,13 +321,13 @@ public partial class IntuneUploadService
         using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, "https://graph.microsoft.com/beta/deviceAppManagement/mobileApps");
         request.Content = new StringContent(json, Encoding.UTF8, "application/json");
         var sw = Stopwatch.StartNew();
-        var response = await sharedHttpClient!.SendAsync(request);
-        var responseText = await response.Content.ReadAsStringAsync();
+        var response = await sharedHttpClient!.SendAsync(request, ct);
+        var responseText = await response.Content.ReadAsStringAsync(ct);
         sw.Stop();
 
         if (!response.IsSuccessStatusCode)
         {
-            await LogGraphFailureDiagnosticsAsync("CreateWin32LobApp (POST)", request, response, sw, responseText);
+            LogGraphFailureDiagnostics("CreateWin32LobApp (POST)", request, response, sw, responseText);
             throw new Exception($"Failed to create Win32 app. Status: {response.StatusCode}, Response: {responseText}");
         }
 

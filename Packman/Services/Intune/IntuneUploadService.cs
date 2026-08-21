@@ -62,9 +62,12 @@ public partial class IntuneUploadService : IDisposable
         List<ReturnCodeInfo>? returnCodes = null,
         string? privacyUrl = null,
         string? informationUrl = null,
-        IEnumerable<AssignedGroup>? pickedGroups = null)
+        IEnumerable<AssignedGroup>? pickedGroups = null,
+        CancellationToken ct = default)
     {
         using var uploadLogger = new UploadLogger(appInfo.Name);
+        IntuneWinInfo? intuneWinInfo = null;
+        string? createdAppId = null;
 
         try
         {
@@ -89,11 +92,11 @@ public partial class IntuneUploadService : IDisposable
 
             progress?.UpdateProgress(10, "Signing application files...");
             uploadLogger.Progress(10, "Signing application files...");
-            await SignApplicationFilesAsync(packagePath, progress, uploadLogger);
+            await SignApplicationFilesAsync(packagePath, progress, uploadLogger, ct);
 
             progress?.UpdateProgress(20, "Packaging application files...");
             uploadLogger.Progress(20, "Packaging application files...");
-            await CreateIntuneWinFileAsync(packagePath);
+            await CreateIntuneWinFileAsync(packagePath, ct);
             uploadLogger.Success("Package created successfully");
 
             progress?.UpdateProgress(25, "Verifying package creation...");
@@ -106,45 +109,50 @@ public partial class IntuneUploadService : IDisposable
             uploadLogger.Success($"Found .intunewin file: {Path.GetFileName(intuneWinFile)}");
 
             progress?.UpdateProgress(30, "Reading package metadata...");
-            var intuneWinInfo = ExtractIntuneWinInfo(intuneWinFile);
+            intuneWinInfo = ExtractIntuneWinInfo(intuneWinFile);
             uploadLogger.Success($"Package metadata extracted - Size: {intuneWinInfo.UnencryptedContentSize:N0} bytes");
 
+            ct.ThrowIfCancellationRequested();
+
             progress?.UpdateProgress(35, "Registering application in Intune...");
-            var appId = await CreateWin32LobAppAsync(appInfo, installCommand, uninstallCommand, description, detectionRules, installContext, intuneWinInfo, iconPath, requirements, returnCodes, privacyUrl, informationUrl);
+            var appId = await CreateWin32LobAppAsync(appInfo, installCommand, uninstallCommand, description, detectionRules, installContext, intuneWinInfo, iconPath, requirements, returnCodes, privacyUrl, informationUrl, ct);
+            createdAppId = appId;
             uploadLogger.Success($"Application registered with ID: {appId}");
 
             progress?.UpdateProgress(45, "Preparing content storage...");
-            var contentVersionId = await CreateContentVersionAsync(appId);
+            var contentVersionId = await CreateContentVersionAsync(appId, ct);
             _currentAppId = appId;
             _currentContentVersionId = contentVersionId;
             uploadLogger.Success($"Content version created: {contentVersionId}");
 
             progress?.UpdateProgress(55, "Initializing file upload...");
-            var fileId = await CreateFileEntryAsync(appId, contentVersionId, intuneWinInfo);
+            var fileId = await CreateFileEntryAsync(appId, contentVersionId, intuneWinInfo, ct);
             _currentFileId = fileId;
             uploadLogger.Success($"File entry created: {fileId}");
 
             progress?.UpdateProgress(65, "Requesting Azure upload URL...");
-            var azureStorageInfo = await WaitForAzureStorageUriAsync(appId, contentVersionId, fileId);
+            var azureStorageInfo = await WaitForAzureStorageUriAsync(appId, contentVersionId, fileId, ct);
             uploadLogger.Success("Azure Storage URI obtained");
 
             progress?.UpdateProgress(75, "Uploading package to Azure...");
-            await UploadFileToAzureStorageAsync(azureStorageInfo.SasUri, intuneWinInfo.EncryptedFilePath, progress);
+            await UploadFileToAzureStorageAsync(azureStorageInfo.SasUri, intuneWinInfo.EncryptedFilePath, progress, ct);
             uploadLogger.Success("Package uploaded to Azure Storage successfully");
 
             progress?.UpdateProgress(85, "Finalizing package upload...");
-            await CommitFileAsync(appId, contentVersionId, fileId, intuneWinInfo.EncryptionInfo);
+            await CommitFileAsync(appId, contentVersionId, fileId, intuneWinInfo.EncryptionInfo, ct);
             uploadLogger.Success("File committed successfully");
 
             progress?.UpdateProgress(90, "Processing uploaded package...");
-            await WaitForFileProcessingAsync(appId, contentVersionId, fileId, "CommitFile");
+            await WaitForFileProcessingAsync(appId, contentVersionId, fileId, "CommitFile", ct);
             uploadLogger.Success("File processing completed");
 
             progress?.UpdateProgress(95, "Publishing application...");
-            await CommitAppAsync(appId, contentVersionId);
+            await CommitAppAsync(appId, contentVersionId, ct);
             uploadLogger.Success("Application published successfully");
 
-            CleanupTempFiles(intuneWinInfo);
+            // Past this point the app exists and is published, so a later failure
+            // (supersedence, assignment) must not roll it back.
+            createdAppId = null;
 
             progress?.UpdateProgress(100, "Upload complete!");
             uploadLogger.Section("UPLOAD COMPLETE");
@@ -156,9 +164,7 @@ public partial class IntuneUploadService : IDisposable
                 await WriteSupersedenceAsync(appId, predecessorAppId, uploadLogger);
 
             var picked = pickedGroups?.Where(g => !string.IsNullOrWhiteSpace(g.GroupId)).ToList() ?? new List<AssignedGroup>();
-            if (picked.Count > 0 ||
-                (groupAssignment != null &&
-                 (groupAssignment.CreateGroupPerPackage || groupAssignment.ExistingGroups.Count > 0)))
+            if (picked.Count > 0 || (groupAssignment?.HasAnyAssignment() ?? false))
             {
                 progress?.UpdateProgress(98, "Assigning groups...");
                 uploadLogger.Section("GROUP ASSIGNMENT");
@@ -167,11 +173,48 @@ public partial class IntuneUploadService : IDisposable
 
             return appId;
         }
+        catch (OperationCanceledException)
+        {
+            uploadLogger.Section("UPLOAD CANCELLED");
+            await RollbackCreatedAppAsync(createdAppId, uploadLogger);
+            throw;
+        }
         catch (Exception ex)
         {
             uploadLogger.Section("UPLOAD FAILED");
             uploadLogger.Error("Upload process failed", ex);
+            await RollbackCreatedAppAsync(createdAppId, uploadLogger);
             throw new Exception($"Failed to upload application to Intune: {ex.Message}", ex);
+        }
+        finally
+        {
+            // The extracted payload is a full copy of the package; leaking one per
+            // failed attempt fills %TEMP% quickly.
+            if (intuneWinInfo != null) CleanupTempFiles(intuneWinInfo);
+        }
+    }
+
+    /// <summary>
+    /// Deletes the half-built app so a failed upload does not leave an unpublished
+    /// shell behind in the tenant. Best effort: the original failure is what matters.
+    /// </summary>
+    private async Task RollbackCreatedAppAsync(string? appId, UploadLogger uploadLogger)
+    {
+        if (string.IsNullOrEmpty(appId)) return;
+
+        try
+        {
+            using var request = await CreateAuthenticatedRequestAsync(
+                HttpMethod.Delete, $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}");
+            var response = await sharedHttpClient!.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+                uploadLogger.Info($"Removed the incomplete app {appId} from Intune");
+            else
+                uploadLogger.Warning($"Could not remove the incomplete app {appId} (HTTP {(int)response.StatusCode}) - delete it in the Intune admin center");
+        }
+        catch (Exception ex)
+        {
+            uploadLogger.Warning($"Could not remove the incomplete app {appId}: {ex.Message}");
         }
     }
 

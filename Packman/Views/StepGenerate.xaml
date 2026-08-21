@@ -55,7 +55,7 @@
                             <TextBlock Style="{StaticResource FieldLabel}">
                                 <Run Text="Manufacturer"/><Run Text=" *" Foreground="{DynamicResource AccentTextBrush}"/>
                             </TextBlock>
-                            <TextBox x:Name="ManufacturerTextBox" Style="{StaticResource TextField}" Margin="0,6,0,0"
+                            <TextBox AutomationProperties.Name="Manufacturer" x:Name="ManufacturerTextBox" Style="{StaticResource TextField}" Margin="0,6,0,0"
                                      local:PlaceholderText.Text="e.g. Mozilla"
                                      Text="{Binding CreatePackage.Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
@@ -64,7 +64,7 @@
                             <TextBlock Style="{StaticResource FieldLabel}">
                                 <Run Text="Application Name"/><Run Text=" *" Foreground="{DynamicResource AccentTextBrush}"/>
                             </TextBlock>
-                            <TextBox x:Name="AppNameTextBox" Style="{StaticResource TextField}" Margin="0,6,0,0"
+                            <TextBox AutomationProperties.Name="Application Name" x:Name="AppNameTextBox" Style="{StaticResource TextField}" Margin="0,6,0,0"
                                      local:PlaceholderText.Text="e.g. Firefox"
                                      Text="{Binding CreatePackage.AppName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
@@ -73,14 +73,14 @@
                             <TextBlock Style="{StaticResource FieldLabel}">
                                 <Run Text="Version"/><Run Text=" *" Foreground="{DynamicResource AccentTextBrush}"/>
                             </TextBlock>
-                            <TextBox x:Name="VersionTextBox" Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                            <TextBox AutomationProperties.Name="Version" x:Name="VersionTextBox" Style="{StaticResource MonoField}" Margin="0,6,0,0"
                                      local:PlaceholderText.Text="e.g. 124.0.1"
                                      Text="{Binding CreatePackage.Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2" Grid.Row="2">
                             <TextBlock Text="Architecture" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox Margin="0,6,0,0" SelectedValuePath="Content"
+                            <ComboBox AutomationProperties.Name="Architecture" Margin="0,6,0,0" SelectedValuePath="Content"
                                       SelectedValue="{Binding CreatePackage.Architecture, Mode=TwoWay}">
                                 <ComboBoxItem Content="x64"/>
                                 <ComboBoxItem Content="x86"/>
@@ -94,7 +94,7 @@
                             <Run Text="Sources Path"/><Run Text=" *" Foreground="{DynamicResource AccentTextBrush}"/>
                         </TextBlock>
                         <Grid Margin="0,6,0,0">
-                            <TextBox x:Name="SourcesPathTextBox" Style="{StaticResource MonoField}" Padding="11,0,86,0"
+                            <TextBox AutomationProperties.Name="Sources Path" x:Name="SourcesPathTextBox" Style="{StaticResource MonoField}" Padding="11,0,86,0"
                                      local:PlaceholderText.Text="\\server\share\Sources or drag &amp; drop"
                                      Text="{Binding CreatePackage.SourcesPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      PreviewDragOver="SourcesPath_DragOver" Drop="SourcesPath_Drop"
@@ -217,7 +217,7 @@
                 <StackPanel>
                     <TextBlock Text="Existing Package Folder" Style="{StaticResource FieldLabel}"/>
                     <Grid Margin="0,6,0,0">
-                        <TextBox Style="{StaticResource MonoField}" Padding="11,0,86,0" IsReadOnly="True"
+                        <TextBox AutomationProperties.Name="Existing Package Folder" Style="{StaticResource MonoField}" Padding="11,0,86,0" IsReadOnly="True"
                                  local:PlaceholderText.Text="Select the existing PSADT package folder"
                                  Text="{Binding Upgrade.ExistingPackagePath, Mode=OneWay}"/>
                         <Button Style="{StaticResource BrowseButton}" Content="BROWSE"
@@ -252,7 +252,7 @@
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="New Source File" Style="{StaticResource FieldLabel}"/>
                             <Grid Margin="0,6,0,0">
-                                <TextBox Style="{StaticResource MonoField}" Padding="11,0,86,0" IsReadOnly="True"
+                                <TextBox AutomationProperties.Name="New Source File" Style="{StaticResource MonoField}" Padding="11,0,86,0" IsReadOnly="True"
                                          local:PlaceholderText.Text="Select the new MSI/EXE"
                                          Text="{Binding Upgrade.NewSourcePath, Mode=OneWay}"/>
                                 <Button Style="{StaticResource BrowseButton}" Content="BROWSE"
@@ -263,7 +263,7 @@
 
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="New Version" Style="{StaticResource FieldLabel}"/>
-                            <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                            <TextBox AutomationProperties.Name="New Version" Style="{StaticResource MonoField}" Margin="0,6,0,0"
                                      local:PlaceholderText.Text="e.g. 125.0"
                                      Text="{Binding Upgrade.NewVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>

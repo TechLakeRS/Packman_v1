@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using Packman.Services;
 using Packman.ViewModels;
 using Wpf.Ui.Controls;
 
@@ -21,23 +22,41 @@ public partial class MainWindow : FluentWindow
         AppDetailPage.Deleted += () =>
         {
             ShowOnly(ApplicationsPage, "Applications");
-            _ = ApplicationsPage.ViewModel.LoadAsync(force: true);
+            ErrorReporter.FireAndForget(() => ApplicationsPage.ViewModel.LoadAsync(force: true));
         };
         AppDetailPage.UpdateRequested += _ => CreatePackageNavBtn.IsChecked = true;
 
         AdvancedPage.ConnectRequested += () => SettingsNavBtn.IsChecked = true;
     }
 
-    /// <summary>Gives the script editor a chance to save before the app goes away.</summary>
-    private async void MainWindow_Closing(object sender, CancelEventArgs e)
+    /// <summary>
+    /// Gives the script editor a chance to save before the app goes away. Closing has to
+    /// be cancelled first because the prompt is awaited; the second pass runs straight
+    /// through. A failure here must not trap the user in an app that will not close, so
+    /// the save is reported and the close proceeds.
+    /// </summary>
+    private void MainWindow_Closing(object sender, CancelEventArgs e)
     {
         if (_closeConfirmed || !EditStep.HasUnsavedChanges) return;
 
         e.Cancel = true;
-        if (!await EditStep.PromptSaveAllAsync()) return;
+        ErrorReporter.FireAndForget(async () =>
+        {
+            bool proceed;
+            try
+            {
+                proceed = await EditStep.PromptSaveAllAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorReporter.Report(ex);
+                proceed = true;
+            }
 
-        _closeConfirmed = true;
-        Close();
+            if (!proceed) return;
+            _closeConfirmed = true;
+            Close();
+        });
     }
 
     /// <summary>Shows exactly one content page and collapses the rest. Null-safe for load-time calls.</summary>

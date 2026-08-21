@@ -15,7 +15,7 @@ public sealed class AdvancedViewModel : ObservableObject
     private readonly IntuneService _apps = AppServices.Apps;
     private readonly IntuneAuthService _auth = AppServices.Auth;
 
-    public RelayCommand BulkAddCommand { get; }
+    public AsyncRelayCommand BulkAddCommand { get; }
     public RelayCommand ConnectCommand { get; }
 
     /// <summary>Raised when the user asks to connect; the host switches to the Settings screen.</summary>
@@ -23,7 +23,7 @@ public sealed class AdvancedViewModel : ObservableObject
 
     public AdvancedViewModel()
     {
-        BulkAddCommand = new RelayCommand(async () => await RunBulkAddAsync(), () => CanBulkAdd);
+        BulkAddCommand = new AsyncRelayCommand(RunBulkAddAsync, () => CanBulkAdd);
         ConnectCommand = new RelayCommand(() => ConnectRequested?.Invoke());
     }
 

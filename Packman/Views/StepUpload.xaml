@@ -43,14 +43,14 @@
             <!-- Name in Intune -->
             <StackPanel Margin="0,20,0,0">
                 <TextBlock Text="Name in Intune" Style="{StaticResource FieldLabel}"/>
-                <TextBox Style="{StaticResource TextField}" Margin="0,6,0,0"
+                <TextBox AutomationProperties.Name="Name in Intune" Style="{StaticResource TextField}" Margin="0,6,0,0"
                          Text="{Binding Upload.IntuneDisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
             <!-- Detection -->
             <StackPanel Margin="0,20,0,0">
                 <TextBlock Text="Detection method" Style="{StaticResource FieldLabel}"/>
-                <ComboBox Margin="0,6,0,0" Height="34"
+                <ComboBox AutomationProperties.Name="Detection method" Margin="0,6,0,0" Height="34"
                           ItemsSource="{Binding Upload.DetectionMethods}"
                           SelectedItem="{Binding Upload.SelectedDetectionMethod, Mode=TwoWay}"/>
 
@@ -66,19 +66,19 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Folder path" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                        <TextBox AutomationProperties.Name="Folder path" Style="{StaticResource MonoField}" Margin="0,6,0,0"
                                  local:PlaceholderText.Text="%ProgramFiles%\Contoso"
                                  Text="{Binding Upload.DetectionPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="File or folder name" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                        <TextBox AutomationProperties.Name="File or folder name" Style="{StaticResource MonoField}" Margin="0,6,0,0"
                                  local:PlaceholderText.Text="app.exe"
                                  Text="{Binding Upload.DetectionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="4" Visibility="{Binding Upload.IsFileVersionDetection, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="Minimum version" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                        <TextBox AutomationProperties.Name="Minimum version" Style="{StaticResource MonoField}" Margin="0,6,0,0"
                                  local:PlaceholderText.Text="1.2.3"
                                  Text="{Binding Upload.DetectionValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
@@ -96,19 +96,19 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Hive" Style="{StaticResource FieldLabel}"/>
-                        <ComboBox Margin="0,6,0,0" Height="34" VerticalContentAlignment="Center"
+                        <ComboBox AutomationProperties.Name="Hive" Margin="0,6,0,0" Height="34" VerticalContentAlignment="Center"
                                   ItemsSource="{Binding Upload.RegistryHives}"
                                   SelectedItem="{Binding Upload.SelectedRegistryHive, Mode=TwoWay}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Key path" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                        <TextBox AutomationProperties.Name="Key path" Style="{StaticResource MonoField}" Margin="0,6,0,0"
                                  local:PlaceholderText.Text="SOFTWARE\Contoso\App"
                                  Text="{Binding Upload.RegistryKeyPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="4">
                         <TextBlock Text="Value name (optional)" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                        <TextBox AutomationProperties.Name="Value name (optional)" Style="{StaticResource MonoField}" Margin="0,6,0,0"
                                  local:PlaceholderText.Text="blank checks the key itself"
                                  Text="{Binding Upload.RegistryValueName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
@@ -117,7 +117,7 @@
                 <!-- MSI product code -->
                 <StackPanel Margin="0,12,0,0" Visibility="{Binding Upload.IsMsiDetection, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="MSI product code" Style="{StaticResource FieldLabel}"/>
-                    <TextBox Style="{StaticResource MonoField}" Margin="0,6,0,0"
+                    <TextBox AutomationProperties.Name="MSI product code" Style="{StaticResource MonoField}" Margin="0,6,0,0"
                              local:PlaceholderText.Text="{}{00000000-0000-0000-0000-000000000000}"
                              Text="{Binding Upload.DetectionProductCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock Margin="0,6,0,0" TextWrapping="Wrap"
@@ -141,7 +141,7 @@
             <!-- Deploy mode -->
             <StackPanel Margin="0,20,0,0">
                 <TextBlock Text="PSADT deploy mode" Style="{StaticResource FieldLabel}"/>
-                <ComboBox Margin="0,6,0,0" Height="34" HorizontalAlignment="Left" MinWidth="220"
+                <ComboBox AutomationProperties.Name="PSADT deploy mode" Margin="0,6,0,0" Height="34" HorizontalAlignment="Left" MinWidth="220"
                           ItemsSource="{Binding Upload.DeployModes}"
                           SelectedItem="{Binding Upload.SelectedDeployMode, Mode=TwoWay}"/>
                 <TextBlock Text="{Binding Upload.DeployModeHint}" Margin="0,7,0,0" TextWrapping="Wrap"
@@ -202,25 +202,25 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Minimum OS" Style="{StaticResource FieldLabel}"/>
-                        <ComboBox Margin="0,6,0,0"
+                        <ComboBox AutomationProperties.Name="Minimum OS" Margin="0,6,0,0"
                                   ItemsSource="{Binding Upload.OperatingSystems}"
                                   SelectedItem="{Binding Upload.SelectedOperatingSystem, Mode=TwoWay}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Disk (MB)" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Style="{StaticResource MonoField}" Height="32" Margin="0,6,0,0"
+                        <TextBox AutomationProperties.Name="Disk (MB)" Style="{StaticResource MonoField}" Height="32" Margin="0,6,0,0"
                                  local:PlaceholderText.Text="any"
                                  Text="{Binding Upload.MinFreeDiskSpaceMB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="4">
                         <TextBlock Text="Memory (MB)" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Style="{StaticResource MonoField}" Height="32" Margin="0,6,0,0"
+                        <TextBox AutomationProperties.Name="Memory (MB)" Style="{StaticResource MonoField}" Height="32" Margin="0,6,0,0"
                                  local:PlaceholderText.Text="any"
                                  Text="{Binding Upload.MinMemoryMB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="6">
                         <TextBlock Text="CPU (MHz)" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Style="{StaticResource MonoField}" Height="32" Margin="0,6,0,0"
+                        <TextBox AutomationProperties.Name="CPU (MHz)" Style="{StaticResource MonoField}" Height="32" Margin="0,6,0,0"
                                  local:PlaceholderText.Text="any"
                                  Text="{Binding Upload.MinCpuSpeedMHz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
@@ -228,7 +228,7 @@
 
                 <StackPanel Margin="0,14,0,0" HorizontalAlignment="Left" Orientation="Horizontal">
                     <TextBlock Text="Processors" Style="{StaticResource FieldLabel}" VerticalAlignment="Center"/>
-                    <TextBox Style="{StaticResource MonoField}" Width="110" Height="32" Margin="12,0,0,0"
+                    <TextBox AutomationProperties.Name="Processors" Style="{StaticResource MonoField}" Width="110" Height="32" Margin="12,0,0,0"
                              local:PlaceholderText.Text="any"
                              Text="{Binding Upload.MinProcessors, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
@@ -327,7 +327,7 @@
             <!-- Group search -->
             <TextBlock Text="Assignment groups" Style="{StaticResource FieldLabel}" Margin="0,16,0,7"/>
             <Grid>
-                <TextBox x:Name="GroupSearchBox" Style="{StaticResource TextField}" Padding="11,0,92,0"
+                <TextBox AutomationProperties.Name="Assignment groups" x:Name="GroupSearchBox" Style="{StaticResource TextField}" Padding="11,0,92,0"
                          local:PlaceholderText.Text="Search Entra groups…"
                          Text="{Binding Upload.GroupPicker.GroupQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          KeyDown="GroupSearch_KeyDown"/>

@@ -3,7 +3,7 @@ using System.IO;
 namespace Packman.Helpers;
 
 /// <summary>
-/// Path helpers for locating PSADT package files (supports both v3 and v4 layouts).
+/// Path helpers for locating PSADT v4 package files.
 /// </summary>
 public static class FolderBrowserHelper
 {
@@ -42,30 +42,15 @@ public static class FolderBrowserHelper
         return File.Exists(v4Exe) ? v4Exe : null;
     }
 
-    /// <summary>
-    /// Gets the PSADT script path from a folder (v4 Invoke-AppDeployToolkit.ps1 or v3 Deploy-Application.ps1).
-    /// </summary>
+    /// <summary>Gets the PSADT v4 deployment script from a folder, or null when there isn't one.</summary>
     public static string? GetPSADTScriptPath(string folderPath)
     {
         if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
             return null;
 
-        var v4Script = Path.Combine(folderPath, "Invoke-AppDeployToolkit.ps1");
-        if (File.Exists(v4Script))
-            return v4Script;
-
-        var v3Script = Path.Combine(folderPath, "Deploy-Application.ps1");
-        if (File.Exists(v3Script))
-            return v3Script;
-
-        return null;
+        var script = Path.Combine(folderPath, PsadtLayout.ScriptName);
+        return File.Exists(script) ? script : null;
     }
-
-    /// <summary>
-    /// Determines if a script is PSADT v3 (Deploy-Application.ps1).
-    /// </summary>
-    public static bool IsPSADTv3Script(string scriptPath)
-        => Path.GetFileName(scriptPath).Equals("Deploy-Application.ps1", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Returns the package root, handling the case where the user selected the Application folder.

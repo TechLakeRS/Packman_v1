@@ -73,7 +73,7 @@
 
                                     <StackPanel Margin="2,12,2,0">
                                         <TextBlock Text="Name in Intune" Style="{StaticResource FieldLabel}"/>
-                                        <TextBox Style="{StaticResource TextField}" Padding="11,0" Margin="0,6,0,10"
+                                        <TextBox AutomationProperties.Name="Name in Intune" Style="{StaticResource TextField}" Padding="11,0" Margin="0,6,0,10"
                                                  Text="{Binding IntuneDisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         <ContentControl Style="{StaticResource DlRow}" Tag="Application" Content="{Binding DisplayTitle}"/>
                                         <ContentControl Style="{StaticResource DlRow}" Tag="Version" Content="{Binding Version}"/>
@@ -220,7 +220,7 @@
                             <!-- Group search -->
                             <TextBlock Text="Assignment groups" Style="{StaticResource FieldLabel}" Margin="0,16,0,7"/>
                             <Grid>
-                                <TextBox x:Name="GroupSearchBox" Style="{StaticResource TextField}" Padding="11,0,92,0"
+                                <TextBox AutomationProperties.Name="Assignment groups" x:Name="GroupSearchBox" Style="{StaticResource TextField}" Padding="11,0,92,0"
                                          local:PlaceholderText.Text="Search Entra groups…"
                                          Text="{Binding GroupPicker.GroupQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          KeyDown="GroupSearch_KeyDown"/>
@@ -465,11 +465,20 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
+                <!-- Cancel while running -->
+                <StackPanel Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" Margin="0,6,0,0">
+                    <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Center" Margin="0,16,0,0"
+                            Command="{Binding CancelUploadCommand}" Content="Cancel upload"
+                            AutomationProperties.Name="Cancel upload"
+                            ToolTip="Stops the upload. Anything already created in Intune is removed."/>
+                </StackPanel>
+
                 <!-- Result + Done -->
                 <StackPanel Visibility="{Binding IsComplete, Converter={StaticResource BoolToVis}}" Margin="0,6,0,0">
                     <TextBlock Text="{Binding ResultText}" FontSize="13" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"/>
                     <Button Style="{StaticResource PrimaryButton}" HorizontalAlignment="Center" Margin="0,16,0,0"
-                            Command="{Binding DoneCommand}" Content="Done"/>
+                            Command="{Binding DoneCommand}" Content="Done"
+                            AutomationProperties.Name="Done"/>
                 </StackPanel>
             </StackPanel>
         </Grid>

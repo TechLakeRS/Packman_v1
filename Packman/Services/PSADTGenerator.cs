@@ -1,3 +1,4 @@
+using Packman.Helpers;
 using Packman.Models;
 using System.Diagnostics;
 using System.IO;
@@ -128,17 +129,17 @@ public class PSADTGenerator
         {
             var line = lines[i].Trim();
             if (line.StartsWith("AppVendor") && line.Contains("="))
-                lines[i] = $"    AppVendor = '{appInfo.Manufacturer}'";
+                lines[i] = $"    AppVendor = '{Q(appInfo.Manufacturer)}'";
             else if (line.StartsWith("AppName") && line.Contains("=") && !line.Contains("AppNameWithVersion"))
-                lines[i] = $"    AppName = '{appInfo.Name}'";
+                lines[i] = $"    AppName = '{Q(appInfo.Name)}'";
             else if (line.StartsWith("AppVersion") && line.Contains("="))
-                lines[i] = $"    AppVersion = '{appInfo.Version}'";
+                lines[i] = $"    AppVersion = '{Q(appInfo.Version)}'";
             else if (line.StartsWith("AppArch") && line.Contains("="))
-                lines[i] = $"    AppArch = '{appInfo.Architecture}'";
+                lines[i] = $"    AppArch = '{Q(appInfo.Architecture)}'";
             else if (line.StartsWith("AppScriptDate") && line.Contains("="))
                 lines[i] = $"    AppScriptDate = '{DateTime.Now:MM/dd/yyyy}'";
             else if (line.StartsWith("AppScriptAuthor") && line.Contains("="))
-                lines[i] = $"    AppScriptAuthor = '{(string.IsNullOrWhiteSpace(appInfo.Author) ? Environment.UserName : appInfo.Author)}'";
+                lines[i] = $"    AppScriptAuthor = '{Q(string.IsNullOrWhiteSpace(appInfo.Author) ? Environment.UserName : appInfo.Author)}'";
             else if (line.StartsWith("RequireAdmin") && line.Contains("="))
                 lines[i] = $"    RequireAdmin = ${(appInfo.InstallContext.Equals("User", StringComparison.OrdinalIgnoreCase) ? "false" : "true")}";
         }
@@ -155,8 +156,8 @@ public class PSADTGenerator
         if (installIdx > 0)
         {
             string code = appInfo.PackageType == "MSI"
-                ? $"\n## MSI Installation\nStart-ADTMsiProcess -Action 'Install' -FilePath \"$($adtSession.DirFiles)\\{sourceFileName ?? appInfo.Name + ".msi"}\""
-                : $"\n## EXE Installation\nStart-ADTProcess -FilePath \"$($adtSession.DirFiles)\\{sourceFileName ?? "setup.exe"}\" -ArgumentList '<silent flags>'";
+                ? $"\n## MSI Installation\nStart-ADTMsiProcess -Action 'Install' -FilePath \"$($adtSession.DirFiles)\\{D(sourceFileName ?? appInfo.Name + ".msi")}\""
+                : $"\n## EXE Installation\nStart-ADTProcess -FilePath \"$($adtSession.DirFiles)\\{D(sourceFileName ?? "setup.exe")}\" -ArgumentList '<silent flags>'";
             Insert(lines, installIdx, code);
         }
 
@@ -164,13 +165,16 @@ public class PSADTGenerator
         if (uninstallIdx > 0)
         {
             string code = appInfo.PackageType == "MSI"
-                ? $"\n## Uninstall MSI\nStart-ADTMsiProcess -Action 'Uninstall' -FilePath '{(string.IsNullOrEmpty(appInfo.MsiProductCode) ? "{ProductCode}" : appInfo.MsiProductCode)}'"
-                : $"\n## Uninstall EXE\nStart-ADTProcess -FilePath \"$($adtSession.DirFiles)\\{sourceFileName ?? "setup.exe"}\" -ArgumentList '<uninstall flags>'";
+                ? $"\n## Uninstall MSI\nStart-ADTMsiProcess -Action 'Uninstall' -FilePath '{Q(string.IsNullOrEmpty(appInfo.MsiProductCode) ? "{ProductCode}" : appInfo.MsiProductCode)}'"
+                : $"\n## Uninstall EXE\nStart-ADTProcess -FilePath \"$($adtSession.DirFiles)\\{D(sourceFileName ?? "setup.exe")}\" -ArgumentList '<uninstall flags>'";
             Insert(lines, uninstallIdx, code);
         }
 
         return string.Join('\n', lines);
     }
+
+    private static string Q(string? value) => PowerShellLiteral.SingleQuoted(value);
+    private static string D(string? value) => PowerShellLiteral.DoubleQuoted(value);
 
     private int FindSection(List<string> lines, string name)
     {

@@ -1,5 +1,6 @@
 using Packman.Helpers;
 using Packman.Models;
+using Packman.Services;
 using Packman.ViewModels;
 using System;
 using System.Diagnostics;
@@ -28,11 +29,11 @@ public partial class ApplicationDetailView : UserControl
     }
 
     /// <summary>Shows the given app and kicks off the full detail load.</summary>
-    public async void Show(IntuneApplication app)
+    public void Show(IntuneApplication app)
     {
         _vm = new ApplicationDetailViewModel(app);
         DataContext = _vm;
-        await _vm.LoadAsync();
+        ErrorReporter.FireAndForget(_vm.LoadAsync);
     }
 
     private void Back_Click(object sender, RoutedEventArgs e) => BackRequested?.Invoke();
@@ -140,15 +141,15 @@ public partial class ApplicationDetailView : UserControl
             display.CancelEdit();
     }
 
-    private async void SaveRule_Click(object sender, RoutedEventArgs e)
+    private void SaveRule_Click(object sender, RoutedEventArgs e)
     {
         var display = RowContext<DetectionRuleDisplay>(sender);
         if (display == null || _vm == null) return;
         display.ApplyEdit();
-        await _vm.SaveDetectionRulesAsync();
+        ErrorReporter.FireAndForget(_vm.SaveDetectionRulesAsync);
     }
 
-    private async void DeleteRule_Click(object sender, RoutedEventArgs e)
+    private void DeleteRule_Click(object sender, RoutedEventArgs e)
     {
         var display = RowContext<DetectionRuleDisplay>(sender);
         if (display == null || _vm == null) return;
@@ -158,14 +159,14 @@ public partial class ApplicationDetailView : UserControl
             "Delete detection rule", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (result != MessageBoxResult.Yes) return;
 
-        await _vm.DeleteDetectionRuleAsync(display);
+        ErrorReporter.FireAndForget(() => _vm.DeleteDetectionRuleAsync(display));
     }
 
     // ── Assignments ──
 
-    private async void AddAssignment_Click(object sender, RoutedEventArgs e)
+    private void AddAssignment_Click(object sender, RoutedEventArgs e)
     {
-        if (_vm != null) await _vm.AddAssignmentAsync();
+        if (_vm != null) ErrorReporter.FireAndForget(_vm.AddAssignmentAsync);
     }
 
     private void GroupResult_Click(object sender, RoutedEventArgs e)
@@ -174,7 +175,7 @@ public partial class ApplicationDetailView : UserControl
         if (group != null) _vm?.SelectGroupResult(group);
     }
 
-    private async void RemoveAssignment_Click(object sender, RoutedEventArgs e)
+    private void RemoveAssignment_Click(object sender, RoutedEventArgs e)
     {
         var group = RowContext<AssignedGroup>(sender);
         if (group == null || _vm == null) return;
@@ -184,28 +185,28 @@ public partial class ApplicationDetailView : UserControl
             "Remove assignment", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (result != MessageBoxResult.Yes) return;
 
-        await _vm.RemoveAssignmentAsync(group);
+        ErrorReporter.FireAndForget(() => _vm.RemoveAssignmentAsync(group));
     }
 
     // ── Group members slide-over ──
 
-    private async void GroupRow_Click(object sender, RoutedEventArgs e)
+    private void GroupRow_Click(object sender, RoutedEventArgs e)
     {
         var group = RowContext<AssignedGroup>(sender);
-        if (group != null && _vm != null) await _vm.OpenMembersAsync(group);
+        if (group != null && _vm != null) ErrorReporter.FireAndForget(() => _vm.OpenMembersAsync(group));
     }
 
     private void FlyoutClose_Click(object sender, RoutedEventArgs e) => _vm?.CloseFlyout();
 
     private void FlyoutBackdrop_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) => _vm?.CloseFlyout();
 
-    private async void MemberResult_Click(object sender, RoutedEventArgs e)
+    private void MemberResult_Click(object sender, RoutedEventArgs e)
     {
         var member = RowContext<GroupMember>(sender);
-        if (member != null && _vm != null) await _vm.AddMemberAsync(member);
+        if (member != null && _vm != null) ErrorReporter.FireAndForget(() => _vm.AddMemberAsync(member));
     }
 
-    private async void RemoveMember_Click(object sender, RoutedEventArgs e)
+    private void RemoveMember_Click(object sender, RoutedEventArgs e)
     {
         var member = RowContext<GroupMember>(sender);
         if (member == null || _vm == null) return;
@@ -215,10 +216,10 @@ public partial class ApplicationDetailView : UserControl
             "Remove member", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (result != MessageBoxResult.Yes) return;
 
-        await _vm.RemoveMemberAsync(member);
+        ErrorReporter.FireAndForget(() => _vm.RemoveMemberAsync(member));
     }
 
-    private async void Retire_Click(object sender, RoutedEventArgs e)
+    private void Retire_Click(object sender, RoutedEventArgs e)
     {
         if (_vm == null) return;
 
@@ -227,7 +228,9 @@ public partial class ApplicationDetailView : UserControl
             "Retire from Intune", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (result != MessageBoxResult.Yes) return;
 
-        if (await _vm.DeleteAsync())
-            Deleted?.Invoke();
+        ErrorReporter.FireAndForget(async () =>
+        {
+            if (await _vm.DeleteAsync()) Deleted?.Invoke();
+        });
     }
 }

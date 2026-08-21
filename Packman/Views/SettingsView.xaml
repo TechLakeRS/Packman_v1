@@ -177,7 +177,7 @@
                                 <TextBlock Text="optional" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="6,0,0,2" VerticalAlignment="Center"
                                            Visibility="Collapsed"/>
                                 <Grid Margin="0,7,0,0">
-                                    <TextBox Style="{StaticResource TextField}"
+                                    <TextBox AutomationProperties.Name="Tenant ID" Style="{StaticResource TextField}"
                                              Text="{Binding TenantId, UpdateSourceTrigger=PropertyChanged}"
                                              local:PlaceholderText.Text="contoso.onmicrosoft.com or tenant GUID"/>
                                 </Grid>
@@ -252,7 +252,7 @@
                                             <TextBlock Text=" *" Foreground="{DynamicResource AccentTextBrush}" FontSize="12.5" FontWeight="Bold"/>
                                         </StackPanel>
                                         <Grid Margin="0,7,0,0">
-                                            <TextBox Style="{StaticResource TextField}"
+                                            <TextBox AutomationProperties.Name="Tenant ID" Style="{StaticResource TextField}"
                                                      Text="{Binding TenantId, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="00000000-0000-0000-0000-000000000000"/>
                                         </Grid>
@@ -265,7 +265,7 @@
                                             <TextBlock Text=" *" Foreground="{DynamicResource AccentTextBrush}" FontSize="12.5" FontWeight="Bold"/>
                                         </StackPanel>
                                         <Grid Margin="0,7,0,0">
-                                            <TextBox Style="{StaticResource TextField}"
+                                            <TextBox AutomationProperties.Name="Application (Client) ID" Style="{StaticResource TextField}"
                                                      Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="Application (Client) ID"/>
                                         </Grid>
@@ -299,7 +299,7 @@
                                 </Border>
 
                                 <!-- Store cert picker -->
-                                <ComboBox Margin="0,10,0,0"
+                                <ComboBox AutomationProperties.Name="Certificate" Margin="0,10,0,0"
                                           ItemsSource="{Binding AvailableCertificates}"
                                           SelectedItem="{Binding SelectedAuthCert}"
                                           Visibility="{Binding AuthUseStoreCert, Converter={StaticResource BoolToVis}}">
@@ -500,7 +500,7 @@
                                 </Border>
 
                                 <!-- Store picker -->
-                                <ComboBox Margin="0,0,0,14"
+                                <ComboBox AutomationProperties.Name="Certificate store" Margin="0,0,0,14"
                                           ItemsSource="{Binding AvailableCertificates}"
                                           SelectedItem="{Binding SelectedCodeSignCert}"
                                           Visibility="{Binding CodeSignUseStoreCert, Converter={StaticResource BoolToVis}}">
@@ -531,7 +531,7 @@
                                     <StackPanel Grid.Column="0" Grid.Row="0">
                                         <TextBlock Text="Certificate Name" Style="{StaticResource FieldLabel}"/>
                                         <Grid Margin="0,7,0,0">
-                                            <TextBox Style="{StaticResource TextField}"
+                                            <TextBox AutomationProperties.Name="Certificate Name" Style="{StaticResource TextField}"
                                                      Text="{Binding CodeSignCertName, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="Friendly name"/>
                                         </Grid>
@@ -539,7 +539,7 @@
                                     <StackPanel Grid.Column="2" Grid.Row="0">
                                         <TextBlock Text="Certificate Subject" Style="{StaticResource FieldLabel}"/>
                                         <Grid Margin="0,7,0,0">
-                                            <TextBox Style="{StaticResource TextField}"
+                                            <TextBox AutomationProperties.Name="Certificate Subject" Style="{StaticResource TextField}"
                                                      Text="{Binding CodeSignCertSubject, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="CN=Company, O=..."/>
                                         </Grid>
@@ -549,7 +549,7 @@
                                     <StackPanel Grid.Column="0" Grid.Row="2">
                                         <TextBlock Text="Certificate Thumbprint" Style="{StaticResource FieldLabel}"/>
                                         <Grid Margin="0,7,0,0">
-                                            <TextBox Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
+                                            <TextBox AutomationProperties.Name="Certificate Thumbprint" Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
                                                      Text="{Binding CodeSignThumbprint, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="SHA-1 thumbprint"/>
                                         </Grid>
@@ -557,7 +557,7 @@
                                     <StackPanel Grid.Column="2" Grid.Row="2">
                                         <TextBlock Text="Timestamp Server" Style="{StaticResource FieldLabel}"/>
                                         <Grid Margin="0,7,0,0">
-                                            <TextBox Style="{StaticResource TextField}"
+                                            <TextBox AutomationProperties.Name="Timestamp Server" Style="{StaticResource TextField}"
                                                      Text="{Binding CodeSignTimestampServer, UpdateSourceTrigger=PropertyChanged}"
                                                      local:PlaceholderText.Text="http://timestamp.digicert.com"/>
                                         </Grid>
@@ -569,7 +569,7 @@
                                             Visibility="{Binding CodeSignUseStoreCert, Converter={StaticResource BoolToVis}}">
                                     <TextBlock Text="Timestamp Server" Style="{StaticResource FieldLabel}"/>
                                     <Grid Margin="0,7,0,0">
-                                        <TextBox Style="{StaticResource TextField}"
+                                        <TextBox AutomationProperties.Name="Timestamp Server" Style="{StaticResource TextField}"
                                                  Text="{Binding CodeSignTimestampServer, UpdateSourceTrigger=PropertyChanged}"
                                                  local:PlaceholderText.Text="http://timestamp.digicert.com"/>
                                     </Grid>
@@ -596,7 +596,7 @@
                             <!-- Intune Applications output path -->
                             <TextBlock Text="Intune Applications Path" Style="{StaticResource FieldLabel}"/>
                             <Grid Margin="0,7,0,0">
-                                <TextBox Style="{StaticResource TextField}"
+                                <TextBox AutomationProperties.Name="Intune Applications Path" Style="{StaticResource TextField}"
                                          Text="{Binding IntuneApplicationsPath, UpdateSourceTrigger=PropertyChanged}"
                                          local:PlaceholderText.Text="\\server\share\IntuneApps"/>
                             </Grid>
@@ -604,7 +604,7 @@
                             <!-- PSADT Template path -->
                             <TextBlock Text="PSADT Template Path" Style="{StaticResource FieldLabel}" Margin="0,16,0,0"/>
                             <Grid Margin="0,7,0,0">
-                                <TextBox Style="{StaticResource TextField}"
+                                <TextBox AutomationProperties.Name="PSADT Template Path" Style="{StaticResource TextField}"
                                          Text="{Binding PSADTTemplatePath, UpdateSourceTrigger=PropertyChanged}"
                                          local:PlaceholderText.Text="\\server\share\PSADTTemplate"/>
                             </Grid>
@@ -612,7 +612,7 @@
                             <!-- IntuneWinAppUtil path -->
                             <TextBlock Text="IntuneWinAppUtil Path" Style="{StaticResource FieldLabel}" Margin="0,16,0,0"/>
                             <Grid Margin="0,7,0,0">
-                                <TextBox Style="{StaticResource TextField}"
+                                <TextBox AutomationProperties.Name="IntuneWinAppUtil Path" Style="{StaticResource TextField}"
                                          Text="{Binding IntuneWinAppUtilPath, UpdateSourceTrigger=PropertyChanged}"
                                          local:PlaceholderText.Text="\\server\share\Tools\IntuneWinAppUtil.exe"/>
                             </Grid>
@@ -664,7 +664,7 @@
                             <StackPanel Visibility="{Binding CreateGroupPerPackage, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="Install group name template" Style="{StaticResource FieldLabel}"/>
                                 <Grid Margin="0,7,0,0">
-                                    <TextBox Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
+                                    <TextBox AutomationProperties.Name="Install group name template" Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
                                              Text="{Binding GroupNameTemplate, UpdateSourceTrigger=PropertyChanged}"
                                              local:PlaceholderText.Text="%vendor%_%appName%_%appVersion%_Install"/>
                                 </Grid>
@@ -729,7 +729,7 @@
                             <StackPanel Visibility="{Binding CreateUninstallGroupPerPackage, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="Uninstall group name template" Style="{StaticResource FieldLabel}"/>
                                 <Grid Margin="0,7,0,0">
-                                    <TextBox Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
+                                    <TextBox AutomationProperties.Name="Uninstall group name template" Style="{StaticResource TextField}" FontFamily="{StaticResource MonoFontFamily}"
                                              Text="{Binding UninstallGroupNameTemplate, UpdateSourceTrigger=PropertyChanged}"
                                              local:PlaceholderText.Text="%vendor%_%appName%_%appVersion%_Uninstall"/>
                                 </Grid>
@@ -756,7 +756,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid Grid.Column="0">
-                                    <TextBox Style="{StaticResource TextField}"
+                                    <TextBox AutomationProperties.Name="Group name to add" Style="{StaticResource TextField}"
                                              Text="{Binding NewGroupNameInput, UpdateSourceTrigger=PropertyChanged}"
                                              local:PlaceholderText.Text="Entra ID group display name"/>
                                 </Grid>
@@ -837,7 +837,7 @@
                             <TextBlock Text="Sent with every Win32 app created in Intune" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,12"/>
 
                             <TextBlock Text="App title template" Style="{StaticResource FieldLabel}"/>
-                            <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0" FontFamily="{StaticResource MonoFontFamily}"
+                            <TextBox AutomationProperties.Name="App title template" Style="{StaticResource TextField}" Margin="0,7,0,0" FontFamily="{StaticResource MonoFontFamily}"
                                      Text="{Binding DisplayNameTemplate, UpdateSourceTrigger=PropertyChanged}"
                                      local:PlaceholderText.Text="%vendor% %appName% %appVersion%"/>
                             <TextBlock FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,8,0,0" TextWrapping="Wrap">
@@ -859,13 +859,13 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Install command" Style="{StaticResource FieldLabel}"/>
-                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0" FontFamily="{StaticResource MonoFontFamily}"
+                                    <TextBox AutomationProperties.Name="Install command" Style="{StaticResource TextField}" Margin="0,7,0,0" FontFamily="{StaticResource MonoFontFamily}"
                                              local:PlaceholderText.Text="Invoke-AppDeployToolkit.exe Install"
                                              Text="{Binding DefaultInstallCommand, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Uninstall command" Style="{StaticResource FieldLabel}"/>
-                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0" FontFamily="{StaticResource MonoFontFamily}"
+                                    <TextBox AutomationProperties.Name="Uninstall command" Style="{StaticResource TextField}" Margin="0,7,0,0" FontFamily="{StaticResource MonoFontFamily}"
                                              local:PlaceholderText.Text="Invoke-AppDeployToolkit.exe Uninstall"
                                              Text="{Binding DefaultUninstallCommand, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
@@ -879,13 +879,13 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Privacy URL" Style="{StaticResource FieldLabel}"/>
-                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                    <TextBox AutomationProperties.Name="Privacy URL" Style="{StaticResource TextField}" Margin="0,7,0,0"
                                              local:PlaceholderText.Text="https://contoso.com/privacy"
                                              Text="{Binding DefaultPrivacyUrl, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Information URL" Style="{StaticResource FieldLabel}"/>
-                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                    <TextBox AutomationProperties.Name="Information URL" Style="{StaticResource TextField}" Margin="0,7,0,0"
                                              local:PlaceholderText.Text="https://contoso.com/apps"
                                              Text="{Binding DefaultInformationUrl, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
@@ -899,7 +899,7 @@
                             <TextBlock Text="Leave a field blank for no constraint" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,12"/>
 
                             <TextBlock Text="Minimum operating system" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox Margin="0,7,0,0" Height="42" VerticalContentAlignment="Center"
+                            <ComboBox AutomationProperties.Name="Minimum operating system" Margin="0,7,0,0" Height="42" VerticalContentAlignment="Center"
                                       ItemsSource="{Binding OperatingSystems}"
                                       SelectedItem="{Binding DefaultOperatingSystem, Mode=TwoWay}"/>
 
@@ -911,13 +911,13 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Minimum free disk space (MB)" Style="{StaticResource FieldLabel}"/>
-                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                    <TextBox AutomationProperties.Name="Minimum free disk space (MB)" Style="{StaticResource TextField}" Margin="0,7,0,0"
                                              local:PlaceholderText.Text="any"
                                              Text="{Binding DefaultMinFreeDiskSpaceMB, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Minimum memory (MB)" Style="{StaticResource FieldLabel}"/>
-                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                    <TextBox AutomationProperties.Name="Minimum memory (MB)" Style="{StaticResource TextField}" Margin="0,7,0,0"
                                              local:PlaceholderText.Text="any"
                                              Text="{Binding DefaultMinMemoryMB, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
@@ -931,13 +931,13 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Minimum number of processors" Style="{StaticResource FieldLabel}"/>
-                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                    <TextBox AutomationProperties.Name="Minimum number of processors" Style="{StaticResource TextField}" Margin="0,7,0,0"
                                              local:PlaceholderText.Text="any"
                                              Text="{Binding DefaultMinProcessors, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Minimum CPU speed (MHz)" Style="{StaticResource FieldLabel}"/>
-                                    <TextBox Style="{StaticResource TextField}" Margin="0,7,0,0"
+                                    <TextBox AutomationProperties.Name="Minimum CPU speed (MHz)" Style="{StaticResource TextField}" Margin="0,7,0,0"
                                              local:PlaceholderText.Text="any"
                                              Text="{Binding DefaultMinCpuSpeedMHz, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>

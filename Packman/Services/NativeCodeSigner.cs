@@ -39,8 +39,11 @@ public class NativeCodeSigner
                 using var store = new X509Store(StoreName.My, location);
                 store.Open(OpenFlags.ReadOnly);
                 var found = store.Certificates.Find(X509FindType.FindByThumbprint, _thumbprint, validOnly: false);
-                if (found.Count > 0)
-                    return found[0];
+                if (found.Count == 0) continue;
+
+                // Find hands back fresh contexts; only the one we return may stay alive.
+                for (int i = 1; i < found.Count; i++) found[i].Dispose();
+                return found[0];
             }
             catch { /* store not accessible */ }
         }
@@ -50,7 +53,7 @@ public class NativeCodeSigner
 
     public bool IsCertificateAvailable()
     {
-        var cert = GetCertificate();
+        using var cert = GetCertificate();
         return cert is { HasPrivateKey: true };
     }
 
@@ -63,7 +66,7 @@ public class NativeCodeSigner
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var cert = GetCertificate();
+            using var cert = GetCertificate();
             if (cert is null || !cert.HasPrivateKey)
             {
                 return new SigningResult
@@ -210,6 +213,10 @@ public class NativeCodeSigner
         }
         finally
         {
+            // cert.Handle is handed to native code that outlives every managed read of
+            // `cert`, so without this the CERT_CONTEXT can be freed mid-call.
+            GC.KeepAlive(cert);
+
             if (pSignerContext != IntPtr.Zero) SignerFreeSignerContext(pSignerContext);
             if (pSignatureInfo != IntPtr.Zero) Marshal.FreeHGlobal(pSignatureInfo);
             if (pSignerCert != IntPtr.Zero) Marshal.FreeHGlobal(pSignerCert);

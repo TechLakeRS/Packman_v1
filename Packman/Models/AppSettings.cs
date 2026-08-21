@@ -44,7 +44,6 @@ public class AppSettings
         public string IntuneApplications { get; set; } = "";
         public string PSADTTemplate { get; set; } = "";
         public string IntuneWinAppUtil { get; set; } = "";
-        public string DefaultPackageBrowsePath { get; set; } = "";
     }
 
     public class GroupAssignmentConfig
@@ -61,6 +60,29 @@ public class AppSettings
 
         // Existing groups that are always assigned to every upload.
         public List<ExistingGroupAssignment> ExistingGroups { get; set; } = new();
+
+        /// <summary>
+        /// True when this configuration would produce at least one assignment. The upload
+        /// skips the assignment stage otherwise; keeping the test here stops it from
+        /// falling behind when an option is added.
+        /// </summary>
+        public bool HasAnyAssignment() =>
+            CreateGroupPerPackage || CreateUninstallGroupPerPackage || ExistingGroups.Count > 0;
+
+        /// <summary>Copy used to drive one upload, so later edits to Settings cannot change it mid-run.</summary>
+        public GroupAssignmentConfig Clone() => new()
+        {
+            CreateGroupPerPackage = CreateGroupPerPackage,
+            GroupNameTemplate = GroupNameTemplate,
+            NewGroupIntent = NewGroupIntent,
+            CreateUninstallGroupPerPackage = CreateUninstallGroupPerPackage,
+            UninstallGroupNameTemplate = UninstallGroupNameTemplate,
+            ExistingGroups = ExistingGroups.Select(g => new ExistingGroupAssignment
+            {
+                GroupName = g.GroupName,
+                Intent = g.Intent,
+            }).ToList(),
+        };
     }
 
     public class IntuneDefaultsConfig

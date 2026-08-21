@@ -25,7 +25,7 @@ public partial class IntuneService
 
         foreach (var chunk in names.Chunk(15))
         {
-            var clauses = chunk.Select(n => $"displayName eq '{n.Replace("'", "''")}'");
+            var clauses = chunk.Select(n => $"displayName eq '{OData.Literal(n)}'");
             var filter = Uri.EscapeDataString(string.Join(" or ", clauses));
             var url = $"{GraphBeta}/devices?$filter={filter}&$select={DeviceSelect}&$top=999";
 
@@ -40,7 +40,7 @@ public partial class IntuneService
     public async Task<List<EntraDevice>> SearchDevicesAsync(string query)
     {
         if (string.IsNullOrWhiteSpace(query)) return new List<EntraDevice>();
-        var filter = Uri.EscapeDataString($"startswith(displayName,'{query.Trim().Replace("'", "''")}')");
+        var filter = Uri.EscapeDataString($"startswith(displayName,'{OData.Literal(query.Trim())}')");
         return await ReadDevicesAsync($"{GraphBeta}/devices?$filter={filter}&$select={DeviceSelect}&$top=10", allPages: false);
     }
 

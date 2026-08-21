@@ -42,6 +42,12 @@ public class UploadStepViewModel : ObservableObject
     private string _newReturnCodeInput = "";
     private string _defaultsAppliedFor = "";
 
+    /// <summary>In-flight seeding of the default groups; awaited before publishing.</summary>
+    private Task? _seeding;
+
+    /// <summary>Cancels the upload in flight. Null when nothing is running.</summary>
+    private CancellationTokenSource? _cts;
+
     private string _selectedDeployMode = DeployModeDefault;
 
     private string _reviewName = "";
@@ -62,6 +68,7 @@ public class UploadStepViewModel : ObservableObject
         DoneCommand = new RelayCommand(() => { IsPublishing = false; IsComplete = false; });
         AddReturnCodeCommand = new RelayCommand(AddReturnCode);
         RestoreDefaultsCommand = new RelayCommand(ApplyIntuneDefaults);
+        CancelUploadCommand = new RelayCommand(CancelUpload, () => IsRunning);
         ApplyIntuneDefaults();
 
         PublishSteps = new ObservableCollection<PublishStepViewModel>
@@ -93,7 +100,13 @@ public class UploadStepViewModel : ObservableObject
     public bool IsPublishing
     {
         get => _isPublishing;
-        private set { if (Set(ref _isPublishing, value)) { OnPropertyChanged(nameof(IsNotPublishing)); OnPropertyChanged(nameof(IsRunning)); } }
+        private set
+        {
+            if (!Set(ref _isPublishing, value)) return;
+            OnPropertyChanged(nameof(IsNotPublishing));
+            OnPropertyChanged(nameof(IsRunning));
+            CancelUploadCommand.RaiseCanExecuteChanged();
+        }
     }
     public bool IsNotPublishing => !_isPublishing;
 
@@ -104,7 +117,14 @@ public class UploadStepViewModel : ObservableObject
     public bool IsComplete
     {
         get => _isComplete;
-        private set { if (Set(ref _isComplete, value)) { OnPropertyChanged(nameof(IsRunning)); OnPropertyChanged(nameof(IsSucceeded)); OnPropertyChanged(nameof(IsFailed)); } }
+        private set
+        {
+            if (!Set(ref _isComplete, value)) return;
+            OnPropertyChanged(nameof(IsRunning));
+            OnPropertyChanged(nameof(IsSucceeded));
+            OnPropertyChanged(nameof(IsFailed));
+            CancelUploadCommand.RaiseCanExecuteChanged();
+        }
     }
 
     private bool _succeeded;
@@ -226,6 +246,15 @@ public class UploadStepViewModel : ObservableObject
     public RelayCommand AddReturnCodeCommand { get; }
     public RelayCommand RestoreDefaultsCommand { get; }
 
+    /// <summary>Stops an upload in flight; the service removes the half-built app.</summary>
+    public RelayCommand CancelUploadCommand { get; }
+
+    private void CancelUpload()
+    {
+        StatusText = "Cancelling…";
+        _cts?.Cancel();
+    }
+
     /// <summary>Re-seeds the requirement fields and return codes from the saved Intune defaults.</summary>
     private void ApplyIntuneDefaults()
     {
@@ -335,7 +364,7 @@ public class UploadStepViewModel : ObservableObject
             ApplyIntuneDefaults();
             SelectedDeployMode = DeployModeDefault;
             _defaultsAppliedFor = _create.CurrentPackagePath;
-            _ = GroupPicker.SeedFromSettingsAsync(_settingsService.Settings.GroupAssignment);
+            _seeding = GroupPicker.SeedFromSettingsAsync(_settingsService.Settings.GroupAssignment);
         }
 
         var appInfo = _create.BuildApplicationInfo();
@@ -346,19 +375,12 @@ public class UploadStepViewModel : ObservableObject
         AppSummaryName = $"{appInfo.Manufacturer} {appInfo.Name}".Trim();
         AppSummaryDetail = $"v{appInfo.Version} · {appInfo.InstallContext} context · Win32";
 
-        // Seed the editable detection fields from the auto-detected rule. Only for a new
-        // package - re-seeding would discard edits when stepping back from Review.
+        // Seed the editable detection fields for a new package only - re-seeding would
+        // discard edits when stepping back from Review. Nothing is guessed: an MSI
+        // gives a real product code, anything else is left for the packager to fill in.
         if (isNewPackage)
-        {
-            var autoRule = BuildDetectionRules(_create.CurrentPackagePath, appInfo)[0];
-            _detectionPath = string.IsNullOrEmpty(autoRule.Path) ? "%ProgramFiles%" : autoRule.Path;
-            _detectionName = string.IsNullOrEmpty(autoRule.FileOrFolderName) ? $"{appInfo.Name}.exe" : autoRule.FileOrFolderName;
-            _detectionValue = string.IsNullOrEmpty(autoRule.DetectionValue) ? appInfo.Version : autoRule.DetectionValue;
-            OnPropertyChanged(nameof(DetectionPath));
-            OnPropertyChanged(nameof(DetectionName));
-            OnPropertyChanged(nameof(DetectionValue));
-        }
-      
+            SeedDetectionFromPackage(appInfo);
+
         RefreshDetectionSummary();
 
         // Review panel.
@@ -388,11 +410,32 @@ public class UploadStepViewModel : ObservableObject
     private void RefreshDetectionSummary()
     {
         if (string.IsNullOrEmpty(_create.CurrentPackagePath)) return;
-        var appInfo = _create.BuildApplicationInfo();
-        DetectionSummary = DescribeDetection(BuildSelectedDetectionRules(_create.CurrentPackagePath, appInfo));
+        DetectionSummary = DescribeDetectionProblem() ?? DescribeDetection(BuildSelectedDetectionRules());
     }
 
-    private List<DetectionRule> BuildSelectedDetectionRules(string packagePath, ApplicationInfo appInfo)
+    /// <summary>
+    /// Why the current detection settings cannot produce a usable rule, or null when
+    /// they can. Intune accepts an incomplete rule and then never detects the app, so
+    /// this is checked before the upload rather than after.
+    /// </summary>
+    public string? DescribeDetectionProblem() => SelectedDetectionMethod switch
+    {
+        DetectionMethod.FileExists when Blank(DetectionPath) || Blank(DetectionName)
+            => "Detection needs a path and a file or folder name.",
+        DetectionMethod.FileVersion when Blank(DetectionPath) || Blank(DetectionName)
+            => "Detection needs a path and a file name.",
+        DetectionMethod.FileVersion when Blank(DetectionValue)
+            => "Detection needs the version to compare against.",
+        DetectionMethod.RegistryKey when Blank(RegistryKeyPath)
+            => "Detection needs a registry key path.",
+        DetectionMethod.MsiProductCode when Blank(DetectionProductCode)
+            => "Detection needs an MSI product code.",
+        _ => null,
+    };
+
+    private static bool Blank(string? value) => string.IsNullOrWhiteSpace(value);
+
+    private List<DetectionRule> BuildSelectedDetectionRules()
         => SelectedDetectionMethod switch
         {
             DetectionMethod.FileExists => new List<DetectionRule>
@@ -416,7 +459,7 @@ public class UploadStepViewModel : ObservableObject
             {
                 new() { Type = DetectionRuleType.MSI, Path = DetectionProductCode }
             },
-            _ => BuildDetectionRules(packagePath, appInfo)
+            _ => new List<DetectionRule>()
         };
 
     /// <summary>Reads the product code from the first MSI staged in the generated package, if there is one.</summary>
@@ -488,20 +531,32 @@ public class UploadStepViewModel : ObservableObject
             return;
         }
 
+        var detectionProblem = DescribeDetectionProblem();
+        if (detectionProblem != null)
+        {
+            StatusText = detectionProblem;
+            ResultText = detectionProblem;
+            return;
+        }
+
+        // Seeding runs in the background when the step opens; wait for it so a fast
+        // click cannot publish before the default groups have resolved. A seeding
+        // failure only means fewer groups, so it must not block the upload.
+        if (_seeding != null)
+        {
+            try { await _seeding; } catch { /* the picker already shows what resolved */ }
+        }
+
         var appInfo = _create.BuildApplicationInfo();
         appInfo.DisplayName = IntuneDisplayName;
 
-        // The picker owns the named groups now, so only the per-package option is left
-        // to the settings-driven assignment path.
-        var groupAssignment = new AppSettings.GroupAssignmentConfig
-        {
-            CreateGroupPerPackage = settings.GroupAssignment.CreateGroupPerPackage,
-            GroupNameTemplate = settings.GroupAssignment.GroupNameTemplate,
-            NewGroupIntent = settings.GroupAssignment.NewGroupIntent,
-        };
+        // The picker owns the named groups it already resolved, so drop those from the
+        // settings-driven path; everything else (both per-package options) still applies.
+        var groupAssignment = settings.GroupAssignment.Clone();
+        groupAssignment.ExistingGroups.Clear();
 
         var assignedGroups = GroupPicker.AssignableGroups;
-        var detectionRules = BuildSelectedDetectionRules(packagePath, appInfo);
+        var detectionRules = BuildSelectedDetectionRules();
         var requirements = BuildRequirements();
         var returnCodes = ReturnCodes.Select(r => r.ToInfo()).OfType<ReturnCodeInfo>().ToList();
 
@@ -523,6 +578,10 @@ public class UploadStepViewModel : ObservableObject
         StatusText = "Starting upload…";
 
         var progress = new DispatchedProgress(this);
+
+        _cts?.Dispose();
+        _cts = new CancellationTokenSource();
+        var token = _cts.Token;
 
         try
         {
@@ -547,7 +606,8 @@ public class UploadStepViewModel : ObservableObject
                 returnCodes,
                 settings.IntuneDefaults.PrivacyUrl,
                 settings.IntuneDefaults.InformationUrl,
-                assignedGroups));
+                assignedGroups,
+                token), token);
 
             ProgressValue = 100;
             foreach (var s in PublishSteps) s.State = "done";
@@ -556,6 +616,15 @@ public class UploadStepViewModel : ObservableObject
                 : $"Published successfully. App ID {appId}";
             StatusText = $"Uploaded to Intune · App ID {appId}";
             _succeeded = true;
+            IsComplete = true;
+        }
+        catch (OperationCanceledException)
+        {
+            var working = PublishSteps.FirstOrDefault(s => s.State == "working");
+            if (working != null) working.State = "error";
+            ResultText = "Upload cancelled. Anything already created in Intune was removed.";
+            StatusText = "Upload cancelled.";
+            _succeeded = false;
             IsComplete = true;
         }
         catch (Exception ex)
@@ -570,6 +639,8 @@ public class UploadStepViewModel : ObservableObject
         finally
         {
             IsUploading = false;
+            _cts?.Dispose();
+            _cts = null;
         }
     }
 
@@ -590,51 +661,30 @@ public class UploadStepViewModel : ObservableObject
         }
     }
 
-    private static List<DetectionRule> BuildDetectionRules(string packagePath, ApplicationInfo appInfo)
+    /// <summary>
+    /// Pre-fills the detection fields with values actually read from the package. An MSI
+    /// carries its own product code, which detects reliably; for anything else only the
+    /// version is offered and the packager supplies the path, because a guessed
+    /// "%ProgramFiles%\{App}.exe" uploads fine and then never detects the app.
+    /// </summary>
+    private void SeedDetectionFromPackage(ApplicationInfo appInfo)
     {
-        var rules = new List<DetectionRule>();
+        var productCode = FindMsiProductCode();
 
-        try
+        if (!string.IsNullOrEmpty(productCode))
         {
-            var filesFolder = Path.Combine(packagePath, "Application", "Files");
-            if (Directory.Exists(filesFolder))
-            {
-                var msiFiles = Directory.GetFiles(filesFolder, "*.msi", SearchOption.TopDirectoryOnly);
-                if (msiFiles.Length > 0)
-                {
-                    var msiInfo = MsiInfoService.ExtractMsiInfo(msiFiles[0]);
-                    if (msiInfo.IsValid)
-                    {
-                        rules.Add(new DetectionRule
-                        {
-                            Type = DetectionRuleType.File,
-                            Path = "%ProgramFiles%",
-                            FileOrFolderName = $"{appInfo.Name}.exe",
-                            DetectionType = "version",
-                            Operator = "greaterThanOrEqual",
-                            DetectionValue = string.IsNullOrEmpty(msiInfo.ProductVersion) ? appInfo.Version : msiInfo.ProductVersion,
-                            CheckVersion = true,
-                            Check32BitOn64System = true
-                        });
-                    }
-                }
-            }
-        }
-        catch { /* fall through to default rule */ }
-
-        if (rules.Count == 0)
-        {
-            rules.Add(new DetectionRule
-            {
-                Type = DetectionRuleType.File,
-                Path = "%ProgramFiles%",
-                FileOrFolderName = $"{appInfo.Name}.exe",
-                DetectionType = "exists",
-                Check32BitOn64System = true
-            });
+            _detectionProductCode = productCode;
+            SelectedDetectionMethod = DetectionMethod.MsiProductCode;
+            OnPropertyChanged(nameof(DetectionProductCode));
+            return;
         }
 
-        return rules;
+        _detectionPath = "";
+        _detectionName = "";
+        _detectionValue = appInfo.Version;
+        OnPropertyChanged(nameof(DetectionPath));
+        OnPropertyChanged(nameof(DetectionName));
+        OnPropertyChanged(nameof(DetectionValue));
     }
 
     private static string DescribeDetection(List<DetectionRule> rules)

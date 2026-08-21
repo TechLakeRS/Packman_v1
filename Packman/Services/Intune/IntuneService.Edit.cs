@@ -160,7 +160,7 @@ public partial class IntuneService
         var results = new List<GroupMember>();
         if (string.IsNullOrWhiteSpace(query)) return results;
 
-        var filter = Uri.EscapeDataString($"startswith(displayName,'{query.Trim().Replace("'", "''")}')");
+        var filter = Uri.EscapeDataString($"startswith(displayName,'{OData.Literal(query.Trim())}')");
         results.AddRange(await SearchDirectoryAsync($"{GraphBeta}/devices?$filter={filter}&$select=id,displayName&$top=8", "Device"));
         results.AddRange(await SearchDirectoryAsync($"{GraphBeta}/users?$filter={filter}&$select=id,displayName&$top=8", "User"));
         return results;

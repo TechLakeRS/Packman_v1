@@ -44,9 +44,12 @@
             <TextBox Grid.Column="0" Style="{StaticResource MonoField}" Height="32"
                      local:PlaceholderText.Text="Search applications…"
                      Text="{Binding Search, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <ComboBox Grid.Column="2" ItemsSource="{Binding Manufacturers}" SelectedItem="{Binding SelectedManufacturer, Mode=TwoWay}"/>
-            <ComboBox Grid.Column="4" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"/>
-            <ComboBox Grid.Column="6" ItemsSource="{Binding UpdatedWindows}" SelectedItem="{Binding SelectedUpdatedWindow, Mode=TwoWay}"/>
+            <ComboBox Grid.Column="2" AutomationProperties.Name="Filter by manufacturer"
+                      ItemsSource="{Binding Manufacturers}" SelectedItem="{Binding SelectedManufacturer, Mode=TwoWay}"/>
+            <ComboBox Grid.Column="4" AutomationProperties.Name="Filter by category"
+                      ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"/>
+            <ComboBox Grid.Column="6" AutomationProperties.Name="Filter by last updated"
+                      ItemsSource="{Binding UpdatedWindows}" SelectedItem="{Binding SelectedUpdatedWindow, Mode=TwoWay}"/>
         </Grid>
 
         <!-- Table -->

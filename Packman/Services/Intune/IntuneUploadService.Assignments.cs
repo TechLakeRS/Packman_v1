@@ -8,42 +8,6 @@ namespace Packman.Services;
 
 public partial class IntuneUploadService
 {
-    /// <summary>
-    /// Assigns the uploaded Win32 app to the given Entra groups, each with its own intent
-    /// ("required", "available" or "uninstall"). No-op when the group list is empty.
-    /// Used by the standalone Upload to Intune page, where groups are already resolved
-    /// to ids by the assignment picker.
-    /// </summary>
-    public async Task AssignAppToGroupsAsync(string appId, IEnumerable<AssignedGroup> groups)
-    {
-        var assignments = groups
-            .Where(g => !string.IsNullOrWhiteSpace(g.GroupId))
-            .Select(g => (object)new Dictionary<string, object>
-            {
-                ["@odata.type"] = "#microsoft.graph.mobileAppAssignment",
-                ["intent"] = string.IsNullOrWhiteSpace(g.AssignmentType) ? "required" : g.AssignmentType,
-                ["target"] = new Dictionary<string, object>
-                {
-                    ["@odata.type"] = "#microsoft.graph.groupAssignmentTarget",
-                    ["groupId"] = g.GroupId,
-                },
-            })
-            .ToList();
-
-        if (assignments.Count == 0)
-            return;
-
-        EnsureHttpClient();
-        var json = JsonSerializer.Serialize(new Dictionary<string, object> { ["mobileAppAssignments"] = assignments });
-        var url = $"https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/{appId}/assign";
-
-        using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, url);
-        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await sharedHttpClient!.SendAsync(request);
-        if (!response.IsSuccessStatusCode)
-            throw new Exception($"Assignment failed ({(int)response.StatusCode}): {await response.Content.ReadAsStringAsync()}");
-    }
-
     private const string GraphBeta = "https://graph.microsoft.com/beta";
 
     /// <summary>
@@ -98,8 +62,8 @@ public partial class IntuneUploadService
     {
         try
         {
-            var escaped = displayName.Replace("'", "''");
-            var url = $"{GraphBeta}/groups?$filter=displayName eq '{Uri.EscapeDataString(escaped)}'&$select=id";
+            var filter = Uri.EscapeDataString($"displayName eq '{OData.Literal(displayName)}'");
+            var url = $"{GraphBeta}/groups?$filter={filter}&$select=id";
             using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url);
             var response = await sharedHttpClient!.SendAsync(request);
             if (!response.IsSuccessStatusCode) return null;

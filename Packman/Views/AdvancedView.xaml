@@ -118,7 +118,7 @@
 
                             <TextBlock Text="Target group" Style="{StaticResource FieldLabel}" Margin="0,0,0,5"/>
                             <Grid>
-                                <TextBox Style="{StaticResource TextField}"
+                                <TextBox AutomationProperties.Name="Target group" Style="{StaticResource TextField}"
                                          local:PlaceholderText.Text="Search Entra groups…"
                                          Text="{Binding BulkGroupSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             </Grid>
@@ -172,7 +172,7 @@
                             <TextBlock Text="PC names" Style="{StaticResource FieldLabel}" Margin="0,16,0,5"/>
                             <!-- Plain TextBox in a card border: the TextField style is single-line (hidden scrollbars, centred content) -->
                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="4">
-                                <TextBox Height="150" AcceptsReturn="True" TextWrapping="Wrap" Padding="12,10"
+                                <TextBox AutomationProperties.Name="PC names" Height="150" AcceptsReturn="True" TextWrapping="Wrap" Padding="12,10"
                                          Background="Transparent" BorderThickness="0"
                                          Foreground="{DynamicResource InkBrush}" CaretBrush="{DynamicResource InkBrush}"
                                          SelectionBrush="{DynamicResource PrimaryDimBrush}"

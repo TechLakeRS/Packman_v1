@@ -17,7 +17,7 @@ public sealed class GroupPickerViewModel : ObservableObject
 
     public GroupPickerViewModel()
     {
-        SearchGroupsCommand = new RelayCommand(async () => await SearchGroupsAsync(), () => !IsSearchingGroups);
+        SearchGroupsCommand = new AsyncRelayCommand(SearchGroupsAsync, () => !IsSearchingGroups);
         AddGroupCommand = new RelayCommand<EntraGroup>(AddGroup);
         RemoveGroupCommand = new RelayCommand<AssignedGroup>(g => { if (g != null) SelectedGroups.Remove(g); });
         SelectedGroups.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasGroups));
@@ -26,7 +26,7 @@ public sealed class GroupPickerViewModel : ObservableObject
     public ObservableCollection<EntraGroup> GroupResults { get; } = new();
     public ObservableCollection<AssignedGroup> SelectedGroups { get; } = new();
 
-    public RelayCommand SearchGroupsCommand { get; }
+    public AsyncRelayCommand SearchGroupsCommand { get; }
     public RelayCommand<EntraGroup> AddGroupCommand { get; }
     public RelayCommand<AssignedGroup> RemoveGroupCommand { get; }
 

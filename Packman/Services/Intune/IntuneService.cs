@@ -19,7 +19,10 @@ public partial class IntuneService
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromMinutes(2) };
 
     private readonly Func<Task<string>> _tokenProvider;
-    private List<IntuneApplication>? _listCache;
+
+    // Reads and the delete-invalidation can land on different threads, so the cache is
+    // swapped by reference rather than mutated in place.
+    private volatile IReadOnlyList<IntuneApplication>? _listCache;
 
     public IntuneService(Func<Task<string>> tokenProvider)
         => _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
@@ -35,8 +38,9 @@ public partial class IntuneService
     // ── List ────────────────────────────────────────────
     public async Task<List<IntuneApplication>> GetApplicationsAsync(bool forceRefresh = false, IProgress<int>? progress = null)
     {
-        if (!forceRefresh && _listCache != null)
-            return _listCache;
+        var cached = _listCache;
+        if (!forceRefresh && cached != null)
+            return cached.ToList();
 
         var apps = new List<IntuneApplication>();
         var url = $"{Base}?$filter=isof('microsoft.graph.win32LobApp')&$expand=categories&$top=100&$orderby=displayName";
@@ -66,8 +70,9 @@ public partial class IntuneService
             url = root.TryGetProperty("@odata.nextLink", out var next) ? next.GetString() ?? "" : "";
         }
 
-        _listCache = apps.OrderBy(a => a.DisplayName).ToList();
-        return _listCache;
+        var sorted = apps.OrderBy(a => a.DisplayName).ToList();
+        _listCache = sorted;
+        return sorted.ToList();
     }
 
     // ── Detail ──────────────────────────────────────────
@@ -202,7 +207,7 @@ public partial class IntuneService
             var url = "https://graph.microsoft.com/beta/deviceManagement/reports/getAppStatusOverviewReport";
             using var request = await AuthRequestAsync(HttpMethod.Post, url);
             request.Content = new StringContent(
-                JsonSerializer.Serialize(new { filter = $"(ApplicationId eq '{appId}')" }),
+                JsonSerializer.Serialize(new { filter = $"(ApplicationId eq '{OData.Literal(appId)}')" }),
                 Encoding.UTF8, "application/json");
             var response = await Http.SendAsync(request);
             if (!response.IsSuccessStatusCode) return new InstallationStatistics();
@@ -240,7 +245,10 @@ public partial class IntuneService
         var response = await Http.SendAsync(request);
         if (!response.IsSuccessStatusCode)
             throw new Exception($"Failed to delete app ({(int)response.StatusCode}): {await response.Content.ReadAsStringAsync()}");
-        _listCache?.RemoveAll(a => a.Id == id);
+
+        var cached = _listCache;
+        if (cached != null)
+            _listCache = cached.Where(a => a.Id != id).ToList();
     }
 
     // ── Parsing ─────────────────────────────────────────

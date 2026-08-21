@@ -1,4 +1,5 @@
 using Packman.Models;
+using Packman.Services;
 using Packman.ViewModels;
 using System;
 using System.Windows.Controls;
@@ -25,5 +26,5 @@ public partial class ApplicationsView : UserControl
     }
 
     /// <summary>Loads (or refreshes) the list. Called by the host when the screen is shown.</summary>
-    public async void Load() => await ViewModel.LoadAsync();
+    public void Load() => ErrorReporter.FireAndForget(() => ViewModel.LoadAsync());
 }

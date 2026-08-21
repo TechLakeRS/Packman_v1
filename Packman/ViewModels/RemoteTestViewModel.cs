@@ -56,10 +56,10 @@ public sealed class RemoteTestViewModel : ObservableObject
     public ObservableCollection<RemoteTestLine> Lines { get; } = new();
     public ObservableCollection<string> RecentComputers { get; } = new();
 
-    public RelayCommand InstallCommand { get; }
-    public RelayCommand UninstallCommand { get; }
-    public RelayCommand DetectCommand { get; }
-    public RelayCommand CheckOnlineCommand { get; }
+    public AsyncRelayCommand InstallCommand { get; }
+    public AsyncRelayCommand UninstallCommand { get; }
+    public AsyncRelayCommand DetectCommand { get; }
+    public AsyncRelayCommand CheckOnlineCommand { get; }
     public RelayCommand ApplyDetectionCommand { get; }
     public RelayCommand ClearLogCommand { get; }
 
@@ -76,10 +76,10 @@ public sealed class RemoteTestViewModel : ObservableObject
         _flushTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
         _flushTimer.Tick += (_, _) => Flush();
 
-        InstallCommand        = new RelayCommand(() => _ = RunAsync("Install"), CanRun);
-        UninstallCommand      = new RelayCommand(() => _ = RunAsync("Uninstall"), CanRun);
-        DetectCommand         = new RelayCommand(() => _ = DiscoverAsync(), () => !_isRunning && IsValidTarget);
-        CheckOnlineCommand    = new RelayCommand(() => _ = CheckOnlineAsync(), () => !_isRunning && IsValidTarget);
+        InstallCommand        = new AsyncRelayCommand(() => RunAsync("Install"), CanRun);
+        UninstallCommand      = new AsyncRelayCommand(() => RunAsync("Uninstall"), CanRun);
+        DetectCommand         = new AsyncRelayCommand(DiscoverAsync, () => !_isRunning && IsValidTarget);
+        CheckOnlineCommand    = new AsyncRelayCommand(CheckOnlineAsync, () => !_isRunning && IsValidTarget);
         ApplyDetectionCommand = new RelayCommand(ApplyDetection, () => _discoveredRule != null && _isGeneratedPackage);
         ClearLogCommand       = new RelayCommand(() => { Lines.Clear(); lock (_pending) _pending.Clear(); });
 
@@ -287,7 +287,7 @@ public sealed class RemoteTestViewModel : ObservableObject
 
         string packagePath = _packagePath;
         bool runAsUser = _runAsUser;
-        bool cleanup = _settingsService.Settings.RemoteTest.CleanupAfterRun;
+        bool cleanup = CleanupAfterRun;
 
         int exitCode = -1;
         try
@@ -389,6 +389,22 @@ public sealed class RemoteTestViewModel : ObservableObject
         StatusText = "detection rule applied to publish";
     }
 
+    /// <summary>
+    /// Whether the staged package is removed from the target after a run. Persisted, so
+    /// the choice survives to the next test.
+    /// </summary>
+    public bool CleanupAfterRun
+    {
+        get => _settingsService.Settings.RemoteTest.CleanupAfterRun;
+        set
+        {
+            if (_settingsService.Settings.RemoteTest.CleanupAfterRun == value) return;
+            _settingsService.Settings.RemoteTest.CleanupAfterRun = value;
+            SaveSettingsQuietly();
+            OnPropertyChanged();
+        }
+    }
+
     // ── Recent computers ───────────────────────────────────────────────
     /// <summary>Re-reads the saved machines; the wizard's Remote Test writes the same list.</summary>
     public void RefreshRecentComputers()
@@ -408,7 +424,23 @@ public sealed class RemoteTestViewModel : ObservableObject
         while (RecentComputers.Count > MaxRecentComputers) RecentComputers.RemoveAt(RecentComputers.Count - 1);
 
         _settingsService.Settings.RemoteTest.RecentComputers = RecentComputers.ToList();
-        _settingsService.Save();
+        SaveSettingsQuietly();
+    }
+
+    /// <summary>
+    /// Persists a convenience setting. A failed write is logged to the console pane
+    /// rather than raised: it must not interrupt a test that is about to run.
+    /// </summary>
+    private void SaveSettingsQuietly()
+    {
+        try
+        {
+            _settingsService.Save();
+        }
+        catch (Exception ex)
+        {
+            Append($"WARNING: could not save settings: {ex.Message}");
+        }
     }
 
     // ── Console ────────────────────────────────────────────────────────

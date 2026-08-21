@@ -35,7 +35,7 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public RelayCommand BackCommand { get; }
-    public RelayCommand PrimaryCommand { get; }
+    public AsyncRelayCommand PrimaryCommand { get; }
     public RelayCommand<int> GoToStepCommand { get; }
     public RelayCommand OpenEditToolCommand { get; }
     public RelayCommand OpenTestToolCommand { get; }
@@ -171,7 +171,7 @@ public sealed class MainViewModel : ObservableObject
         };
 
         BackCommand     = new RelayCommand(() => CurrentStepIndex--, () => CurrentStepIndex > 0);
-        PrimaryCommand  = new RelayCommand(OnPrimary, () => !CreatePackage.IsGenerating && !Upgrade.IsBusy && !Upload.IsPublishing);
+        PrimaryCommand  = new AsyncRelayCommand(OnPrimaryAsync, () => !CreatePackage.IsGenerating && !Upgrade.IsBusy && !Upload.IsPublishing);
         GoToStepCommand = new RelayCommand<int>(i => CurrentStepIndex = i);
 
         OpenEditToolCommand      = new RelayCommand(() => ActiveTool = PackageTool.EditScript, () => HasPackage);
@@ -233,7 +233,7 @@ public sealed class MainViewModel : ObservableObject
         OpenPackageFolderCommand.RaiseCanExecuteChanged();
     }
 
-    private async void OnPrimary()
+    private async Task OnPrimaryAsync()
     {
         if (CurrentStepIndex == GenerateStep)
         {
@@ -262,7 +262,20 @@ public sealed class MainViewModel : ObservableObject
 
     private async Task RunCreateAsync()
     {
-        var packagePath = await CreatePackage.GenerateAsync(_settingsService.Settings);
+        // A package folder for this version already exists, so ask before replacing it
+        // rather than surfacing the collision as an error after the fact.
+        var existing = CreatePackage.FindExistingPackage(_settingsService.Settings);
+        var overwrite = false;
+        if (existing != null)
+        {
+            var answer = MessageBox.Show(
+                $"A package for this version already exists:\n\n{existing}\n\nReplace it?",
+                "Package already exists", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (answer != MessageBoxResult.Yes) return;
+            overwrite = true;
+        }
+
+        var packagePath = await CreatePackage.GenerateAsync(_settingsService.Settings, overwrite);
         if (!string.IsNullOrEmpty(packagePath))
             RaisePackageDependents();
         else if (!string.IsNullOrEmpty(CreatePackage.StatusText))

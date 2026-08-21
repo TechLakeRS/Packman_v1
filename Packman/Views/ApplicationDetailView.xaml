@@ -371,7 +371,7 @@
                                                    Margin="12,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <ComboBox x:Name="NewRuleType" Width="110" Height="34" SelectedIndex="0">
+                                        <ComboBox AutomationProperties.Name="Uninstall command" x:Name="NewRuleType" Width="110" Height="34" SelectedIndex="0">
                                             <ComboBoxItem Content="MSI"/>
                                             <ComboBoxItem Content="File"/>
                                             <ComboBoxItem Content="Registry"/>
@@ -446,7 +446,7 @@
                                                         <!-- MSI fields -->
                                                         <StackPanel Visibility="{Binding IsMsi, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Product code" Style="{StaticResource FieldLabel}" Margin="0,0,0,5"/>
-                                                            <TextBox Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
+                                                            <TextBox AutomationProperties.Name="Product code" Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
                                                                      Text="{Binding EditPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                             <CheckBox Content="Check product version" IsChecked="{Binding EditCheckVersion, Mode=TwoWay}"
                                                                       Foreground="{DynamicResource TextBrush}" FontSize="12.5" Margin="0,10,0,0"/>
@@ -455,27 +455,27 @@
                                                         <!-- File fields -->
                                                         <StackPanel Visibility="{Binding IsFile, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Path" Style="{StaticResource FieldLabel}" Margin="0,0,0,5"/>
-                                                            <TextBox Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
+                                                            <TextBox AutomationProperties.Name="Path" Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
                                                                      Text="{Binding EditPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                             <TextBlock Text="File or folder" Style="{StaticResource FieldLabel}" Margin="0,10,0,5"/>
-                                                            <TextBox Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
+                                                            <TextBox AutomationProperties.Name="File or folder" Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
                                                                      Text="{Binding EditName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                         </StackPanel>
 
                                                         <!-- Registry fields -->
                                                         <StackPanel Visibility="{Binding IsRegistry, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Key path" Style="{StaticResource FieldLabel}" Margin="0,0,0,5"/>
-                                                            <TextBox Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
+                                                            <TextBox AutomationProperties.Name="Key path" Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
                                                                      Text="{Binding EditPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                             <TextBlock Text="Value name (empty = key itself)" Style="{StaticResource FieldLabel}" Margin="0,10,0,5"/>
-                                                            <TextBox Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
+                                                            <TextBox AutomationProperties.Name="Value name (empty = key itself)" Style="{StaticResource TextField}" Height="34" FontFamily="{StaticResource MonoFontFamily}" FontSize="12"
                                                                      Text="{Binding EditName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                         </StackPanel>
 
                                                         <!-- Detection type (file/registry only) -->
                                                         <StackPanel Visibility="{Binding IsFileOrRegistry, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Detection" Style="{StaticResource FieldLabel}" Margin="0,10,0,5"/>
-                                                            <ComboBox Width="200" Height="34" HorizontalAlignment="Left"
+                                                            <ComboBox AutomationProperties.Name="Detection" Width="200" Height="34" HorizontalAlignment="Left"
                                                                       ItemsSource="{Binding DetectionTypeChoices}" DisplayMemberPath="Label"
                                                                       SelectedValuePath="Value" SelectedValue="{Binding EditDetectionType, Mode=TwoWay}"/>
                                                         </StackPanel>
@@ -798,7 +798,7 @@
             <!-- Add member -->
             <StackPanel Grid.Row="2" Margin="0,0,0,8" Visibility="{Binding FlyoutHasGroup, Converter={StaticResource BoolToVis}}">
                 <TextBlock Text="Add member" Style="{StaticResource FieldLabel}" Margin="0,0,0,5"/>
-                <TextBox Style="{StaticResource TextField}" Height="36"
+                <TextBox AutomationProperties.Name="Add member" Style="{StaticResource TextField}" Height="36"
                          local:PlaceholderText.Text="Search devices or users…"
                          Text="{Binding MemberSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>

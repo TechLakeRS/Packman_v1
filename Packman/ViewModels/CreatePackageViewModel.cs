@@ -14,7 +14,6 @@ public class CreatePackageViewModel : ObservableObject
     private string _version = "";
     private bool _userInstall = false;
     private string _architecture = "x64";
-    private string _detectedPackageType = "";
     private MsiInfoService.MsiInfo? _currentMsiInfo;
     private string _currentPackagePath = "";
     private string _statusText = "";
@@ -57,12 +56,6 @@ public class CreatePackageViewModel : ObservableObject
     {
         get => _architecture;
         set => Set(ref _architecture, value);
-    }
-
-    public string DetectedPackageType
-    {
-        get => _detectedPackageType;
-        set => Set(ref _detectedPackageType, value);
     }
 
     public MsiInfoService.MsiInfo? CurrentMsiInfo
@@ -109,7 +102,6 @@ public class CreatePackageViewModel : ObservableObject
     {
         SourcesPath = filePath;
         var ext = Path.GetExtension(filePath).ToLower();
-        DetectedPackageType = ext == ".msi" ? "MSI" : ext == ".exe" ? "EXE" : "Unknown";
 
         if (ext == ".msi")
         {
@@ -169,7 +161,24 @@ public class CreatePackageViewModel : ObservableObject
         return true;
     }
 
-    public async Task<string?> GenerateAsync(AppSettings settings)
+    /// <summary>
+    /// Path of an already-built package for the current app and version, or null when
+    /// the version is free. Lets the caller offer to replace it instead of failing.
+    /// </summary>
+    public string? FindExistingPackage(AppSettings settings)
+    {
+        var outputPath = settings.NetworkPaths.IntuneApplications;
+        var templatePath = settings.NetworkPaths.PSADTTemplate;
+        if (string.IsNullOrWhiteSpace(outputPath) || string.IsNullOrWhiteSpace(templatePath))
+            return null;
+        if (string.IsNullOrWhiteSpace(AppName))
+            return null;
+
+        var check = new PSADTGenerator(outputPath, templatePath).ValidatePackageCreation(BuildApplicationInfo());
+        return check.PackageExists ? check.ExistingPath : null;
+    }
+
+    public async Task<string?> GenerateAsync(AppSettings settings, bool overwriteExisting = false)
     {
         if (!Validate()) return null;
 
@@ -190,7 +199,7 @@ public class CreatePackageViewModel : ObservableObject
             var appInfo = BuildApplicationInfo();
 
             var generator = new PSADTGenerator(outputPath, templatePath);
-            var packagePath = await generator.CreatePackageAsync(appInfo);
+            var packagePath = await generator.CreatePackageAsync(appInfo, overwriteExisting);
 
             if (!string.IsNullOrEmpty(packagePath) && !string.IsNullOrEmpty(ExtractedIconPath))
                 IconExtractor.CopyIconToPackage(ExtractedIconPath, packagePath, appInfo.Name);
@@ -221,7 +230,6 @@ public class CreatePackageViewModel : ObservableObject
         ExtractedIconPath = "";
         UserInstall = false;
         Architecture = "x64";
-        DetectedPackageType = "";
         CurrentMsiInfo = null;
         CurrentPackagePath = "";
         StatusText = "";

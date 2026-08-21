@@ -78,7 +78,7 @@ public class UpgradePackageViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Loads metadata from an existing PSADT package folder (v3 or v4).
+    /// Loads metadata from an existing PSADT v4 package folder.
     /// </summary>
     public void LoadPackage(string packagePath)
     {
@@ -160,10 +160,9 @@ public class UpgradePackageViewModel : ObservableObject
         }
 
         var outputPath = settings.NetworkPaths.IntuneApplications;
-        var templatePath = settings.NetworkPaths.PSADTTemplate;
-        if (string.IsNullOrWhiteSpace(outputPath) || string.IsNullOrWhiteSpace(templatePath))
+        if (string.IsNullOrWhiteSpace(outputPath))
         {
-            StatusText = "Configure IntuneApplications and PSADTTemplate paths in Settings first.";
+            StatusText = "Configure the IntuneApplications path in Settings first.";
             return null;
         }
 
@@ -172,7 +171,7 @@ public class UpgradePackageViewModel : ObservableObject
 
         try
         {
-            var service = new PackageUpgradeService(outputPath, templatePath);
+            var service = new PackageUpgradeService(outputPath);
             var newPath = await service.UpgradePackageAsync(ExistingPackagePath, NewVersion.Trim(), NewSourcePath.Trim());
 
             StatusText = $"New version {NewVersion} created.";

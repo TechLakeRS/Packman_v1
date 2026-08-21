@@ -17,7 +17,7 @@ public partial class IntuneService
         if (string.IsNullOrWhiteSpace(query))
             return results;
 
-        var filter = Uri.EscapeDataString($"startswith(displayName,'{query.Trim().Replace("'", "''")}')");
+        var filter = Uri.EscapeDataString($"startswith(displayName,'{OData.Literal(query.Trim())}')");
         var url = $"https://graph.microsoft.com/beta/groups?$filter={filter}&$select=id,displayName&$top=20&$orderby=displayName";
 
         using var request = await AuthRequestAsync(HttpMethod.Get, url);

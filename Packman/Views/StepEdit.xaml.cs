@@ -19,19 +19,8 @@ namespace Packman.Views;
 
 public partial class StepEdit : UserControl
 {
-    private static readonly HashSet<string> TextExtensions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".ps1", ".psm1", ".psd1", ".txt", ".xml", ".json", ".cmd", ".bat",
-        ".ini", ".md", ".config", ".log", ".reg", ".csv", ".yml", ".yaml"
-    };
-
-    private static readonly HashSet<string> PowerShellExtensions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".ps1", ".psm1", ".psd1"
-    };
-
-    private const long MaxSearchFileBytes = 2 * 1024 * 1024;
-    private const int MaxSearchHits = 200;
+    private static readonly IReadOnlySet<string> TextExtensions = PackageFileSearch.TextExtensions;
+    private static readonly IReadOnlySet<string> PowerShellExtensions = PackageFileSearch.PowerShellExtensions;
 
     /// <summary>Loaded once per process; the catalog CSV does not change while Packman runs.</summary>
     private static List<PSADTFunction>? _catalog;
@@ -53,8 +42,8 @@ public partial class StepEdit : UserControl
     {
         InitializeComponent();
         FileTabs.ItemsSource = _openFiles;
-        _watchTimer.Tick += async (_, _) => { _watchTimer.Stop(); await OnPackageChangedOnDiskAsync(); };
-        _searchTimer.Tick += async (_, _) => { _searchTimer.Stop(); await RunSearchAsync(SearchBox.Text); };
+        _watchTimer.Tick += (_, _) => { _watchTimer.Stop(); ErrorReporter.FireAndForget(OnPackageChangedOnDiskAsync); };
+        _searchTimer.Tick += (_, _) => { _searchTimer.Stop(); ErrorReporter.FireAndForget(() => RunSearchAsync(SearchBox.Text)); };
     }
 
     private MainViewModel? VM => DataContext as MainViewModel;
@@ -70,15 +59,17 @@ public partial class StepEdit : UserControl
     private void StepEdit_Loaded(object sender, RoutedEventArgs e)
     {
         // Warm the WebView2 up front so the step does not stall the first time it is shown.
-        _ = InitializeEditorAsync();
-
+        ErrorReporter.FireAndForget(InitializeEditorAsync);
     }
 
-    private async void StepEdit_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void StepEdit_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (!IsVisible) return;
-        await InitializeEditorAsync();
-        await LoadPackageAsync();
+        ErrorReporter.FireAndForget(async () =>
+        {
+            await InitializeEditorAsync();
+            await LoadPackageAsync();
+        });
     }
 
     // ═══════════ WebView2 / Monaco host ═══════════
@@ -95,14 +86,17 @@ public partial class StepEdit : UserControl
             var env = await CoreWebView2Environment.CreateAsync(userDataFolder: userDataFolder);
             await EditorWebView.EnsureCoreWebView2Async(env);
 
+            var core = EditorWebView.CoreWebView2
+                ?? throw new InvalidOperationException("WebView2 initialised without a CoreWebView2.");
+
             var assetsFolder = Path.Combine(AppContext.BaseDirectory, "MonacoEditor");
-            EditorWebView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+            core.SetVirtualHostNameToFolderMapping(
                 "packman-editor", assetsFolder, CoreWebView2HostResourceAccessKind.Allow);
-            EditorWebView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
-            EditorWebView.CoreWebView2.Settings.AreDevToolsEnabled = false;
-            EditorWebView.CoreWebView2.WebMessageReceived += Editor_WebMessageReceived;
+            core.Settings.AreDefaultContextMenusEnabled = false;
+            core.Settings.AreDevToolsEnabled = false;
+            core.WebMessageReceived += Editor_WebMessageReceived;
             ApplyEditorTheme();
-            EditorWebView.CoreWebView2.Navigate("https://packman-editor/index.html");
+            core.Navigate("https://packman-editor/index.html");
         }
         catch (Exception ex)
         {
@@ -113,12 +107,14 @@ public partial class StepEdit : UserControl
         }
     }
 
-    private async void Editor_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+    private void Editor_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
         using var doc = JsonDocument.Parse(e.WebMessageAsJson);
         var root = doc.RootElement;
 
-        switch (root.GetProperty("type").GetString())
+        if (!root.TryGetProperty("type", out var typeProperty)) return;
+
+        switch (typeProperty.GetString())
         {
             case "ready":
                 _editorReady = true;
@@ -143,11 +139,17 @@ public partial class StepEdit : UserControl
                 break;
 
             case "save":
-                if (_active != null) await SaveAsync(_active);
+                if (_active != null)
+                {
+                    var toSave = _active;
+                    ErrorReporter.FireAndForget(() => SaveAsync(toSave));
+                }
                 break;
 
             case "validate":
-                Validate(root.GetProperty("path").GetString(), root.GetProperty("content").GetString());
+                ErrorReporter.FireAndForget(() => ValidateAsync(
+                    root.GetProperty("path").GetString(),
+                    root.GetProperty("content").GetString()));
                 break;
 
             case "cursor":
@@ -184,12 +186,16 @@ public partial class StepEdit : UserControl
         if (_editorReady) PostToEditor(new { type = "theme", background = CodeBackgroundHex() });
     }
 
-    /// <summary>Parses a buffer and sends the syntax errors back to Monaco as markers.</summary>
-    private void Validate(string? path, string? content)
+    /// <summary>
+    /// Parses a buffer and sends the syntax errors back to Monaco as markers. The parse
+    /// runs off the UI thread: it fires on every keystroke pause, and a large deployment
+    /// script is enough work to be felt as typing lag.
+    /// </summary>
+    private async Task ValidateAsync(string? path, string? content)
     {
         if (path is null || content is null) return;
 
-        var errors = PowerShellSyntaxValidator.Validate(content);
+        var errors = await Task.Run(() => PowerShellSyntaxValidator.Validate(content));
         PostToEditor(new
         {
             type = "markers",
@@ -358,7 +364,7 @@ public partial class StepEdit : UserControl
         TreeRail.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    private async void RefreshTree_Click(object sender, RoutedEventArgs e) => await RefreshTreeAsync();
+    private void RefreshTree_Click(object sender, RoutedEventArgs e) => ErrorReporter.FireAndForget(RefreshTreeAsync);
 
     private void FileTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
@@ -643,9 +649,11 @@ public partial class StepEdit : UserControl
         UpdateStatusBar();
     }
 
-    private async void Save_Click(object sender, RoutedEventArgs e)
+    private void Save_Click(object sender, RoutedEventArgs e)
     {
-        if (_active != null) await SaveAsync(_active);
+        if (_active == null) return;
+        var file = _active;
+        ErrorReporter.FireAndForget(() => SaveAsync(file));
     }
 
     private void Revert_Click(object sender, RoutedEventArgs e)
@@ -670,10 +678,14 @@ public partial class StepEdit : UserControl
         if ((sender as FrameworkElement)?.Tag is OpenFile file) Activate(file);
     }
 
-    private async void TabClose_Click(object sender, RoutedEventArgs e)
+    private void TabClose_Click(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.Tag is not OpenFile file) return;
+        ErrorReporter.FireAndForget(() => CloseTabAsync(file));
+    }
 
+    private async Task CloseTabAsync(OpenFile file)
+    {
         if (file.IsDirty)
         {
             var answer = MessageBox.Show($"Save changes to {file.Name}?", "Unsaved changes",
@@ -722,7 +734,7 @@ public partial class StepEdit : UserControl
         List<SearchHit> hits;
         try
         {
-            hits = await Task.Run(() => Search(appFolder, query, token), token);
+            hits = await Task.Run(() => PackageFileSearch.Search(appFolder, query, token), token);
         }
         catch (OperationCanceledException)
         {
@@ -734,53 +746,6 @@ public partial class StepEdit : UserControl
         SearchResults.ItemsSource = hits;
         SearchResults.Visibility = Visibility.Visible;
         FileTree.Visibility = Visibility.Collapsed;
-    }
-
-    /// <summary>Matches file names, then line contents of the text files in the package.</summary>
-    private static List<SearchHit> Search(string folder, string query, CancellationToken token)
-    {
-        var hits = new List<SearchHit>();
-
-        IEnumerable<string> files;
-        try
-        {
-            files = Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories).ToList();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return hits;
-        }
-
-        foreach (var path in files)
-        {
-            token.ThrowIfCancellationRequested();
-            if (hits.Count >= MaxSearchHits) break;
-            if (path.EndsWith(TextFileIO.TempSuffix, StringComparison.OrdinalIgnoreCase)) continue;
-
-            var name = Path.GetFileName(path);
-            if (name.Contains(query, StringComparison.OrdinalIgnoreCase))
-                hits.Add(new SearchHit(path, name, 0, path));
-
-            if (!TextExtensions.Contains(Path.GetExtension(path))) continue;
-
-            try
-            {
-                if (new FileInfo(path).Length > MaxSearchFileBytes) continue;
-
-                var lineNumber = 0;
-                var perFile = 0;
-                foreach (var line in File.ReadLines(path))
-                {
-                    lineNumber++;
-                    if (!line.Contains(query, StringComparison.OrdinalIgnoreCase)) continue;
-                    hits.Add(new SearchHit(path, name, lineNumber, line.Trim()));
-                    if (++perFile >= 5 || hits.Count >= MaxSearchHits) break;
-                }
-            }
-            catch (IOException) { }
-        }
-
-        return hits;
     }
 
     private void SearchResults_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -877,8 +842,4 @@ public partial class StepEdit : UserControl
         }
     }
 
-    public sealed record SearchHit(string Path, string Name, int Line, string Preview)
-    {
-        public string LineLabel => Line > 0 ? $"line {Line}" : "file name";
-    }
 }

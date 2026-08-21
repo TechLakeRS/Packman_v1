@@ -118,7 +118,7 @@ public sealed class SettingsViewModel : ObservableObject
             OnPropertyChanged(nameof(IsThemeLight));
             _svc.Settings.Theme = value;
             ThemeService.Apply(value);
-            _svc.Save();
+            TryPersist();
         }
     }
     public bool IsThemeSystem { get => _theme == AppTheme.System; set { if (value) Theme = AppTheme.System; } }
@@ -315,9 +315,9 @@ public sealed class SettingsViewModel : ObservableObject
 
     public RelayCommand SaveCommand { get; }
     public RelayCommand ResetCommand { get; }
-    public RelayCommand SignInCommand { get; }
-    public RelayCommand SignOutCommand { get; }
-    public RelayCommand TestConnectionCommand { get; }
+    public AsyncRelayCommand SignInCommand { get; }
+    public AsyncRelayCommand SignOutCommand { get; }
+    public AsyncRelayCommand TestConnectionCommand { get; }
 
     public SettingsViewModel(SettingsService svc, IntuneAuthService auth)
     {
@@ -325,14 +325,18 @@ public sealed class SettingsViewModel : ObservableObject
         _auth = auth;
         SaveCommand = new RelayCommand(Save);
         ResetCommand = new RelayCommand(Reset);
-        SignInCommand = new RelayCommand(SignIn);
-        SignOutCommand = new RelayCommand(SignOut);
-        TestConnectionCommand = new RelayCommand(TestConnection, () => !IsTesting);
+        SignInCommand = new AsyncRelayCommand(SignInAsync);
+        SignOutCommand = new AsyncRelayCommand(SignOutAsync);
+        TestConnectionCommand = new AsyncRelayCommand(TestConnectionAsync, () => !IsTesting);
         AddGroupCommand = new RelayCommand(AddGroup);
         AddReturnCodeCommand = new RelayCommand(AddReturnCode);
         RestoreDefaultReturnCodesCommand = new RelayCommand(() => LoadReturnCodes(ReturnCodeInfo.Defaults()));
         LoadFromSettings();
         LoadCertificatesFromStore();
+
+        // A settings file that could not be parsed was set aside at startup; say so
+        // rather than letting the page look like a fresh install.
+        if (_svc.LoadError != null) SaveStatus = _svc.LoadError;
     }
 
     private void LoadFromSettings()
@@ -433,7 +437,7 @@ public sealed class SettingsViewModel : ObservableObject
             SelectedCodeSignCert = AvailableCertificates.FirstOrDefault(c => c.Thumbprint == CodeSignThumbprint);
     }
 
-    private async void SignIn()
+    private async Task SignInAsync()
     {
         SaveStatus = "Signing in…";
         try
@@ -462,7 +466,7 @@ public sealed class SettingsViewModel : ObservableObject
         }
     }
 
-    private async void SignOut()
+    private async Task SignOutAsync()
     {
         await _auth.SignOutAsync();
         IsSignedIn = false;
@@ -472,7 +476,7 @@ public sealed class SettingsViewModel : ObservableObject
         ConnectionOk = false;
     }
 
-    private async void TestConnection()
+    private async Task TestConnectionAsync()
     {
         ConnectionChecks.Clear();
         ConnectionOk = false;
@@ -560,7 +564,23 @@ public sealed class SettingsViewModel : ObservableObject
         s.IntuneDefaults.InformationUrl = DefaultInformationUrl.Trim();
         s.IntuneDefaults.DisplayNameTemplate = Fallback(DisplayNameTemplate, AppSettings.IntuneDefaultsConfig.DefaultDisplayNameTemplate);
 
-        _svc.Save();
-        SaveStatus = "Settings saved.";
+        TryPersist();
+    }
+
+    /// <summary>
+    /// Writes the settings file and reports what actually happened. Reporting success
+    /// unconditionally used to hide a failed write until the next launch lost the edits.
+    /// </summary>
+    private void TryPersist()
+    {
+        try
+        {
+            _svc.Save();
+            SaveStatus = "Settings saved.";
+        }
+        catch (Exception ex)
+        {
+            SaveStatus = $"Settings could not be saved: {ex.Message}";
+        }
     }
 }

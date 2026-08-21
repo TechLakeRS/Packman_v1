@@ -1,3 +1,4 @@
+using Packman.Helpers;
 using System.Diagnostics;
 using System.IO;
 using System.Management.Automation;
@@ -26,6 +27,10 @@ public class RemoteTestService
     // SCHED_S_TASK_HAS_NOT_RUN — the task exists but has never produced a result.
     private const int NeverRan = 267011;
 
+    /// <summary>The deployment verbs PSADT accepts.</summary>
+    public static readonly IReadOnlySet<string> DeploymentTypes =
+        new HashSet<string>(StringComparer.Ordinal) { "Install", "Uninstall", "Repair" };
+
     /// <summary>Exit codes PSADT/MSI treat as success; 3010 and 1641 mean "reboot required".</summary>
     public static bool IsSuccess(int exitCode) => exitCode is 0 or 3010 or 1641;
 
@@ -48,6 +53,10 @@ public class RemoteTestService
         if (!IsValidComputerName(computerName))
             throw new ArgumentException($"'{computerName}' is not a valid computer name", nameof(computerName));
 
+        // Goes straight onto the remote command line, so only the three PSADT verbs pass.
+        if (!DeploymentTypes.Contains(deploymentType))
+            throw new ArgumentException($"'{deploymentType}' is not a valid deployment type", nameof(deploymentType));
+
         output("========================================");
         output("Packman Remote Test (WinRM)");
         output("========================================");
@@ -61,28 +70,38 @@ public class RemoteTestService
             throw new DirectoryNotFoundException($"Source path not found: {sourcePath}");
 
         string relativeScriptPath;
-        if (File.Exists(Path.Combine(sourcePath, "Application", "Invoke-AppDeployToolkit.ps1")))
+        if (File.Exists(Path.Combine(sourcePath, "Application", PsadtLayout.ScriptName)))
         {
-            relativeScriptPath = @"Application\Invoke-AppDeployToolkit.ps1";
-            output("[OK] Found Invoke-AppDeployToolkit.ps1 in Application subfolder");
+            relativeScriptPath = $@"Application\{PsadtLayout.ScriptName}";
+            output($"[OK] Found {PsadtLayout.ScriptName} in Application subfolder");
         }
-        else if (File.Exists(Path.Combine(sourcePath, "Invoke-AppDeployToolkit.ps1")))
+        else if (File.Exists(Path.Combine(sourcePath, PsadtLayout.ScriptName)))
         {
-            relativeScriptPath = "Invoke-AppDeployToolkit.ps1";
-            output("[OK] Found Invoke-AppDeployToolkit.ps1 in root folder");
+            relativeScriptPath = PsadtLayout.ScriptName;
+            output($"[OK] Found {PsadtLayout.ScriptName} in root folder");
         }
         else
         {
-            throw new FileNotFoundException("Invoke-AppDeployToolkit.ps1 not found in package");
+            throw new FileNotFoundException($"{PsadtLayout.ScriptName} not found in package");
         }
 
+        // ICMP is only a hint - plenty of managed fleets block it while WinRM is open,
+        // so a failed ping is reported and the connection attempt still goes ahead.
         output($"Checking connectivity to {computerName}...");
         using (var ping = new Ping())
         {
-            if (ping.Send(computerName, 2000).Status != IPStatus.Success)
-                throw new InvalidOperationException($"{computerName} is not reachable");
+            try
+            {
+                var reply = ping.Send(computerName, 2000);
+                output(reply.Status == IPStatus.Success
+                    ? $"[OK] {computerName} responds to ping"
+                    : $"[--] {computerName} did not respond to ping ({reply.Status}) - trying WinRM anyway");
+            }
+            catch (PingException ex)
+            {
+                output($"[--] Ping failed ({ex.InnerException?.Message ?? ex.Message}) - trying WinRM anyway");
+            }
         }
-        output($"[OK] {computerName} is online");
 
         // Connect before the (expensive) copy so a target without WinRM fails fast.
         output($"Connecting to {computerName} via WinRM...");
@@ -107,9 +126,9 @@ public class RemoteTestService
         // re-run only copies what differs. Packages are laid out as
         // ...\Manufacturer_AppName\Version, so combine both for the name.
         var sourceDir = new DirectoryInfo(sourcePath);
-        string packageName = sourceDir.Parent?.Parent != null
+        string packageName = SanitiseFolderName(sourceDir.Parent?.Parent != null
             ? $"{sourceDir.Parent.Name}_{sourceDir.Name}"
-            : sourceDir.Name;
+            : sourceDir.Name);
         string remotePackagePath = $@"{RemoteBasePath}\{packageName}";
         string targetUnc = $@"\\{computerName}\C$\Temp\Packman\{packageName}";
 
@@ -250,7 +269,22 @@ public class RemoteTestService
     }
 
     /// <summary>Both values land inside single-quoted PowerShell strings, where '' is the escape.</summary>
-    private static string EscapeSingleQuoted(string value) => value.Replace("'", "''");
+    private static string EscapeSingleQuoted(string value) => PowerShellLiteral.SingleQuoted(value);
+
+    /// <summary>
+    /// The package folder name becomes part of a UNC path, a scheduled-task command line
+    /// and a robocopy /MIR destination, so anything that could redirect or break out of
+    /// those is replaced rather than escaped. /MIR deletes, so this must not be lenient.
+    /// </summary>
+    private static string SanitiseFolderName(string name)
+    {
+        var cleaned = new string(name
+            .Select(c => Path.GetInvalidFileNameChars().Contains(c) || c is '"' or '\'' or '%' or '$' or '`' ? '_' : c)
+            .ToArray())
+            .Trim().Trim('.');
+
+        return string.IsNullOrEmpty(cleaned) ? "Package" : cleaned;
+    }
 
     private static void CopyWithRobocopy(string source, string destination, Action<int?>? progress)
     {

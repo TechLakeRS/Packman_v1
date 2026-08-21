@@ -35,7 +35,7 @@ public sealed class ApplicationsViewModel : ObservableObject
     public ObservableCollection<string> UpdatedWindows { get; } =
         new(UpdatedWindowChoices.Select(w => w.Label));
 
-    public RelayCommand RefreshCommand { get; }
+    public AsyncRelayCommand RefreshCommand { get; }
     public RelayCommand NextPageCommand { get; }
     public RelayCommand PrevPageCommand { get; }
     public RelayCommand<IntuneApplication> OpenCommand { get; }
@@ -55,7 +55,7 @@ public sealed class ApplicationsViewModel : ObservableObject
 
     public ApplicationsViewModel()
     {
-        RefreshCommand = new RelayCommand(async () => await LoadAsync(force: true), () => !IsLoading);
+        RefreshCommand = new AsyncRelayCommand(() => LoadAsync(force: true), () => !IsLoading);
         NextPageCommand = new RelayCommand(() => GoToPage(_currentPage + 1), () => CanNext);
         PrevPageCommand = new RelayCommand(() => GoToPage(_currentPage - 1), () => CanPrev);
         OpenCommand = new RelayCommand<IntuneApplication>(app => { if (app != null) OpenRequested?.Invoke(app); });
