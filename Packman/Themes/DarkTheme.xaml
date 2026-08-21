@@ -11,6 +11,8 @@
     <!-- Content surface: nearly opaque so text on it stays readable over Mica. -->
     <Color x:Key="SurfaceColor">#D9202020</Color>
     <Color x:Key="PaneColor">#00000000</Color>
+    <!-- Flyouts float over arbitrary content, so this one stays opaque. -->
+    <Color x:Key="FlyoutColor">#2C2C2C</Color>
     <Color x:Key="CardColor">#0FFFFFFF</Color>
     <Color x:Key="Card2Color">#0AFFFFFF</Color>
     <Color x:Key="RailColor">#0AFFFFFF</Color>
@@ -73,6 +75,7 @@
     <SolidColorBrush x:Key="ShellBrush" Color="{StaticResource ShellColor}"/>
     <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
     <SolidColorBrush x:Key="PaneBrush" Color="{StaticResource PaneColor}"/>
+    <SolidColorBrush x:Key="FlyoutBrush" Color="{StaticResource FlyoutColor}"/>
     <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}"/>
     <SolidColorBrush x:Key="Card2Brush" Color="{StaticResource Card2Color}"/>
     <SolidColorBrush x:Key="RailBrush" Color="{StaticResource RailColor}"/>

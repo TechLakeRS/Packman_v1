@@ -136,7 +136,7 @@
 
             <!-- Generation status -->
             <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-                <Rectangle Width="6" Height="6" VerticalAlignment="Center">
+                <Rectangle Width="6" Height="6" RadiusX="3" RadiusY="3" VerticalAlignment="Center">
                     <Rectangle.Style>
                         <Style TargetType="Rectangle">
                             <Setter Property="Fill" Value="{DynamicResource MarkBrush}"/>
@@ -227,7 +227,7 @@
 
                     <Border Background="{DynamicResource RailBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                             Padding="14,12" Margin="0,12,0,0"
-                            Visibility="{Binding Upgrade.HasLoadedPackage, Converter={StaticResource BoolToVis}}">
+                            Visibility="{Binding Upgrade.HasLoadedPackage, Converter={StaticResource BoolToVis}}" CornerRadius="4">
                         <StackPanel>
                             <TextBlock Text="{Binding Upgrade.PackageDisplayName}" FontSize="12.5" FontWeight="SemiBold"
                                        Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"/>
@@ -272,7 +272,7 @@
             </Border>
 
             <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-                <Rectangle Width="6" Height="6" VerticalAlignment="Center" Fill="{DynamicResource MarkBrush}"/>
+                <Rectangle Width="6" Height="6" RadiusX="3" RadiusY="3" VerticalAlignment="Center" Fill="{DynamicResource MarkBrush}"/>
                 <TextBlock Text="{Binding Upgrade.StatusText}" Margin="10,0,0,0" VerticalAlignment="Center"
                            FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" LineHeight="17"
                            Foreground="{DynamicResource Muted2Brush}" TextWrapping="Wrap"/>

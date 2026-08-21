@@ -159,7 +159,7 @@
                                             <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                                                     CornerRadius="4" Padding="12,6" Margin="0,0,8,8">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Rectangle Width="6" Height="6" VerticalAlignment="Center">
+                                                    <Rectangle Width="6" Height="6" RadiusX="3" RadiusY="3" VerticalAlignment="Center">
                                                         <Rectangle.Style>
                                                             <Style TargetType="Rectangle">
                                                                 <Setter Property="Fill" Value="{DynamicResource Muted2Brush}"/>
@@ -341,9 +341,8 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding Detail.InstallCommand}" Foreground="{DynamicResource CodeTxtBrush}"
                                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                                        <Button Grid.Column="1" Content="Copy" Click="CopyInstall_Click" Cursor="Hand" Margin="10,0,0,0" VerticalAlignment="Center"
-                                                Background="Transparent" BorderBrush="#26FFFFFF" BorderThickness="1" Padding="10,3"
-                                                Foreground="{DynamicResource CodeBarTxtBrush}" FontSize="11.5" FontWeight="SemiBold"/>
+                                        <Button Grid.Column="1" Style="{StaticResource MiniButton}" Content="Copy" Click="CopyInstall_Click"
+                                                Margin="10,0,0,0" VerticalAlignment="Center"/>
                                     </Grid>
                                 </Border>
                                 <TextBlock Text="Uninstall command" Style="{StaticResource FieldLabel}" Margin="0,14,0,6"/>
@@ -355,9 +354,8 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding Detail.UninstallCommand}" Foreground="{DynamicResource CodeTxtBrush}"
                                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                                        <Button Grid.Column="1" Content="Copy" Click="CopyUninstall_Click" Cursor="Hand" Margin="10,0,0,0" VerticalAlignment="Center"
-                                                Background="Transparent" BorderBrush="#26FFFFFF" BorderThickness="1" Padding="10,3"
-                                                Foreground="{DynamicResource CodeBarTxtBrush}" FontSize="11.5" FontWeight="SemiBold"/>
+                                        <Button Grid.Column="1" Style="{StaticResource MiniButton}" Content="Copy" Click="CopyUninstall_Click"
+                                                Margin="10,0,0,0" VerticalAlignment="Center"/>
                                     </Grid>
                                 </Border>
                             </StackPanel>
@@ -566,7 +564,7 @@
                                             <Button Click="GroupRow_Click" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="View members">
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
-                                                        <Border x:Name="rb" Background="Transparent" BorderBrush="{DynamicResource Line2Brush}" BorderThickness="0,0,0,1" CornerRadius="4">
+                                                        <Border x:Name="rb" Background="Transparent" BorderBrush="{DynamicResource Line2Brush}" BorderThickness="0,0,0,1">
                                                             <ContentPresenter/>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
@@ -762,7 +760,7 @@
             MouseLeftButtonDown="FlyoutBackdrop_MouseDown"/>
     <Border HorizontalAlignment="Right" Width="360" Background="{DynamicResource CardBrush}"
             BorderBrush="{DynamicResource LineBrush}" BorderThickness="1,0,0,0"
-            Visibility="{Binding IsFlyoutOpen, Converter={StaticResource BoolToVis}}">
+            Visibility="{Binding IsFlyoutOpen, Converter={StaticResource BoolToVis}}" CornerRadius="4">
         <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

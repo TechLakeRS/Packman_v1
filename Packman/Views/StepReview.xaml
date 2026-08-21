@@ -24,9 +24,9 @@
             </DockPanel>
 
             <!-- App summary strip -->
-            <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" Padding="0">
+            <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" Padding="0" CornerRadius="4">
                 <Grid>
-                    <Border Width="2" HorizontalAlignment="Left" Background="{DynamicResource PrimaryBrush}"/>
+                    <Border Width="3" HorizontalAlignment="Left" CornerRadius="4,0,0,4" Background="{DynamicResource PrimaryBrush}"/>
                     <DockPanel Margin="16,14">
                         <TextBlock DockPanel.Dock="Right" Text="{Binding Upload.ReviewSize}" VerticalAlignment="Center"
                                    FontFamily="{StaticResource MonoFontFamily}" FontSize="11" Foreground="{DynamicResource DimBrush}"/>
@@ -79,7 +79,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Background="{DynamicResource PrimaryDimBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1"
-                                Padding="11,6" Margin="0,0,8,8">
+                                Padding="11,6" Margin="0,0,8,8" CornerRadius="4">
                             <TextBlock Text="{Binding ChipText}" FontSize="12.5" Foreground="{DynamicResource InkBrush}"
                                        VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                         </Border>
@@ -104,14 +104,14 @@
             <!-- Sign-in state -->
             <Border BorderBrush="{DynamicResource WarnLineBrush}" BorderThickness="2,0,0,0" Background="{DynamicResource CardBrush}"
                     Padding="13,10" Margin="0,20,0,0"
-                    Visibility="{Binding Upload.IsNotSignedIn, Converter={StaticResource BoolToVis}}">
+                    Visibility="{Binding Upload.IsNotSignedIn, Converter={StaticResource BoolToVis}}" CornerRadius="4">
                 <TextBlock FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" Foreground="{DynamicResource WarnBrush}" TextWrapping="Wrap"
                            Text="Not signed in to Intune. Open Settings and sign in before uploading."/>
             </Border>
 
             <StackPanel Orientation="Horizontal" Margin="0,20,0,0"
                         Visibility="{Binding Upload.IsSignedIn, Converter={StaticResource BoolToVis}}">
-                <Rectangle Width="6" Height="6" Fill="{DynamicResource OkBrush}" VerticalAlignment="Center"/>
+                <Rectangle Width="6" Height="6" RadiusX="3" RadiusY="3" Fill="{DynamicResource OkBrush}" VerticalAlignment="Center"/>
                 <TextBlock Margin="9,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"
                            FontFamily="{StaticResource MonoFontFamily}" FontSize="11.5" Foreground="{DynamicResource Muted2Brush}">
                     <Run Text="Signed in as"/>
@@ -227,28 +227,25 @@
                 </StackPanel>
 
                 <!-- Progress rail -->
-                <Border Height="3" Background="{DynamicResource Line2Brush}" Margin="0,16,0,0">
-                    <ProgressBar Minimum="0" Maximum="100" Value="{Binding Upload.ProgressValue}" BorderThickness="0"
-                                 Background="Transparent" Foreground="{DynamicResource PrimaryBrush}">
-                        <ProgressBar.Style>
-                            <Style TargetType="ProgressBar">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Upload.IsSucceeded}" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource OkBrush}"/>
-                                        <Setter Property="Value" Value="100"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Upload.IsFailed}" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource BadBrush}"/>
-                                        <Setter Property="Value" Value="100"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ProgressBar.Style>
-                    </ProgressBar>
-                </Border>
+                <ProgressBar Minimum="0" Maximum="100" Value="{Binding Upload.ProgressValue}" Margin="0,16,0,0">
+                    <ProgressBar.Style>
+                        <Style TargetType="ProgressBar" BasedOn="{StaticResource {x:Type ProgressBar}}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Upload.IsSucceeded}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource OkBrush}"/>
+                                    <Setter Property="Value" Value="100"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Upload.IsFailed}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource BadBrush}"/>
+                                    <Setter Property="Value" Value="100"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ProgressBar.Style>
+                </ProgressBar>
 
                 <!-- Step list -->
-                <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" Margin="0,16,0,0">
+                <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" Margin="0,16,0,0" CornerRadius="4">
                     <ItemsControl ItemsSource="{Binding Upload.PublishSteps}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>

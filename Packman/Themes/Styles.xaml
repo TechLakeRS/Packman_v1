@@ -4,11 +4,15 @@
 
     <!-- ═══════════════ Type ═══════════════ -->
     <!-- Windows 11 type ramp: Segoe UI Variable for UI, Cascadia for anything
-         that has to line up in columns. The bundled Fonts/ faces stay as the
-         fallback for machines without the variable family. -->
-    <FontFamily x:Key="UIFontFamily">Segoe UI Variable Text, Segoe UI, pack://application:,,,/Fonts/#Instrument Sans</FontFamily>
-    <FontFamily x:Key="MonoFontFamily">Cascadia Mono, Consolas, pack://application:,,,/Fonts/#JetBrains Mono</FontFamily>
-    <FontFamily x:Key="LabelFontFamily">Segoe UI Variable Small, Segoe UI, pack://application:,,,/Fonts/#Martian Mono</FontFamily>
+         that has to line up in columns, with the bundled Fonts/ faces last so
+         machines without either still render the design.
+         The pack URI has to lead: everything after the '#' is the fallback
+         list, and names missing from Fonts/ resolve against installed fonts.
+         A pack URI placed later in the list cannot parse — its own commas
+         split it into junk family names. -->
+    <FontFamily x:Key="UIFontFamily">pack://application:,,,/Fonts/#Segoe UI Variable Text, Segoe UI, Instrument Sans</FontFamily>
+    <FontFamily x:Key="MonoFontFamily">pack://application:,,,/Fonts/#Cascadia Mono, Consolas, JetBrains Mono</FontFamily>
+    <FontFamily x:Key="LabelFontFamily">pack://application:,,,/Fonts/#Segoe UI Variable Small, Segoe UI, Martian Mono</FontFamily>
 
     <!-- ═══════════════ Focus ═══════════════ -->
     <!-- Keyboard focus is an accent hairline. Drawn as an adorner so it never
@@ -271,6 +275,20 @@
         <Setter Property="Padding" Value="12,8"/>
     </Style>
 
+    <!-- Compact pair for editor toolbars and code rows, where a 34px button
+         would tower over the line it sits on. -->
+    <Style x:Key="MiniButton" TargetType="{x:Type Button}" BasedOn="{StaticResource GhostButton}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="Padding" Value="11,4"/>
+    </Style>
+
+    <Style x:Key="MiniPrimaryButton" TargetType="{x:Type Button}" BasedOn="{StaticResource PrimaryButton}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="Padding" Value="12,4"/>
+    </Style>
+
     <!-- Optional-tool card: a panel whose left edge lights up on hover. -->
     <Style x:Key="ToolCard" TargetType="{x:Type Button}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
@@ -428,7 +446,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type RadioButton}">
-                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="3" Padding="{TemplateBinding Padding}">
                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -451,7 +469,7 @@
     <Style x:Key="SegmentGroup" TargetType="{x:Type Border}">
         <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="CornerRadius" Value="5"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
     </Style>
 
@@ -497,6 +515,9 @@
 
     <!-- ═══════════════ ComboBox ═══════════════ -->
     <Style TargetType="{x:Type ComboBoxItem}">
+        <!-- The highlight already says where focus is; the stock dotted rectangle
+             just adds noise inside the flyout. -->
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="FontFamily" Value="{StaticResource UIFontFamily}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -505,7 +526,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ComboBoxItem}">
-                    <Border x:Name="bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                    <Border x:Name="bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
+                            CornerRadius="4" Margin="4,1">
                         <ContentPresenter/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -550,9 +572,10 @@
                                                   Content="{TemplateBinding SelectionBoxItem}"
                                                   ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                                   VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="&#x25BE;" FontFamily="{StaticResource MonoFontFamily}" FontSize="10"
-                                           Foreground="{DynamicResource Dim2Brush}"
-                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <Viewbox Grid.Column="1" Width="11" Height="11" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Path Data="M4 8l6 6 6-6" Stroke="{DynamicResource Dim2Brush}" StrokeThickness="1.8"
+                                          Fill="Transparent" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                </Viewbox>
                                 <ToggleButton Grid.ColumnSpan="2" Background="Transparent" BorderThickness="0"
                                              IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ToggleButton.Template>
@@ -565,8 +588,10 @@
                         </Border>
                         <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
                                Placement="Bottom" PopupAnimation="Fade">
-                            <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource Edge2Brush}"
-                                    BorderThickness="1" CornerRadius="4" Margin="0,2,0,0"
+                            <!-- FlyoutBrush, not CardBrush: this floats over arbitrary
+                                 content, and the card layers are translucent. -->
+                            <Border Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource Edge2Brush}"
+                                    BorderThickness="1" CornerRadius="8" Margin="0,2,0,0" Padding="0,4"
                                     MinWidth="{TemplateBinding ActualWidth}">
                                 <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto">
                                     <ItemsPresenter/>
@@ -652,7 +677,7 @@
 
     <Style x:Key="PillCount" TargetType="{x:Type Border}">
         <Setter Property="Background" Value="{DynamicResource Line2Brush}"/>
-        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="CornerRadius" Value="9"/>
         <Setter Property="Padding" Value="5,1"/>
         <Setter Property="Margin" Value="7,0,0,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -802,30 +827,32 @@
         <Setter Property="Padding" Value="12,10"/>
     </Style>
 
-    <!-- ═══════════════ Scrollbar ═══════════════ -->
-    <Style TargetType="{x:Type ScrollBar}">
-        <Setter Property="Width" Value="8"/>
-        <Setter Property="Background" Value="Transparent"/>
+    <!-- ═══════════════ Progress ═══════════════ -->
+    <!-- A 4px rail with fully rounded ends. Without this the two progress bars
+         in the app fall through to the stock Windows template, which brings its
+         own blue with it. -->
+    <Style TargetType="{x:Type ProgressBar}">
+        <Setter Property="Height" Value="4"/>
+        <Setter Property="Background" Value="{DynamicResource EdgeBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ScrollBar}">
-                    <Grid Background="Transparent">
-                        <Track x:Name="PART_Track" IsDirectionReversed="True">
-                            <Track.Thumb>
-                                <Thumb>
-                                    <Thumb.Template>
-                                        <ControlTemplate TargetType="{x:Type Thumb}">
-                                            <Border Background="{DynamicResource EdgeBrush}" CornerRadius="4" Margin="2,0"/>
-                                        </ControlTemplate>
-                                    </Thumb.Template>
-                                </Thumb>
-                            </Track.Thumb>
-                        </Track>
+                <ControlTemplate TargetType="{x:Type ProgressBar}">
+                    <Grid>
+                        <Border Background="{TemplateBinding Background}" CornerRadius="2"/>
+                        <!-- PART_Track measures the span the indicator is sized against. -->
+                        <Border x:Name="PART_Track"/>
+                        <Border x:Name="PART_Indicator" HorizontalAlignment="Left" CornerRadius="2"
+                                Background="{TemplateBinding Foreground}"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- ═══════════════ Scrollbar ═══════════════ -->
+    <!-- Left to WPF UI: its ScrollBar is the Fluent overlay rail that thickens
+         on hover, which the hand-rolled template here never matched. -->
 
 </ResourceDictionary>

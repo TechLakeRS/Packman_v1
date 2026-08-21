@@ -179,20 +179,19 @@
                                     </ItemsControl>
                                 </ScrollViewer>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button x:Name="DiskChangedButton" Content="Changed on disk — reload" Click="Reload_Click" Cursor="Hand"
-                                            Visibility="Collapsed" Background="#332F8AC9" BorderBrush="#7338BDF8" BorderThickness="1" Padding="9,3"
-                                            Foreground="#8FD3FA" FontSize="11" FontWeight="SemiBold" Margin="0,0,8,0"
+                                    <Button x:Name="DiskChangedButton" Style="{StaticResource MiniButton}"
+                                            Content="Changed on disk — reload" Click="Reload_Click"
+                                            Visibility="Collapsed" Margin="0,0,8,0"
+                                            Background="{DynamicResource WarnSoftBrush}" BorderBrush="{DynamicResource WarnLineBrush}"
+                                            Foreground="{DynamicResource WarnBrush}"
                                             ToolTip="This file was modified outside Packman"/>
-                                    <Button x:Name="ReloadButton" Content="Reload" Click="Reload_Click" Cursor="Hand"
-                                            Background="Transparent" BorderBrush="#26FFFFFF" BorderThickness="1" Padding="10,3"
-                                            Foreground="{DynamicResource CodeBarTxtBrush}" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,6,0"
+                                    <Button x:Name="ReloadButton" Style="{StaticResource MiniButton}"
+                                            Content="Reload" Click="Reload_Click" Margin="0,0,6,0"
                                             ToolTip="Re-read this file from disk"/>
-                                    <Button x:Name="RevertButton" Content="Revert" Click="Revert_Click" Cursor="Hand" IsEnabled="False"
-                                            Background="Transparent" BorderBrush="#26FFFFFF" BorderThickness="1" Padding="10,3"
-                                            Foreground="{DynamicResource CodeBarTxtBrush}" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,6,0"/>
-                                    <Button x:Name="SaveButton" Content="Save" Click="Save_Click" Cursor="Hand" IsEnabled="False"
-                                            Background="{DynamicResource PrimaryBrush}" BorderThickness="0" Padding="12,3"
-                                            Foreground="White" FontSize="11.5" FontWeight="SemiBold" ToolTip="Save (Ctrl+S)"/>
+                                    <Button x:Name="RevertButton" Style="{StaticResource MiniButton}"
+                                            Content="Revert" Click="Revert_Click" IsEnabled="False" Margin="0,0,6,0"/>
+                                    <Button x:Name="SaveButton" Style="{StaticResource MiniPrimaryButton}"
+                                            Content="Save" Click="Save_Click" IsEnabled="False" ToolTip="Save (Ctrl+S)"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -218,6 +217,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock x:Name="StatusPosition" Text="Ln 1, Col 1" FontSize="11" Foreground="{DynamicResource CodeBarTxtBrush}"/>
                                     <TextBlock x:Name="StatusSelection" Text="" Margin="12,0,0,0" FontSize="11" Foreground="{DynamicResource CodeBarTxtBrush}"/>
+                                    <TextBlock x:Name="StatusProblems" Text="" Margin="12,0,0,0" FontSize="11" Foreground="{DynamicResource CodeBarTxtBrush}"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <TextBlock x:Name="StatusEol" Text="CRLF" FontSize="11" Foreground="{DynamicResource CodeBarTxtBrush}"/>

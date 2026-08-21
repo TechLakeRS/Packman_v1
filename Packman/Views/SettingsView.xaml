@@ -101,7 +101,7 @@
         <!-- ══ First-run setup banner ═══════════════════════════════════ -->
         <Border x:Name="FirstRunBanner" Background="{DynamicResource WarnSoftBrush}"
                 BorderBrush="{DynamicResource WarnBrush}" BorderThickness="2,0,0,0"
-                Padding="12,11" Margin="0,16,0,0">
+                Padding="12,11" Margin="0,16,0,0" CornerRadius="4">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -204,13 +204,13 @@
                                         <!-- Not signed in status -->
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0"
                                                     Visibility="{Binding IsNotSignedIn, Converter={StaticResource BoolToVis}}">
-                                            <Rectangle Width="6" Height="6" Fill="{DynamicResource MarkBrush}" Margin="0,0,8,0"/>
+                                            <Rectangle Width="6" Height="6" RadiusX="3" RadiusY="3" Fill="{DynamicResource MarkBrush}" Margin="0,0,8,0"/>
                                             <TextBlock Text="Not signed in" FontSize="12.5" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <!-- Signed in status -->
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0"
                                                     Visibility="{Binding IsSignedIn, Converter={StaticResource BoolToVis}}">
-                                            <Rectangle Width="6" Height="6" Fill="{DynamicResource OkBrush}" Margin="0,0,8,0"/>
+                                            <Rectangle Width="6" Height="6" RadiusX="3" RadiusY="3" Fill="{DynamicResource OkBrush}" Margin="0,0,8,0"/>
                                             <TextBlock Text="{Binding SignedInUser}" FontSize="12.5" Foreground="{DynamicResource OkBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                         <!-- Sign in button -->
@@ -356,7 +356,7 @@
                                             <DataTemplate>
                                                 <Grid Margin="0,3">
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                                        <Rectangle Width="6" Height="6" VerticalAlignment="Center" Margin="0,0,9,0">
+                                                        <Rectangle Width="6" Height="6" RadiusX="3" RadiusY="3" VerticalAlignment="Center" Margin="0,0,9,0">
                                                             <Rectangle.Style>
                                                                 <Style TargetType="Rectangle">
                                                                     <Setter Property="Fill" Value="{DynamicResource BadBrush}"/>
